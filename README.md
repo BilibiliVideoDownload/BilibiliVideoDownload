@@ -3,8 +3,8 @@
 
 v1.0.0
 ## 演示
-![图片1](http://ww1.sinaimg.cn/large/005LOKa8ly1fkpsodp8n1j30q60h5gnx.jpg)
-![图片2](http://ww1.sinaimg.cn/large/005LOKa8ly1fkpsodox3ej30gk0d9abj.jpg)
+![图片1](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/1.png)
+![图片2](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/2.png)
 ## 演示地址
 [点击查看](http://bt720p.com/bilibili/)
 ## 实现的功能
