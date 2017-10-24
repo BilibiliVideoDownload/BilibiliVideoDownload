@@ -1,13 +1,24 @@
-# BilibiliVideoDownload
+### BilibiliVideoDownload
+----
 基于bootstrap + jq 的单网页，可以下载bilibili视频
+### 版本
+----
+v1.0.1 `2017-10-24`
 
-v1.0.0
-## 演示
+优化了视频封面的获取方法
+
+v1.0.0 `2017-10-21`
+
+实现了基本功能
+### 演示
+----
 ![图片1](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/1.png)
 ![图片2](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/2.png)
-## 演示地址
+### 演示地址
+----
 [点击查看](http://bt720p.com/bilibili/)
-## 实现的功能
+### 实现的功能
+----
 1. 获取视频直链
 2. 获取视频大小和时长
 3. 获取视频封面
@@ -17,7 +28,8 @@ v1.0.0
 1. 由于使用了国外（Images.weserv.nl）的图片缓存代理，封面获取较慢。用图片缓存代理是为了突破b站视频封面域名限制，直接调用会出现403
 2. 不支持分p获取下载链接，如有分p直链为p1，我会在下一个版本添加分p下载功能
 3. 暂时没发现
-## 感谢
+### 感谢
+----
 1.⑨BiLiBiLi 第三方哔哩哔哩API提供平台
 
 [http://9bl.bakayun.cn/](http://9bl.bakayun.cn/)

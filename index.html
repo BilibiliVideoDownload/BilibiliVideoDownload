@@ -73,7 +73,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="videoimg col-md-4 col-xs-4">
-                            <img src="img/img.jpg" alt="" id="videoimgs" style="width: 100%">
+                            <img src="img/loading.gif" alt="" id="videoimgs" style="width: 100%">
                         </div>
                         <div class="videocontent col-md-8 col-xs-8">
                             <p class="ellipsis" id="videotit" style="font-weight: bold">视频标题视频标题视频标题视频标题视频标题视频标题</p>
@@ -157,7 +157,7 @@
                     upname = da.Result.UserInfo.Username,
                     videoimg = da.Result.VideoInfo.PicUrl,
                     videotit = da.Result.VideoInfo.Title;
-                var realimg = 'https://images.weserv.nl/?url=' + videoimg.replace(/http:\/\//,'');
+                var realimg = 'https://images.weserv.nl/?url=' + videoimg.replace(/http\:/,'') + '&w=218&h=135';
                 $('#videoimgs').attr({src : realimg,alt : videotit});
                 $('#videotit').html(videotit);
                 $('#upname').html(upname);
