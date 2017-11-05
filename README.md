@@ -3,6 +3,12 @@
 基于bootstrap + jq 的单网页，可以下载bilibili视频
 ### 版本
 ----
+v1.1.0 `2017-11-05`
+
+实现分P下载
+
+注：由于api请求限制，目前只可以手动输入分p数获取分p下载链接。分p数为阿拉伯数字
+
 v1.0.1 `2017-10-24`
 
 优化了视频封面的获取方法
@@ -14,6 +20,8 @@ v1.0.0 `2017-10-21`
 ----
 ![图片1](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/1.png)
 ![图片2](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/2.png)
+![图片3](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/3.png)
+![图片4](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/4.png)
 ### 演示地址
 ----
 [点击查看](http://bt720p.com/bilibili/)
@@ -24,10 +32,10 @@ v1.0.0 `2017-10-21`
 3. 获取视频封面
 4. 获取视频标题up主名字
 5. 支持移动端
+1. 获取分p下载链接
 ## 已知的问题
 1. 由于使用了国外（Images.weserv.nl）的图片缓存代理，封面获取较慢。用图片缓存代理是为了突破b站视频封面域名限制，直接调用会出现403
-2. 不支持分p获取下载链接，如有分p直链为p1，我会在下一个版本添加分p下载功能
-3. 暂时没发现
+2. 暂时没发现
 ### 感谢
 ----
 1.⑨BiLiBiLi 第三方哔哩哔哩API提供平台

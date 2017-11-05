@@ -8,46 +8,8 @@
     <meta name="renderer" content="webkit">
     <title>哔哩哔哩-视频下载</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/main.css">
     <link rel="Shortcut Icon" href="img/websitlogo.ico">
-    <style>
-        html,body{
-            height: 100%;
-        }
-        body{
-            background: url("img/timg.jpg");
-        }
-        .ellipsis {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .ellipsis-2 {
-            display: -webkit-box;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: normal!important;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical
-        }
-        .container-fluid{
-            width: 100%;
-            height: 100%;
-        }
-        .oform{
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            -moz-transform: translate(-50%,-100%);
-            -webkit-transform: translate(-50%,-100%);
-            -o-transform: translate(-50%,-100%);
-            -ms-transform: translate(-50%,-100%);
-            transform: translate(-50%,-100%);
-        }
-        .fontcolor{
-            color: #337ab7;
-        }
-    </style>
 </head>
 <body>
 <div class="container-fluid row">
@@ -59,11 +21,29 @@
             <input type="text" class="form-control" id="aid" placeholder="复制AV号到此">
         </div>
         <div class="form-group">
-            <button type="button" class="btn btn-primary" id="btn" data-toggle="modal" data-target="#myModal">点击下载</button>
+            <button type="button" class="btn btn-primary" id="btn" data-toggle="modal" data-target="">点击下载</button>
         </div>
     </form>
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <!-- 分P modal -->
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" id="morep" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">这是个分P视频，请输入分P号</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="pcount">
+                    </div>
+                    <button type="button" class="btn btn-primary" id="moreplink" data-toggle="modal" data-target="#singlep">获取链接</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 分P modal end-->
+    <!-- 单个Modal -->
+    <div class="modal fade" id="singlep" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -77,45 +57,58 @@
                         </div>
                         <div class="videocontent col-md-8 col-xs-8">
                             <p class="ellipsis" id="videotit" style="font-weight: bold">视频标题视频标题视频标题视频标题视频标题视频标题</p>
-                            <p>UP: <span id="upname" class="fontcolor">名字</span></p>
+                            <p>UP: <a id="upname" class="fontcolor" href="http://www.baidu.com">名字</a></p>
                             <p>
                                 <span class="glyphicon glyphicon-film" aria-hidden="true"></span>
                                 <span id="videosize" class="fontcolor">132</span>&nbsp;&nbsp;
                                 <span class="glyphicon glyphicon-time" aria-hidden="true"></span>
-                                <span id="videotime" class="fontcolor">321</span>
+                                <span id="videotime" class="fontcolor">321</span>&nbsp;&nbsp;
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                <span id="videoformat" class="fontcolor">321</span>
+
                             </p>
                         </div>
-                        <div class="col-md-12" style="margin-top: 10px">
-                            <p style="font-weight: bold">下载地址：</p>
-                        </div>
                         <div class="col-md-12">
-                            <div class="input-group">
-                                <input type="text" id="copytext" class="form-control" placeholder="">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" data-clipboard-action="copy" data-clipboard-target="#copytext" id="copybtn"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-12" style="margin-top: 10px">
-                            <p style="font-weight: bold">备用地址1：</p>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <input type="text" id="copytext1" class="form-control" placeholder="">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" data-clipboard-action="copy" data-clipboard-target="#copytext1" id="copybtn1"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-12" style="margin-top: 10px">
-                            <p style="font-weight: bold">备用地址2：</p>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <input type="text" id="copytext2" class="form-control" placeholder="">
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button" data-clipboard-action="copy" data-clipboard-target="#copytext2" id="copybtn2"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
-                                </span>
+                            <div id="downlaod">
+                                <div>
+                                    <div style="margin-top: 10px">
+                                        <p style="font-weight: bold">下载地址：</p>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <input type="text" id="copytext" class="form-control" placeholder="">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" data-clipboard-action="copy" data-clipboard-target="#copytext" id="copybtn"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="margin-top: 10px">
+                                        <p style="font-weight: bold">备用地址1：</p>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <input type="text" id="copytext1" class="form-control" placeholder="">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" data-clipboard-action="copy" data-clipboard-target="#copytext1" id="copybtn1"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="margin-top: 10px">
+                                        <p style="font-weight: bold">备用地址2：</p>
+                                    </div>
+                                    <div>
+                                        <div class="input-group">
+                                            <input type="text" id="copytext2" class="form-control" placeholder="">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" data-clipboard-action="copy" data-clipboard-target="#copytext2" id="copybtn2"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -126,72 +119,12 @@
             </div>
         </div>
     </div>
+    <!-- Modal end-->
+
 </div>
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/clipboard.min.js"></script>
-<script>
-    //初始化模态框
-    $('#myModal').on('shown.bs.modal', function () {
-        $('#myInput').focus();
-    });
-    // 复制链接
-    var clipboard = new Clipboard('.btn');
-
-    clipboard.on('success', function(e) {
-        console.log(e);
-    });
-
-    clipboard.on('error', function(e) {
-        console.log(e);
-    });
-    //获取数据
-    $('#btn').on("click",function (e) {
-        e.preventDefault();
-        $.ajax({
-            type : 'get',
-            url : 'http://9bl.bakayun.cn/API/GetVideoInfo.php?callback=fn&aid='+ $('#aid').val() +'&p=1&type=jsonp',
-            dataType : 'jsonp',
-            success : function (da) {
-                var cid = da.Result.VideoInfo.Cid,
-                    upname = da.Result.UserInfo.Username,
-                    videoimg = da.Result.VideoInfo.PicUrl,
-                    videotit = da.Result.VideoInfo.Title;
-                var realimg = 'https://images.weserv.nl/?url=' + videoimg.replace(/http\:/,'') + '&w=218&h=135';
-                $('#videoimgs').attr({src : realimg,alt : videotit});
-                $('#videotit').html(videotit);
-                $('#upname').html(upname);
-                $.ajax({
-                    type : 'get',
-                    url : 'http://9bl.bakayun.cn/API/GetVideoUrl.php?callback=fn&cid=' + cid + '&type=jsonp&quality=2',
-                    dataType : 'jsonp',
-                    success : function (data) {
-                        var maindownurl = data.Result.Url.Main,
-                            backupdown = data.Result.Url.Backup,
-                            videotime = data.Result.Url.TimeLength,
-                            videosize = data.Result.Url.FileSize;
-                        $('#videosize').html((videosize/1048576).toFixed(2) + 'mb');
-                        $('#videotime').html((videotime/60000).toFixed(2) + 'min');
-                        $('#copytext').val(maindownurl);
-                        if (backupdown.length == 2){
-                            $('#copytext1').val(backupdown[0]);
-                            $('#copytext2').val(backupdown[1]);
-                        }
-                        if (backupdown.length == 1){
-                            $('#copytext1').val(backupdown[0]);
-                            $('#copytext2').val('无');
-                        }
-                    },
-                    error : function () {
-                        alert('获取下载链接出错');
-                    }
-                });
-            },
-            error : function () {
-                alert('获取cid失败');
-            }
-        });
-    });
-</script>
+<script src="js/main.js"></script>
 </body>
 </html>
