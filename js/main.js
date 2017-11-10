@@ -105,9 +105,11 @@
                 var maindownurl = data.Result.Url.Main,
                     backupdown = data.Result.Url.Backup,
                     videotime = data.Result.Url.TimeLength,
-                    videosize = data.Result.Url.FileSize;
+                    videosize = data.Result.Url.FileSize,
+                    videoformat = data.Result.Info.Format;
                 $('#videosize').html((videosize/1048576).toFixed(2) + 'mb');
                 $('#videotime').html((videotime/60000).toFixed(2) + 'min');
+                $('#videoformat').html(videoformat.toUpperCase());
                 $('#copytext').val(maindownurl);
                 if (backupdown.length == 2){
                     $('#copytext1').val(backupdown[0]);
