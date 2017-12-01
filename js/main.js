@@ -21,6 +21,7 @@
         console.log(e);
     });
 //获取数据
+// http://api.bilibili.com/view?type=jsonp&appkey=8e9fc618fbd41e28&id=16832727&page=1&callback=fn
     $('#btn').on("click",function (e) {
         e.preventDefault();
         if ($('#aid').val()){
@@ -53,14 +54,14 @@
             e.preventDefault();
             $.ajax({
                 type : 'get',
-                url : `http://9bl.bakayun.cn/API/GetVideoInfo.php?callback=fn&aid=${ $('#aid').val() }&p=1&type=jsonp`,
+                url : `http://api.bilibili.com/view?type=jsonp&appkey=8e9fc618fbd41e28&id=${ $('#aid').val() }&page=1&callback=fn`,
                 dataType : 'jsonp',
                 success : function (da) {
-                    var UserId = da.Result.UserInfo.UserId,
-                        videotit = da.Result.VideoInfo.Title,
-                        upname = da.Result.UserInfo.Username,
-                        videoimg = da.Result.VideoInfo.PicUrl;
-                    var realimg = 'https://images.weserv.nl/?url=' + videoimg.replace(/http\:/,'') + '&w=218&h=135';
+                    var UserId = da.mid,
+                        videotit = da.title,
+                        upname = da.author,
+                        videoimg = da.pic;
+                    var realimg = 'https://images.weserv.nl/?url=' + videoimg.replace(/https\:/,'') + '&w=218&h=135';
                     var uplink = `https://space.bilibili.com/${ UserId }/#!/`;
                     $('#videotit').html('[p' + $('#pcount').val() + ']' + videotit);
                     $('#videoimgs').attr({src : realimg,alt : videotit});
@@ -93,14 +94,15 @@
     function singlep(){
         $.ajax({
             type : 'get',
-            url : `http://9bl.bakayun.cn/API/GetVideoInfo.php?callback=fn&aid=${ $('#aid').val() }&p=1&type=jsonp`,
+            url : `http://api.bilibili.com/view?type=jsonp&appkey=8e9fc618fbd41e28&id=${ $('#aid').val() }&page=1&callback=fn`,
             dataType : 'jsonp',
             success : function (da) {
-                var UserId = da.Result.UserInfo.UserId,
-                    videotit = da.Result.VideoInfo.Title,
-                    upname = da.Result.UserInfo.Username,
-                    videoimg = da.Result.VideoInfo.PicUrl;
-                var realimg = 'https://images.weserv.nl/?url=' + videoimg.replace(/http\:/,'') + '&w=218&h=135';
+                var UserId = da.mid,
+                    videotit = da.title,
+                    upname = da.author,
+                    videoimg = da.pic;
+                var realimg = 'https://images.weserv.nl/?url=' + videoimg.replace(/https\:/,'') + '&w=218&h=135';
+                console.log(realimg);
                 var uplink = `https://space.bilibili.com/${ UserId }/#!/`;
                 $('#videotit').html('[p' + $('#pcount').val() + ']' + videotit);
                 $('#videoimgs').attr({src : realimg,alt : videotit});
