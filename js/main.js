@@ -123,7 +123,7 @@ function singlep() {
         success : function (data) {
           var maindownurl = data.durl[0].url,
               videotime = data.durl[0].length,
-              format = data.format
+              format = data.format,
               videosize = data.durl[0].size;
           $$('#videosize').html((videosize/1048576).toFixed(2) + 'mb');
           $$('#videotime').html((videotime/60000).toFixed(2) + 'min');
