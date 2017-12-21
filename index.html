@@ -10,12 +10,12 @@
   <link rel="Shortcut Icon" href="img/websitlogo.ico">
 </head>
 <body class="mdui-theme-primary-indigo mdui-theme-accent-pink">
-    <!-- 视频背景 -->
-    <div class="video">
+    <!-- 视频背景 如果启用请去掉注释包括main.css里面的注释-->
+    <!-- <div class="video">
       <video autoplay muted loop>
           <source src="img/bgvideo.mp4">
       </video>
-    </div>
+    </div> -->
     <!-- 视频背景 END-->
     <div class="mdui-container-fluid">
       <div class="mdui-row">
@@ -60,6 +60,10 @@
                 <h5>下载地址：</h5>
                 <div class="mdui-textfield">
                   <input class="mdui-textfield-input" type="text" value="123456789" data-clipboard-action="copy" data-clipboard-target="#ipt" id="ipt"/>
+                </div>
+                <h5>视频弹幕：</h5>
+                <div class="mdui-textfield">
+                  <textarea id="videodanmu" data-clipboard-action="copy" data-clipboard-target="#videodanmu" class="mdui-textfield-input"></textarea>
                 </div>
               </div>
             </div>

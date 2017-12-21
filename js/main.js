@@ -7,8 +7,13 @@
 var $$ = mdui.JQ;
 
 // 复制下载链接
-var clipboard = new Clipboard('#ipt');
-clipboard.on('success', function(e) {
+var clipboardDownload = new Clipboard('#ipt');
+clipboardDownload.on('success', function(e) {
+    console.log(e.text); 
+});
+// 复制弹幕
+var clipboardDanmu = new Clipboard('#videodanmu');
+clipboardDanmu.on('success', function(e) {
     console.log(e.text); 
 });
 
@@ -84,11 +89,29 @@ function morep(value) {
           var maindownurl = data.durl[0].url,
               videotime = data.durl[0].length,
               format = data.format,
-              videosize = data.durl[0].size;
+              videosize = data.durl[0].size,
+              videodanmu = data.cid;
           $$('#videosize').html((videosize/1048576).toFixed(2) + 'mb');
           $$('#videotime').html((videotime/60000).toFixed(2) + 'min');
           $$('#ipt').val(maindownurl);
           $$('#videoformat').html(format.toUpperCase());
+          $$.ajax({
+            type: 'get',
+            url: videodanmu,
+            dataType: 'text',
+            success: function (datas) {
+              var xmlData = createXml(datas);
+              var danmu = xmlData.getElementsByTagName('d');
+              var str = "";
+              for(let i=0;i<danmu.length;i++){
+                  str += danmu[i].innerHTML + '\n';
+              }
+              $$('#videodanmu').val(str);
+            },
+            error: function () {
+              mdui.alert('获取视频弹幕出错');
+            }
+          })
         },
         error : function () {
           mdui.alert('获取下载链接出错');
@@ -124,11 +147,29 @@ function singlep() {
           var maindownurl = data.durl[0].url,
               videotime = data.durl[0].length,
               format = data.format,
-              videosize = data.durl[0].size;
+              videosize = data.durl[0].size,
+              videodanmu = data.cid;
           $$('#videosize').html((videosize/1048576).toFixed(2) + 'mb');
           $$('#videotime').html((videotime/60000).toFixed(2) + 'min');
           $$('#ipt').val(maindownurl);
           $$('#videoformat').html(format.toUpperCase());
+          $$.ajax({
+            type: 'get',
+            url: videodanmu,
+            dataType: 'text',
+            success: function (datas) {
+              var xmlData = createXml(datas);
+              var danmu = xmlData.getElementsByTagName('d');
+              var str = "";
+              for(let i=0;i<danmu.length;i++){
+                  str += danmu[i].innerHTML + '\n';
+              }
+              $$('#videodanmu').val(str);
+            },
+            error: function () {
+              mdui.alert('获取视频弹幕出错');
+            }
+          })
         },
         error : function () {
           mdui.alert('获取下载链接出错');
@@ -139,4 +180,14 @@ function singlep() {
       mdui.alert('获取视频信息出错');
     }
   })
+}
+// 字符串转xml
+function createXml(str){ 
+　　if(document.all){ 
+    　　var xmlDom=new ActiveXObject("Microsoft.XMLDOM");
+    　　xmlDom.loadXML(str);
+    　　return xmlDom;
+　　}
+　　else 
+　　return new DOMParser().parseFromString(str, "text/xml");
 }
