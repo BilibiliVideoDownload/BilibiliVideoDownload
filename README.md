@@ -3,6 +3,10 @@
 PC端下载bilibili视频(Material Design风格)
 ### 版本
 ----
+v1.3.0 `2018-05-14`
+
+用Vue.js重构
+
 v1.2.1 `2017-12-21`
 
 获取视频弹幕消息，去除视频背景
@@ -40,9 +44,8 @@ v1.0.0 `2017-10-21`
 实现了基本功能
 ### 演示
 ----
-![图片1](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/4.png)
+![图片1](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/1.png)
 ![图片2](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/2.png)
-![图片3](https://raw.githubusercontent.com/blogwy/BilibiliVideoDownload/master/img/3.png)
 ### 演示地址
 ----
 [点击查看](http://www.bilibibi.cn)

@@ -1,82 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>哔哩哔哩-视频下载</title>
-  <link rel="stylesheet" href="css/mdui.min.css">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="Shortcut Icon" href="img/websitlogo.ico">
-</head>
-<body class="mdui-theme-primary-indigo mdui-theme-accent-pink">
-    <!-- 视频背景 如果启用请去掉注释包括main.css里面的注释-->
-    <!-- <div class="video">
-      <video autoplay muted loop>
-          <source src="img/bgvideo.mp4">
-      </video>
-    </div> -->
-    <!-- 视频背景 END-->
-    <div class="mdui-container-fluid">
-      <div class="mdui-row">
-        <div class="oform mdui-col-lg-5 mdui-col-md-6 mdui-col-xs-8 mdui-col-sm-7">
-          <div class="mdui-typo">
-            <h1 class="mdui-text-center">哔哩哔哩-视频下载<br><small>Material Design</small></h1>
-          </div>
-          <div class="mdui-textfield">
-            <input id="avnum" class="mdui-textfield-input" type="text" placeholder="输入视频AV号"/>
-          </div>
-          <div class="mdui-float-right">
-              <button id="downloadbtn" class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i>立即下载</button>
-          </div>
-        </div>
-        <!-- msgdialog -->
-        <div class="mdui-dialog" id="msgDialog">
-          <div class="mdui-dialog-title">请放心食用</div>
-          <div class="mdui-dialog-content">
-            <div class="mdui-row">
-              <div class="mdui-col-md-4 mdui-col-xs-4">
-                <img id="videoimgs" class="mdui-img-fluid mdui-img-rounded" src="img/loading.gif"/>
-              </div>
-              <div class="mdui-col-md-8 mdui-col-xs-8 mdui-typo">
-                <h5 id="videotit">标题标题标题标题标题标题</h5>
-                <p><strong>UP：</strong><a href="" id="upname">up名字</a></p>
-                <div class="mdui-row">
-                  <div class="mdui-col-xs-12 mdui-col-sm-4">
-                    <i class="mdui-icon material-icons">sd_storage</i>
-                    <a href="#" id="videosize">视频大小</a>&nbsp;&nbsp;
-                  </div>
-                  <div class="mdui-col-xs-12 mdui-col-sm-4">
-                    <i class="mdui-icon material-icons">access_time</i>
-                    <a href="#" id="videotime">视频时间</a>&nbsp;&nbsp;
-                  </div>
-                  <div class="mdui-col-xs-12 mdui-col-sm-4">
-                    <i class="mdui-icon material-icons">ondemand_video</i>
-                    <a href="#" id="videoformat">视频格式</a>&nbsp;&nbsp;
-                  </div>
-                </div>
-              </div>
-              <div class="mdui-col-md-12 mdui-col-xs-12 mdui-typo">
-                <h5>下载地址：</h5>
-                <div class="mdui-textfield">
-                  <input class="mdui-textfield-input" type="text" value="123456789" data-clipboard-action="copy" data-clipboard-target="#ipt" id="ipt"/>
-                </div>
-                <h5>视频弹幕：</h5>
-                <div class="mdui-textfield">
-                  <textarea id="videodanmu" data-clipboard-action="copy" data-clipboard-target="#videodanmu" class="mdui-textfield-input"></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="mdui-dialog-actions">
-            <button class="mdui-btn mdui-ripple" mdui-dialog-close>关闭</button>
-          </div>
-        </div>
-        <!-- msgdialog end-->
-      </div>
-    </div>
-  <script src="js/mdui.min.js"></script>
-  <script src="js/clipboard.min.js"></script>
-  <script src="js/main.js"></script>
-</body>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="Shortcut Icon" href="http://www.bilibibi.cn/img/websitlogo.ico">
+    <title>哔哩哔哩-视频下载</title>
+    <style>
+      html,body{
+        width: 100%;
+        height: 100%;
+      }
+      #app{
+        height: 100%;
+        background-image: url("http://7xu2yc.com1.z0.glb.clouddn.com/moe-2017-jp.jpg");
+        background-size: 100% 100%;
+      }
+    </style>
+  </head>
+  <body class="mdui-theme-primary-indigo mdui-theme-accent-pink mdui-loaded mdui-locked">
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
 </html>
