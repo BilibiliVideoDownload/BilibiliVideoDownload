@@ -6,6 +6,7 @@ import VueProgressiveImage from 'vue-progressive-image'
 import router from './router'
 import '../node_modules/mdui/dist/css/mdui.css'
 import '../node_modules/mdui/dist/js/mdui.js'
+import 'babel-polyfill'
 Vue.use(VueProgressiveImage)
 Vue.config.productionTip = false
 

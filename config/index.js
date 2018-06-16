@@ -11,12 +11,20 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
-      '/dou': {
-        target: 'http://api.douban.com',
+      '/comment': {
+        target: 'https://comment.bilibili.com',
         changeOrigin: true,
         pathRewrite: {
-          '^/dou': '/'
+          '^/comment': '/'
         }
+      },
+      '/view': {
+        target: 'http://api.bilibili.com/view',
+        changeOrigin: true
+      },
+      '/playurl': {
+        target: 'http://api.bilibili.com/playurl',
+        changeOrigin: true
       }
     },
 
@@ -51,13 +59,13 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: './',
 
     /**
      * Source Maps
      */
 
-    productionSourceMap: true,
+    productionSourceMap: false,
     // https://webpack.js.org/configuration/devtool/#production
     devtool: '#source-map',
 

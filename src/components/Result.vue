@@ -10,7 +10,7 @@
           <progressive-img
             class="mdui-img-rounded"
             :src="video.videoImg"
-            placeholder="http://iph.href.lu/218x135?text=..."
+            placeholder="http://img.la/mottle/218x135"
           />
         </div>
         <div class="mdui-col-sm-8">

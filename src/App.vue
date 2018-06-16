@@ -66,9 +66,6 @@
         }
       }
     },
-    mounted(){
-
-    },
     methods: {
       checkAvNum(){
         let that = this;
@@ -85,7 +82,7 @@
         let options = {
           param: 'callback'
         };
-        jsonp(url, data, options)
+        jsonp(url, data,options)
           .then(res => {
             console.log(res)
             if (res.durl){
@@ -127,7 +124,8 @@
             let userId = res.mid,
                 videoTitle = res.title,
                 upName = res.author,
-                videoImg = res.pic;
+                videoImg = res.pic,
+                videoDanmu = res.cid;
             let realimg = 'https://images.weserv.nl/?url=' + videoImg.replace(/https\:/,'');
             let upLink = `https://space.bilibili.com/${ userId }/#!/`;
             that.video.videoImg = realimg;
@@ -147,20 +145,20 @@
             let options = {
               param: 'callback'
             };
-            jsonp(url, data, options)
+            jsonp(url, data,options)
               .then(result => {
+                console.log(result);
                 let videoDownloadUrl = result.durl[0].url,
                     videoTime = result.durl[0].length,
                     videoFormat = result.format,
-                    videoSize = result.durl[0].size,
-                    videoDanmu = result.cid;
+                    videoSize = result.durl[0].size;
                 that.video.videoInfo[0].videoItem = (videoSize/1048576).toFixed(2) + 'mb';
                 that.video.videoInfo[1].videoItem = (videoTime/60000).toFixed(2) + 'min';
                 that.video.videoInfo[2].videoItem = videoFormat.toUpperCase();
                 that.video.videoDownloadUrl = videoDownloadUrl;
                 that.getVideoBarrage(videoDanmu);
               })
-              .error(err => {
+              .catch(err => {
                 console.log('获取视频下载链接失败!')
               })
           })
@@ -170,7 +168,7 @@
       },
       getVideoBarrage(videoDanmu){
         let that = this;
-        axios.get(videoDanmu)
+        axios.get('/comment/'+videoDanmu+'.xml')
           .then(response => {
             console.log(response);
             let xmlData = that.strToXml(response.data);

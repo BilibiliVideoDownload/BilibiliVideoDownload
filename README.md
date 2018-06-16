@@ -3,6 +3,17 @@
 PC端下载bilibili视频(Material Design风格)
 ### 版本
 ----
+v1.3.1 `2018-06-16`
+
+修复弹幕获取失败，使用nginx做反向代理
+
+```
+location /comment/ {
+	rewrite  ^/comment/(.*)$ /$1 break;
+	proxy_pass https://comment.bilibili.com;     
+}
+```
+
 v1.3.0 `2018-05-14`
 
 用Vue.js重构
