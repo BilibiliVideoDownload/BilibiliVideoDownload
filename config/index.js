@@ -18,12 +18,8 @@ module.exports = {
           '^/comment': '/'
         }
       },
-      '/view': {
-        target: 'http://api.bilibili.com/view',
-        changeOrigin: true
-      },
-      '/playurl': {
-        target: 'http://api.bilibili.com/playurl',
+      '/bangumi/': {
+        target: 'https://www.bilibili.com',
         changeOrigin: true
       }
     },

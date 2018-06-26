@@ -7,14 +7,22 @@
       <div class="mdui-row">
         <div class="mdui-col-sm-2"></div>
         <div class="mdui-col-sm-8 search-bar">
-          <div class="mdui-col-sm-10">
+          <div class="mdui-col-sm-1 mdui-text-left">
             <div class="mdui-textfield">
-              <input class="mdui-textfield-input" type="text" v-model="avNum" placeholder="请输入AV号"/>
+              <select class="mdui-select" v-model="downloadType">
+                <option value="AV">AV</option>
+                <option value="EP">EP</option>
+              </select>
+            </div>
+          </div>
+          <div class="mdui-col-sm-9">
+            <div class="mdui-textfield">
+              <input class="mdui-textfield-input" type="text" v-model="avNum" :placeholder="downloadType == 'AV'?'请输入AV号':'请输入EP号'"/>
             </div>
           </div>
           <div class="mdui-col-sm-2 mdui-text-right">
             <div class="mdui-textfield">
-              <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" @click="checkAvNum">下载</button>
+              <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" @click="checkIsAvNum">下载</button>
             </div>
           </div>
         </div>
@@ -40,6 +48,7 @@
     },
     data () {
       return {
+        downloadType: 'AV',
         avNum: '',
         flag: false,
         video: {
@@ -67,11 +76,31 @@
       }
     },
     methods: {
-      checkAvNum(){
+      epToav(){
+        let url = '/bangumi/play/ep' + this.avNum;
+        axios.get(url)
+          .then(result => {
+            let str = (result.data).replace(/[\r\n ]/g,"");
+            let str1 = str.match(/"epInfo":(\S*),"epList"/)[1];
+            let res = JSON.parse(str1);
+            this.checkAvNum(res.aid);
+          })
+          .catch(error => {
+            console.log('ep转av失败!!!');
+          })
+      },
+      checkIsAvNum(){
+        if (this.downloadType === 'AV'){
+          this.checkAvNum(this.avNum);
+        }else {
+          this.epToav();
+        }
+      },
+      checkAvNum(AVNUM){
         let that = this;
         let url = 'http://api.bilibili.com/playurl';
         let data = {
-          aid: this.avNum,
+          aid: AVNUM,
           page: 2,
           platform: 'html5',
           quality: 1,
@@ -79,6 +108,7 @@
           type: 'jsonp',
           token: 'd3bd9275f0f2cda07f2406740db06c5d'
         };
+        console.log(data);
         let options = {
           param: 'callback'
         };
@@ -89,7 +119,7 @@
               console.log('多p');
               mdui.prompt('这是一个分P视频，请输入分P号',
                 function (value) {
-                  that.getAllInfo(value)
+                  that.getAllInfo(value,AVNUM)
                 },
                 function (value) {},
                 {
@@ -99,21 +129,21 @@
               );
             }else {
               console.log('单p');
-              that.getAllInfo(1);
+              that.getAllInfo(1,AVNUM);
             }
           })
           .catch(err => {
             console.log('检查av号出错!');
           })
       },
-      getAllInfo(value){
+      getAllInfo(value,avNum){
         let that = this;
         let url = 'http://api.bilibili.com/view';
         let data = {
           type: 'jsonp',
           appkey: '8e9fc618fbd41e28',
           page: 1,
-          id: this.avNum
+          id: avNum
         };
         let options = {
           param: 'callback'
@@ -134,7 +164,7 @@
             that.video.videoUpLink = upLink;
             let url = 'http://api.bilibili.com/playurl';
             let data = {
-              aid: this.avNum,
+              aid: avNum,
               page: value,
               platform: 'html5',
               quality: 1,

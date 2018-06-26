@@ -3,6 +3,19 @@
 PC端下载bilibili视频(Material Design风格)
 ### 版本
 ----
+
+v1.4.0 `2018-06-26`
+
+添加EP下载功能，使用nginx做反向代理
+
+**注：由于技术有限,目前av,ep下载的视频都是320p**
+
+```
+location /bangumi/ {
+	proxy_pass https://www.bilibili.com;     
+}
+```
+
 v1.3.1 `2018-06-16`
 
 修复弹幕获取失败，使用nginx做反向代理
