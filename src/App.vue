@@ -17,7 +17,7 @@
           </div>
           <div class="mdui-col-sm-9">
             <div class="mdui-textfield">
-              <input class="mdui-textfield-input" type="text" v-model="avNum" :placeholder="downloadType == 'AV'?'请输入AV号':'请输入EP号'"/>
+              <input class="mdui-textfield-input" type="text" v-model="videoUrl" placeholder="请输入视频URL..."/>
             </div>
           </div>
           <div class="mdui-col-sm-2 mdui-text-right">
@@ -49,7 +49,7 @@
     data () {
       return {
         downloadType: 'AV',
-        avNum: '',
+        videoUrl: '',
         flag: false,
         video: {
           videoImg: '',
@@ -76,8 +76,21 @@
       }
     },
     methods: {
-      epToav(){
-        let url = '/bangumi/play/ep' + this.avNum;
+      urlToAvOrEp(url){
+        let check = url.split("/");
+        for( let i=0,len=check.length; i<len; i++ ){
+          if(check[i].indexOf('av') >= 0 && !isNaN(parseInt(check[i].replace('av','')))){
+            let av = check[i].replace('av','');
+            return av;
+          }
+          if(check[i].indexOf('ep') >= 0 && !isNaN(parseInt(check[i].replace('ep','')))){
+            let ep = check[i].replace('ep','');
+            return ep;
+          }
+        }
+      },
+      epToav(Num){
+        let url = '/bangumi/play/ep' + Num;
         axios.get(url)
           .then(result => {
             let str = (result.data).replace(/[\r\n ]/g,"");
@@ -90,10 +103,11 @@
           })
       },
       checkIsAvNum(){
+        let Num = this.urlToAvOrEp(this.videoUrl);
         if (this.downloadType === 'AV'){
-          this.checkAvNum(this.avNum);
+          this.checkAvNum(Num);
         }else {
-          this.epToav();
+          this.epToav(Num);
         }
       },
       checkAvNum(AVNUM){
