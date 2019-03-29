@@ -1,18 +1,21 @@
 const rp = require('request-promise');
 
-const urlToAid = url => {
-  let check = url.split("/");
-  for( let i=0,len=check.length; i<len; i++ ){
-    if(check[i].indexOf('av') >= 0 && !isNaN(parseInt(check[i].replace('av','')))){
-      let aid = check[i].replace('av','');
-      return aid;
-    }
+const isMore = async aid => {
+  let res = await rp(`http://api.bilibili.com/view?type=jsonp&appkey=8e9fc618fbd41e28&id=${aid}&page=2`);
+  return {
+    cid: JSON.parse(res).cid,
+    title: JSON.parse(res).title
   }
-};
+}
 
 const parseFormat = format => {
   let str = format.replace(/[0-9]/g,'');
   return str;
+}
+
+const filterSpecialStr = str => {
+  let str1 = str.replace(/\//g,'');
+  return str1;
 }
 
 const getQualityNumber = str => {
@@ -30,10 +33,9 @@ const getQualityNumber = str => {
   }
 }
 
-const getQuality = async url => {
-  let aid = urlToAid(url),
-      videoInfo = await rp(`https://api.bilibili.com/x/web-interface/view?aid=${aid}`),
-      cid = JSON.parse(videoInfo).data.cid;
+const getQuality = async (aid,pNum) => {
+  let videoInfo = await rp(`http://api.bilibili.com/view?type=jsonp&appkey=8e9fc618fbd41e28&id=${aid}&page=${pNum}`),
+      cid = JSON.parse(videoInfo).cid;
   let downloadInfo = await rp({
         uri: `https://api.bilibili.com/x/player/playurl?avid=${aid}&cid=${cid}&qn=80&otype=json`,
         headers: {
@@ -58,12 +60,11 @@ const getQuality = async url => {
 
 };
 
-const getDownloadUrl = async (url,quality) => {
-  let aid = urlToAid(url),
-      qualityNum = getQualityNumber(quality),
+const getDownloadUrl = async (pNum,aid,quality) => {
+  let qualityNum = getQualityNumber(quality),
       videoInfo = await rp(`https://api.bilibili.com/x/web-interface/view?aid=${aid}`),
       cid = JSON.parse(videoInfo).data.cid,
-      title = JSON.parse(videoInfo).data.title;
+      title = filterSpecialStr(JSON.parse(videoInfo).data.title);
   let downloadInfo = await rp({
         uri: `https://api.bilibili.com/x/player/playurl?avid=${aid}&cid=${cid}&qn=${qualityNum}&otype=json`,
         headers: {
@@ -80,10 +81,9 @@ const getDownloadUrl = async (url,quality) => {
   dUrlArr.forEach(function (item,index) {
     let obj = {};
     obj.videoAid = aid;
-    obj.videoTitle = title + '-' + index;
+    obj.videoTitle = `[p${pNum}]${title}-${index}`;
     obj.videoLength = item.length;
     obj.videoSize = item.size;
-    // obj.videoSize = (item.size/1048576).toFixed(2) + 'mb';
     obj.videoFormat = parseFormat(videoFormat);
     obj.url = item.url;
     durl.push(obj);
@@ -93,5 +93,6 @@ const getDownloadUrl = async (url,quality) => {
 
 module.exports = {
   getQuality: getQuality,
-  getDownloadUrl: getDownloadUrl
+  getDownloadUrl: getDownloadUrl,
+  isMore: isMore
 }

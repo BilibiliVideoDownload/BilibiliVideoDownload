@@ -4,11 +4,22 @@ const concat = require('./utils/concat');
 const readlineSync = require('readline-sync');
 
 async function main() {
-  let url,quality,qualityAll,downloadUrls,promises;
-  url = readlineSync.question('请输入视频URL...');
-  qualityAll = await getUrl.getQuality(url);
+  let aid,isMoreRes,pNum = 1,quality,qualityAll,downloadUrls,promises;
+  aid = readlineSync.question('请输入av号...');
+
+  // 检查是否是多P
+  isMoreRes = await getUrl.isMore(aid);
+  if(isMoreRes.cid){
+    // 多P
+    console.log('这是个多P视频\n');
+    pNum = readlineSync.question('请输入你要下载的分P号...');
+  }else{
+    // 单P
+    console.log('这是个单P视频');
+  }
+  qualityAll = await getUrl.getQuality(aid,pNum);
   quality = readlineSync.keyInSelect(qualityAll,'选择要下载到清晰度？');
-  downloadUrls = await getUrl.getDownloadUrl(url,qualityAll[quality]);
+  downloadUrls = await getUrl.getDownloadUrl(pNum,aid,qualityAll[quality]);
   promises = downloadUrls.map((item,index) => {
     return downloadFile.get(item.videoAid,item.videoSize,item.videoLength,item.url,item.videoTitle+'.'+item.videoFormat)
   });

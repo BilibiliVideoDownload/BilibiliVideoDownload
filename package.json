@@ -14,8 +14,6 @@
     "readline-sync": "^1.4.9",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
-    "single-line-log": "^1.1.2",
-    "superagent": "^4.1.0",
-    "xml2js": "^0.4.19"
+    "single-line-log": "^1.1.2"
   }
 }
