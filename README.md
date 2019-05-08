@@ -45,6 +45,7 @@ Node.js重构，以前的在vuejs分支
 1. 大会员视频不可以下载
 2. 请定期跟换cookie中的SESSDATA值，在utils/getUrl.js`42`行。跟换方法为：浏览器登陆bilibili账户，在开发者模式 --> application --> cookie中找到SESSDATA值替换即可，一般为一个月的实效。
 3. 在以后的版本会加上模拟登陆功能。
+4. win用户在命令行CHCP 65001把编码转换成UTF8，不然会出现乱码。
 
 ### 用到的接口
 
