@@ -17,6 +17,10 @@ PC端下载bilibili视频
 ### 版本
 ----
 
+v2.0.2 `2019-06-19`
+
+添加了大会员清晰度的支持(前提是必须要有一个大会员的SESSDATA)
+
 v2.0.1 `2019-03-29`
 
 添加了分P检测，分P下载功能
@@ -42,8 +46,8 @@ Node.js重构，以前的在vuejs分支
 
 ### 注意的问题
 ----
-1. 大会员视频不可以下载
-2. 请定期跟换cookie中的SESSDATA值，在utils/getUrl.js`42`行。跟换方法为：浏览器登陆bilibili账户，在开发者模式 --> application --> cookie中找到SESSDATA值替换即可，一般为一个月的实效。
+1. 大会员视频可以下载
+2. 请定期跟换cookie中的SESSDATA值，在utils/getUrl.js`42`和`96`行。跟换方法为：浏览器登陆bilibili账户，在开发者模式 --> application --> cookie中找到SESSDATA值替换即可，一般为一个月的时效。(默认的SESSDATA是大会员的，可以下载大会员清晰度，时效到2019-07-17)
 3. 在以后的版本会加上模拟登陆功能。
 4. win用户在命令行CHCP 65001把编码转换成UTF8，不然会出现乱码。
 

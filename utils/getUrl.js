@@ -20,8 +20,14 @@ const filterSpecialStr = str => {
 
 const getQualityNumber = str => {
   switch (str) {
+	case '高清1080P60(大会员)':
+      return 116;
+	case '高清1080P+(大会员)':
+      return 112;
     case '高清1080P':
-      return 80;
+      return 80;  
+	case '高清720P60(大会员)':
+      return 74;
     case '高清720P':
       return 64;
     case '清晰480P':
@@ -35,29 +41,46 @@ const getQualityNumber = str => {
 
 const getQuality = async (aid,pNum) => {
   let videoInfo = await rp(`http://api.bilibili.com/view?type=jsonp&appkey=8e9fc618fbd41e28&id=${aid}&page=${pNum}`),
-      cid = JSON.parse(videoInfo).cid;
+      cid = JSON.parse(videoInfo).cid,resArray = [];
   let downloadInfo = await rp({
-        uri: `https://api.bilibili.com/x/player/playurl?avid=${aid}&cid=${cid}&qn=80&otype=json`,
+        uri: `https://api.bilibili.com/x/player/playurl?avid=${aid}&cid=${cid}&qn=116&otype=json`,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0',
           'Host': 'api.bilibili.com',
-          'Cookie': 'SESSDATA=bd125cdd%2C1554519358%2C6d4df231'
+          'Cookie': 'SESSDATA=c87ce1a7%2C1563412255%2C86ebdd61'
         }
       }),
-      quality = JSON.parse(downloadInfo).data.quality;
-  switch (quality) {
-    case 80:
-      return ['高清1080P','高清720P','清晰480P','流畅360P'];
-    case 64:
-      return ['高清720P','清晰480P','流畅360P'];
-    case 32:
-      return ['清晰480P','流畅360P'];
-    case 16:
-      return ['流畅360P'];
-    default:
-      return '获取视频清晰度错误!!!';
-  }
-
+      quality = JSON.parse(downloadInfo).data.accept_quality;
+	console.log(quality);
+  quality.forEach(function (item,index) {
+    switch (item) {
+      case 116:
+        resArray.push('高清1080P60(大会员)');
+		break;
+      case 112:
+        resArray.push('高清1080P+(大会员)');
+		break;
+      case 80:
+        resArray.push('高清1080P');
+		break;
+      case 74:
+        resArray.push('高清720P60(大会员)');
+		break;
+      case 64:
+        resArray.push('高清720P');
+		break;
+      case 32:
+        resArray.push('高清480P');
+		break;
+      case 16:
+        resArray.push('高清360P');
+		break;
+      default:
+        resArray.push('获取视频清晰度错误!!!');
+		break;
+    }
+  });
+  return resArray;
 };
 
 const getDownloadUrl = async (pNum,aid,quality) => {
@@ -70,7 +93,7 @@ const getDownloadUrl = async (pNum,aid,quality) => {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0',
           'Host': 'api.bilibili.com',
-          'Cookie': 'SESSDATA=bd125cdd%2C1554519358%2C6d4df231'
+          'Cookie': 'SESSDATA=c87ce1a7%2C1563412255%2C86ebdd61'
         }
       }),
       downloadInfoPares = JSON.parse(downloadInfo),
