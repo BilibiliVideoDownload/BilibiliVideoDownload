@@ -47,10 +47,9 @@ Node.js重构，以前的在vuejs分支
 
 ### 注意的问题
 ----
-1. 请定期跟换cookie中的SESSDATA值，在utils/getUrl.js`42`和`96`行。跟换方法为：浏览器登陆bilibili账户，在开发者模式 --> application --> cookie中找到SESSDATA值替换即可，一般为一个月的时效。(默认的SESSDATA是大会员的，可以下载大会员清晰度，时效到2019-07-17)
-2. 在以后的版本会加上模拟登陆功能。
-3. win用户在命令行CHCP 65001把编码转换成UTF8，不然会出现乱码。
-4. 输入的是av号，不要带av
+1. 请定期跟换cookie中的SESSDATA值，在utils/getUrl.js`42`和`96`行。跟换方法为：浏览器登陆bilibili账户，在开发者模式 --> application --> cookie中找到SESSDATA值替换即可，一般为一个月的时效。(代码中默认的SESSDATA不能下载大会员清晰度视频,如有想下载大会员清晰度请替换)
+2. win用户在命令行CHCP 65001把编码转换成UTF8，不然会出现乱码。
+3. 输入的是av号，不要带av
 
 ### 用到的接口
 
