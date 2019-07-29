@@ -1,5 +1,5 @@
 const fluent_ffmpeg = require("fluent-ffmpeg");
-const progressBar  = require('../progress-bar');
+const progressBar  = require('./progress-bar');
 let mergedVideo = fluent_ffmpeg();
 const pb = new progressBar('转码&合成进度', 50);
 

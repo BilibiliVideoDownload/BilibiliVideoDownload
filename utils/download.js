@@ -2,7 +2,7 @@
 const rp = require('request');
 const fs = require('fs');
 const progress = require('progress-stream');
-const ProgressBar  = require('../progress-bar');
+const ProgressBar  = require('./progress-bar');
 
 
 function downloadFile(aid,totalSize,totalTime,uri,filename){
