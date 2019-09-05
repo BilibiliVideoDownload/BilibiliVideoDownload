@@ -1,57 +1,91 @@
+const url = require('url');
+const zlib = require('zlib');
 
-const request = require('superagent');
-const http2 = require('http2');
+function xmlToString(xmlUrl){
+  this._onDecode = function(encoding, buffer,resolve){
+    //decode callback
+    let callback = (err, decoded)=>{
+      if(err){
+        throw err;
+      }
+      else{
+        let data = decoded.toString();
+        resolve(data);
+      }
+    };
 
-const xml2js = require('xml2js').parseString;
-const fs = require('fs');
+    //begin decode
+    switch(encoding)
+    {
+      case 'deflate':
+        zlib.inflateRaw(buffer, callback);
+        break;
 
-request
-    .get('https://www.jianshu.com/p/ea0c6ce04cd4')
-    // .type('xml')
-    .then(response => {
-      console.log(response);
-    })
-    .catch(err => {
-      console.log(err);
+      case 'gzip':
+        zlib.gunzip(buffer, callback);
+        break;
+    }
+  };
+
+  this._onSucDeal = function(res,resolve){
+    let arr = [];
+    res.on('data', chunk=>{
+      arr.push(chunk);
     });
 
+    res.on('end', ()=>{
+      let buffer = Buffer.concat(arr);
 
-// let parser = new xml2js.Parser();
-//
-// fs.readFile('../danmu/test.xml', function(err, data) {
-//   parser.parseString(data, function (err, result) {
-//     console.log(result);
-//     let strings = result.i.d;
-//     strings.forEach((item,index) => {
-//       console.log(item._);
-//     })
-//   });
-// });
+      let encoding = res.headers['content-encoding'];
+      if(!encoding || encoding == 'utf-8'){
+        let data = buffer.toString();
+        resolve(data);
+      }
+      else{
+        this._onDecode(encoding, buffer,resolve);
+      }
 
-// let writeStream = fs.createWriteStream('../danmu/danmu.xml');
-// rp({
-//   url: 'https://api.bilibili.com/x/v1/dm/list.so?oid=78328965',
-//   headers: {
-//     'Content-Type': 'text/xml',
-//     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-//     'Accept-Encoding': 'gzip, deflate',
-//     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,la;q=0.7',
-//     'Host': 'api.bilibili.com',
-//     'Content-Encoding' :'deflate',
-//     'Transfer-Encoding' : 'chunked',
-//     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
-//   }
-// },function (err, response, body) {
-//   console.log(body);
-// });
-// readStream.pipe(writeStream);
-// readStream.on('error',function (err) {
-//   console.log(err);
-// });
-// readStream.on('end',function (res) {
-//   console.log('下载完成');
-// });
-// writeStream.on('finish',function (res) {
-//   writeStream.end();
-//   console.log('写入完成');
-// });
+    });
+  };
+
+  return new Promise((resolve, reject) => {
+
+    let urlObj = url.parse(xmlUrl);
+    let http = '';
+    if(urlObj.protocol == 'http:')
+    {
+      http = require('http');
+    }
+    else
+    {
+      http = require('https');
+    }
+    //req and crawl
+    let req = http.request({
+      'hostname':urlObj.hostname,
+      'path':urlObj.path,
+    },res=>{
+      switch(res.statusCode)
+      {
+        case 200: //OK
+          this._onSucDeal(res,resolve);
+          break;
+        case 301:
+        case 302: //重定向
+        default:
+          reject("http: 解析url时发生未知的情况！！");
+          console.log("http: 解析url时发生未知的情况！！")
+      }
+    });
+
+    req.end();
+    req.on('error', ()=>{
+      reject("http: 404 not found");
+      console.log('http: 404 not found');
+    });
+  });
+}
+
+module.exports = {
+  xmlToString
+};
