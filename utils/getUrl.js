@@ -70,7 +70,6 @@ const getQuality = async (aid,pNum) => {
         }
       }),
       quality = JSON.parse(downloadInfo).data.accept_quality;
-  console.log(JSON.parse(downloadInfo).data.quality);
   quality.forEach(function (item,index) {
     switch (item) {
       case 116:
@@ -103,13 +102,11 @@ const getQuality = async (aid,pNum) => {
 };
 
 const getDownloadUrl = async (pNum,aid,quality) => {
-  console.log(quality);
   let qualityNum = getQualityNumber(quality),
       videoInfo = await rp(`https://api.bilibili.com/x/web-interface/view?aid=${aid}`),
       cid = JSON.parse(videoInfo).data.cid,
       author = JSON.parse(videoInfo).data.owner.name,
       title = filterSpecialStr(JSON.parse(videoInfo).data.title);
-  console.log(qualityNum);
   let downloadInfo = await rp({
         uri: `https://api.bilibili.com/x/player/playurl?avid=${aid}&cid=${cid}&qn=${qualityNum}&otype=json`,
         headers: {
