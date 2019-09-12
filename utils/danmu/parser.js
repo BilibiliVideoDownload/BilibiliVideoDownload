@@ -1,5 +1,6 @@
 const parser = require('fast-xml-parser');
 const hashToId = require('./hashToUid');
+const utils = require('./utils-es6');
 
 const options = {
   attributeNamePrefix : "",
@@ -24,6 +25,10 @@ const parserDanmu = xml => {
   danmuArray.forEach((item,index) => {
     let obj = {};
     obj.danmu = item.text;
+    obj.time = utils.formatTimestamp({
+      rules: "YYYY-MM-DD hh:mm:ss",
+      timestamp: parseInt(((item.p).split(','))[4])
+    });
     obj.uid = 'https://space.bilibili.com/' + hashToId.hashToUid(((item.p).split(','))[6]);
     arr.push(obj);
   });

@@ -18,6 +18,25 @@ const filterSpecialStr = str => {
   return str1;
 }
 
+const printVideoInfo = (title,size,author,duration,resolution,isDanmu) => {
+  let info = `***************视频信息***************
+              
+视频名称：${title}
+
+视频大小：${size}MB(不准确)
+
+up主：${author}
+
+视频时长：${duration}min
+
+下载清晰度：${resolution}
+
+是否下载弹幕：${isDanmu}
+
+*************视频信息 END**************`;
+  return info;
+};
+
 const getQualityNumber = str => {
   switch (str) {
 	case '高清1080P60(大会员)':
@@ -47,11 +66,11 @@ const getQuality = async (aid,pNum) => {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0',
           'Host': 'api.bilibili.com',
-          'Cookie': 'SESSDATA=c87ce1a7%2C1563412255%2C86ebdd61'
+          'Cookie': 'SESSDATA=560f605d%2C1570783582%2C9881e691'
         }
       }),
       quality = JSON.parse(downloadInfo).data.accept_quality;
-	console.log(quality);
+  console.log(JSON.parse(downloadInfo).data.quality);
   quality.forEach(function (item,index) {
     switch (item) {
       case 116:
@@ -70,10 +89,10 @@ const getQuality = async (aid,pNum) => {
         resArray.push('高清720P');
 		break;
       case 32:
-        resArray.push('高清480P');
+        resArray.push('清晰480P');
 		break;
       case 16:
-        resArray.push('高清360P');
+        resArray.push('流畅360P');
 		break;
       default:
         resArray.push('获取视频清晰度错误!!!');
@@ -84,16 +103,19 @@ const getQuality = async (aid,pNum) => {
 };
 
 const getDownloadUrl = async (pNum,aid,quality) => {
+  console.log(quality);
   let qualityNum = getQualityNumber(quality),
       videoInfo = await rp(`https://api.bilibili.com/x/web-interface/view?aid=${aid}`),
       cid = JSON.parse(videoInfo).data.cid,
+      author = JSON.parse(videoInfo).data.owner.name,
       title = filterSpecialStr(JSON.parse(videoInfo).data.title);
+  console.log(qualityNum);
   let downloadInfo = await rp({
         uri: `https://api.bilibili.com/x/player/playurl?avid=${aid}&cid=${cid}&qn=${qualityNum}&otype=json`,
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0',
           'Host': 'api.bilibili.com',
-          'Cookie': 'SESSDATA=c87ce1a7%2C1563412255%2C86ebdd61'
+          'Cookie': 'SESSDATA=560f605d%2C1570783582%2C9881e691'
         }
       }),
       downloadInfoPares = JSON.parse(downloadInfo),
@@ -105,6 +127,8 @@ const getDownloadUrl = async (pNum,aid,quality) => {
     let obj = {};
     obj.videoAid = aid;
     obj.videoTitle = `[p${pNum}]${title}-${index}`;
+    obj.author = author;
+    obj.cid = cid;
     obj.videoLength = item.length;
     obj.videoSize = item.size;
     obj.videoFormat = parseFormat(videoFormat);
@@ -117,5 +141,6 @@ const getDownloadUrl = async (pNum,aid,quality) => {
 module.exports = {
   getQuality: getQuality,
   getDownloadUrl: getDownloadUrl,
-  isMore: isMore
+  isMore: isMore,
+  printVideoInfo: printVideoInfo
 }

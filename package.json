@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "exceljs": "^2.0.1",
+    "fast-xml-parser": "^3.12.20",
     "fluent-ffmpeg": "^2.1.2",
     "progress-stream": "^2.0.0",
     "readline-sync": "^1.4.9",

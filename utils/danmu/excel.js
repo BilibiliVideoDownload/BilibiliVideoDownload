@@ -1,6 +1,6 @@
 const Excel = require("exceljs");
 
-const creatExcel = data => {
+const creatExcel = (data,filename) => {
   let workbook = new Excel.Workbook();
 // 标签创建
   let worksheet = workbook.addWorksheet("第一个标签");
@@ -17,7 +17,12 @@ const creatExcel = data => {
       width: 45
     },
     {
-      header: '用户UID',
+      header: '发送时间',
+      key: 'time',
+      width: 30
+    },
+    {
+      header: '用户主页',
       key: 'uid',
       width: 45,
     }
@@ -28,13 +33,14 @@ const creatExcel = data => {
     worksheet.addRow({
       id: index+1,
       danmu: item.danmu,
+      time: item.time,
       uid: item.uid
     });
   });
 
 // 直接创建一个Excel表
-  workbook.xlsx.writeFile("12345.xlsx").then(function () {
-    console.log("saved");
+  workbook.xlsx.writeFile(`./danmu/${filename}.xlsx`).then(function () {
+    console.log(`${filename} -- 弹幕下载成功！！！`);
   });
 };
 
