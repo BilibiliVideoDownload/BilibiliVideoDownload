@@ -7,7 +7,7 @@ const excel = require('./utils/danmu/excel');
 const excelData = require('./utils/danmu/parser');
 
 async function main() {
-  let aid,isMoreRes,pNum = 1,quality,qualityAll,downloadUrls,promises,isDanmu,cid;
+  let aid,isMoreRes,pNum = 1,quality,qualityAll,downloadUrls,promises,isDanmu,cid,isTrans;
   aid = readlineSync.question('请输入av号...');
 
   // 检查是否是多P
@@ -25,6 +25,8 @@ async function main() {
   downloadUrls = await getUrl.getDownloadUrl(pNum,aid,qualityAll[quality]);
 
   isDanmu = readlineSync.keyInSelect(['是','否'],'是否要下载弹幕？');
+  isTrans = readlineSync.keyInSelect(['是','否'],'是否合并转码？');
+
   let _title,_author,_allSize = 0,_allduration = 0;
   downloadUrls.forEach((item,index) => {
     _allSize += parseInt(item.videoSize/1048576);
@@ -35,7 +37,7 @@ async function main() {
       cid = item.cid;
     }
   });
-  console.log(getUrl.printVideoInfo(_title,_allSize,_author,_allduration,qualityAll[quality],isDanmu === 0 ? '是' : '否'));
+  console.log(getUrl.printVideoInfo(_title,_allSize,_author,_allduration,qualityAll[quality],isDanmu === 0 ? '是' : '否',isTrans === 0 ? '是' : '否'));
 
   // 下载弹幕
   if (isDanmu === 0){
@@ -46,10 +48,13 @@ async function main() {
       console.log(err);
     });
   }
+  // 视频下载
   promises = downloadUrls.map((item,index) => {
     return downloadFile.get(item.videoAid,item.videoSize,item.videoLength,item.url,item.videoTitle+'.'+item.videoFormat)
   });
-  Promise.all(promises)
+  // 视频合并转码
+  if(isTrans === 0){
+    Promise.all(promises)
     .then(response => {
       let arr = response[0].name.split('.'),
           len = response.length,
@@ -63,6 +68,7 @@ async function main() {
     .catch(err => {
       console.log(err);
     })
+  }
 }
 
 main();

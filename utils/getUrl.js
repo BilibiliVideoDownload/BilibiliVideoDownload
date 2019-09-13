@@ -18,7 +18,7 @@ const filterSpecialStr = str => {
   return str1;
 }
 
-const printVideoInfo = (title,size,author,duration,resolution,isDanmu) => {
+const printVideoInfo = (title,size,author,duration,resolution,isDanmu,isTrans) => {
   let info = `***************视频信息***************
               
 视频名称：${title}
@@ -32,6 +32,8 @@ up主：${author}
 下载清晰度：${resolution}
 
 是否下载弹幕：${isDanmu}
+
+是否合并转码：${isTrans}
 
 *************视频信息 END**************`;
   return info;
