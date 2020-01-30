@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const base = require('./base');
 
 const isMore = async aid => {
   let res = await rp(`http://api.bilibili.com/view?type=jsonp&appkey=8e9fc618fbd41e28&id=${aid}&page=2`);
@@ -68,7 +69,7 @@ const getQuality = async (aid,pNum) => {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0',
           'Host': 'api.bilibili.com',
-          'Cookie': 'SESSDATA=560f605d%2C1570783582%2C9881e691'
+          'Cookie': `SESSDATA=${base.SESSDATA}`
         }
       }),
       quality = JSON.parse(downloadInfo).data.accept_quality;
@@ -114,7 +115,7 @@ const getDownloadUrl = async (pNum,aid,quality) => {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:56.0) Gecko/20100101 Firefox/56.0',
           'Host': 'api.bilibili.com',
-          'Cookie': 'SESSDATA=560f605d%2C1570783582%2C9881e691'
+          'Cookie': `SESSDATA=${base.SESSDATA}`
         }
       }),
       downloadInfoPares = JSON.parse(downloadInfo),
