@@ -1,8 +1,0 @@
-
-# Node
-node_modules/
-.deploy_git/
-public/
-package-lock.json
-.idea/
-.DS_Store
