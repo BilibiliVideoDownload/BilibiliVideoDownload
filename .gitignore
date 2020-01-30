@@ -1,0 +1,10 @@
+# Node
+node_modules/
+.deploy_git/
+package-lock.json
+
+# webstorm
+.idea/
+
+# macos
+.DS_Store
