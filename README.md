@@ -1,23 +1,50 @@
-### BilibiliVideoDownload
-----
-PC端下载bilibili视频
+<div align="center">
+  <img src="https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/icon128x128.png" alt="">
+  <h1>BilibiliVideoDownload</h1>
+  <blockquote>PC端下载bilibili视频</blockquote>
+</div>
 
-### 运行
+## 安装
 
-0. [安装ffmpeg](http://ffmpeg.org/download.html) (视频合并转码会用到)
+到[releases](https://github.com/blogwy/BilibiliVideoDownload/releases)页面下载对应平台安装包即可，打开软件后需要设置**SESSDATA**才可以下载视频，**SESSDATA**是B站已登录用户的**cookies**里面的一个字段，而且如果你的账号是非大会员，你拿到的**SESSDATA**也只可以下载非大会员视频。如果你是大会员则可以下载大会员视频。为了支持正版，大家购买大会员。获取**SESSDATA**教程大家可以到软件相关设置处查看，或者直接[点击这里](https://blog.wangyu.link/2020/01/25/2020-01-25/)
 
-1. git clone https://github.com/blogwy/BilibiliVideoDownload.git
+## 演示
 
-2. cd BilibiliVideoDownload
+![1](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/1.png)
+![2](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/2.png)
+![3](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/3.png)
+![4](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/4.png)
 
-3. npm i
 
-4. 更换cookie中的SESSDATA值，在utils/getUrl.js`42`和`96`行
+## 功能
 
-5. node app.js
+* [x] 下载普通视频
+* [x] 下载番剧视频
+* [x] 下载电影(额外付费除外)
+* [x] 下载封面
+* [x] 下载进度
+* [x] 基本视频信息
+* [x] 删除下载记录
+* [ ] 暂停/恢复下载
 
-### 版本
-----
+## 运行
+
+```bash
+git clone https://github.com/blogwy/BilibiliVideoDownload.git
+
+cd BilibiliVideoDownload
+
+yarn
+
+yarn electron:serve
+
+yarn electron:build
+```
+## 版本
+
+v3.0.0 `2021-02-21`
+
+全新GUI版本上线
 
 v2.1.0 `2019-09-12`
 
@@ -35,40 +62,12 @@ v2.0.0 `2019-03-24`
 
 Node.js重构，以前的在vuejs分支
 
-### 演示
-----
-![图片1](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-03-24%20%E4%B8%8B%E5%8D%886.41.30.png)
-![图片2](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-03-24%20%E4%B8%8B%E5%8D%886.41.52.png)
-![图片3](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-03-24%20%E4%B8%8B%E5%8D%886.45.02.png)
-![图片4](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-03-24%20%E4%B8%8B%E5%8D%887.38.55.png)
-![图片5](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/excel.png)
+## 注意
 
-### 实现的功能
-----
-1. 视频下载
-2. 视频合并
-3. 视频转码
-4. 分P检测
-5. 分P下载
-6. 大会员清晰度下载(前提是必须要有一个大会员的SESSDATA)
-7. 弹幕下载
-8. 弹幕反查用户
+* 不要试图下载需要付费的视频，本软件不支持，可能会报错
 
-### 注意的问题
-----
-1. 请定期更换cookie中的SESSDATA值，在utils/getUrl.js`42`和`96`行。跟换方法为：浏览器登陆bilibili账户，在开发者模式 --> application --> cookie中找到SESSDATA值替换即可，一般为一个月的时效。(代码中默认的SESSDATA不能下载大会员清晰度视频,如有想下载大会员清晰度请替换)
-2. win用户在命令行CHCP 65001把编码转换成UTF8，不然会出现乱码。
-3. 输入的是av号，不要带av
-4. 视频下载后的格式是flv
-5. 转码合并后的格式是mp4
-6. 大部分视频下载后是一个文件，少部分视频是分段的，下载后是多个文件
-7. 只有选择转码合并才会生成mp4格式的视频
-8. 视频合并转码时间视配置高低不同
+* SESSDATA有过期时间，好像是半年
 
-### 用到的接口
+* 本人没有试过下载电影等时长比较长的视频(大于一小时)，不保证下载成功
 
-- https://api.bilibili.com/x/player/playurl?avid=44743619&cid=78328965&qn=80&otype=json
-
-- https://api.bilibili.com/x/web-interface/view?aid=44743619
-
-- https://api.bilibili.com/x/v1/dm/list.so?oid=78328965
+* 由于下载的音视频是分离的，项目使用ffmpeg合成导致安装包过大(ffmpeg大约70+MB)，以后会优化的

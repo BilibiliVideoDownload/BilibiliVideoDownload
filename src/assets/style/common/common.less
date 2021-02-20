@@ -1,0 +1,81 @@
+@import './flex.less';
+
+.fr {
+  .flex();
+  .flex-dir(row);
+}
+
+.fc {
+  .flex();
+  .flex-dir(column);
+}
+
+.fg1{
+  flex-grow: 1;
+}
+
+.ac {
+  .flex-align(center);
+}
+
+.jc {
+  .flex-just(center);
+}
+
+.jsb {
+  .flex-just(space-between);
+}
+
+.jsa {
+  .flex-just(space-around);
+}
+
+.jsd {
+  .flex-just(flex-end);
+}
+
+.aic {
+  align-items: center;
+}
+
+.warp{
+  flex-wrap: wrap;
+}
+
+.ellipsis-1 {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.ml8{
+  margin-left: 8px;
+}
+.mr8{
+  margin-right: 8px;
+}
+.ml16{
+  margin-left: 16px;
+}
+.mr16{
+  margin-right: 16px;
+}
+.mt8{
+  margin-top: 8px;
+}
+.mt16{
+  margin-top: 16px;
+}
+.pl16{
+  padding-left: 16px;
+}
+.text-active{
+  color: @primary-color;
+  cursor: pointer;
+}
