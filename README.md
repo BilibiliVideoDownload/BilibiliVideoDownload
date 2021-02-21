@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/icon128x128.png" alt="">
+  <img src="./build/icons/icon128x128.png" alt="">
   <h1>BilibiliVideoDownload</h1>
   <blockquote>PC端下载bilibili视频</blockquote>
 </div>
@@ -10,10 +10,10 @@
 
 ## 演示
 
-![1](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/1.png)
-![2](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/2.png)
-![3](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/3.png)
-![4](https://wong-1251253615.cos.ap-shanghai.myqcloud.com/BilibiliVideoDownload/v3.x/4.png)
+![1](./build/demo/1.png)
+![2](./build/demo/2.png)
+![3](./build/demo/3.png)
+![4](./build/demo/4.png)
 
 
 ## 功能
