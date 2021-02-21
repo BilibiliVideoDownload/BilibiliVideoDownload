@@ -26,7 +26,7 @@ export default class FFmpeg {
 
   startMerge (fun) {
     fun('start')
-    this.ffmpeg = exec(`${ffmpegPath} -i "${this.videoPath}" -i "${this.audioPath}" -codec copy "${this.mergePath}"`, (error, stdout) => {
+    this.ffmpeg = exec(`"${ffmpegPath}" -i "${this.videoPath}" -i "${this.audioPath}" -codec copy "${this.mergePath}"`, (error, stdout) => {
       if (error) {
         console.log('an error happened: ' + error)
         fun('error')
