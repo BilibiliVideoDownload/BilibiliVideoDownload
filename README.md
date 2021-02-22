@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./build/icons/icon128x128.png" alt="">
+  <img src="./build/icons/256x256.png" alt="" width="128">
   <h1>BilibiliVideoDownload</h1>
   <blockquote>PC端下载bilibili视频</blockquote>
 </div>
