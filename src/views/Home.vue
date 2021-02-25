@@ -9,7 +9,7 @@
       <img src="../assets/images/logo.png" alt="">
     </div>
     <div class="download-box">
-      <a-input v-model="url" size="large">
+      <a-input v-model="url" size="large" placeholder="请输入视频地址">
         <a-icon slot="addonAfter" type="arrow-down" class="icon" @click="download" />
       </a-input>
     </div>
