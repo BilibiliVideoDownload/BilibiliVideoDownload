@@ -10,10 +10,10 @@
 
 ## 演示
 
-![1](./build/demo/1.png)
-![2](./build/demo/2.png)
-![3](./build/demo/3.png)
-![4](./build/demo/4.png)
+![1](./screenshots/1.png)
+![2](./screenshots/2.png)
+![3](./screenshots/3.png)
+![4](./screenshots/4.png)
 
 
 ## 功能
