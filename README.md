@@ -4,6 +4,14 @@
   <blockquote>PC端下载bilibili视频</blockquote>
 </div>
 
+## 注意
+
+* 软件不支持付费视频和地区限制视频，可能会报错
+
+* SESSDATA有过期时间，好像是半年
+
+* 由于下载的音视频是分离的，项目使用ffmpeg合成导致安装包过大(ffmpeg大约70+MB)，以后会优化的
+
 ## 安装
 
 到[releases](https://github.com/blogwy/BilibiliVideoDownload/releases)页面或者[百度网盘](https://pan.baidu.com/s/1O7ZfxFKH7Rm9zhB5JC4Prg)密码: rf8n,下载对应平台安装包即可.打开软件后需要设置**SESSDATA**才可以下载视频，**SESSDATA**是B站已登录用户的**cookies**里面的一个字段，而且如果你的账号是非大会员，你拿到的**SESSDATA**也只可以下载非大会员视频。如果你是大会员则可以下载大会员视频。为了支持正版，大家购买大会员。获取**SESSDATA**教程大家可以到软件相关设置处查看，或者直接[点击这里](https://blog.wangyu.link/2020/01/25/2020-01-25/)
@@ -61,13 +69,3 @@ v2.0.1 `2019-03-29`
 v2.0.0 `2019-03-24`
 
 Node.js重构，以前的在vuejs分支
-
-## 注意
-
-* 不要试图下载需要付费的视频，本软件不支持，可能会报错
-
-* SESSDATA有过期时间，好像是半年
-
-* 本人没有试过下载电影等时长比较长的视频(大于一小时)，不保证下载成功
-
-* 由于下载的音视频是分离的，项目使用ffmpeg合成导致安装包过大(ffmpeg大约70+MB)，以后会优化的
