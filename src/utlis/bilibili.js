@@ -38,9 +38,9 @@ const parseHtml = (html, type, url) => {
 
 const parseBV = (html, url) => {
   return new Promise((resolve, reject) => {
-    const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=/)[1]
-    const videoInfo = html.match(/\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)/)[1]
     try {
+      const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=/)[1]
+      const videoInfo = html.match(/\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)/)[1]
       const { data } = JSON.parse(downloadInfo)
       const { videoData } = JSON.parse(videoInfo)
       const obj = {
@@ -71,11 +71,11 @@ const parseBV = (html, url) => {
 
 const parseEP = (html, url) => {
   return new Promise((resolve, reject) => {
-    const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_BILI\_CONFIG\_\_\=\{\"show_bv\"\:true\}/)[1]
-    const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
-    console.log(JSON.parse(downloadInfo))
-    console.log(JSON.parse(videoInfo))
     try {
+      const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_BILI\_CONFIG\_\_\=\{\"show_bv\"\:true\}/)[1]
+      const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
+      console.log(JSON.parse(downloadInfo))
+      console.log(JSON.parse(videoInfo))
       const { data } = JSON.parse(downloadInfo)
       const { h1Title, mediaInfo } = JSON.parse(videoInfo)
       const obj = {
@@ -121,6 +121,7 @@ const parseSS = async html => {
     return parseEP(body, params.url)
   } catch (error) {
     console.log(error)
+    return -1
   }
 }
 
