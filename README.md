@@ -73,3 +73,8 @@ v2.0.1 `2019-03-29`
 v2.0.0 `2019-03-24`
 
 Node.js重构，以前的在vuejs分支
+
+## 感谢
+
+特别感谢JetBrains为开源项目提供的免费许可证，申请地址：[https://www.jetbrains.com/zh-cn/community/opensource/#support](https://www.jetbrains.com/zh-cn/community/opensource/#support)
+
