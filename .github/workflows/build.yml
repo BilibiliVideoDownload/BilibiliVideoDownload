@@ -1,0 +1,88 @@
+# main.yml
+
+# Workflow's name
+name: Build Electron App For Win/Mac
+
+# Workflow's trigger
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+# Workflow's jobs
+jobs:
+  # job's id
+  release:
+    # job's name
+    name: build and release electron app
+
+    # the type of machine to run the job on
+    runs-on: ${{ matrix.os }}
+
+    # create a build matrix for jobs
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, 'ubuntu-latest']
+
+    # create steps
+    steps:
+      # step1: check out repository
+      - name: Check out git repository
+        uses: actions/checkout@v2
+
+      # step2: install node env
+      - name: Install Node.js
+        uses: actions/setup-node@v2-beta
+
+      # step3: npm install
+      - name: npm install
+        run: |
+          npm install
+
+      # step4: build app for mac/win
+      - name: build windows app
+        if: matrix.os == 'windows-latest'
+        run: |
+          npm run electron:build
+        env:
+          GH_TOKEN: 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
+
+      - name: build mac app
+        if: matrix.os == 'macos-latest'
+        run: |
+          npm run electron:build
+        env:
+          GH_TOKEN: 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
+
+      # step5: cleanup artifacts in dist_electron
+      - name: cleanup artifacts for windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          npx rimraf "dist_electron/!(*.exe)"
+
+      - name: cleanup artifacts for macos
+        if: matrix.os == 'macos-latest'
+        run: |
+          npx rimraf "dist_electron/!(*.dmg)"
+
+      - name: cleanup artifacts for ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npx rimraf "dist_electron/!(*.AppImage)"
+
+      # step6: upload artifacts
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}
+          path: dist_electron
+
+      # step7: create release
+      - name: release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: "dist_electron/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
