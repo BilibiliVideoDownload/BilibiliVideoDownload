@@ -46,21 +46,21 @@ jobs:
         run: |
           npm run electron:build
         env:
-          GH_TOKEN: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build mac app
         if: matrix.os == 'macos-latest'
         run: |
           npm run electron:build
         env:
-          GH_TOKEN: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build mac ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: |
           npm run electron:build
         env:
-          GH_TOKEN: 
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # step5: cleanup artifacts in dist_electron
       - name: cleanup artifacts for windows
