@@ -1,7 +1,7 @@
 # main.yml
 
 # Workflow's name
-name: Build Electron App For Win/Mac
+name: Build Electron App For Windows/macOs/Ubuntu
 
 # Workflow's trigger
 on:
@@ -55,7 +55,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: build mac ubuntu
+      - name: build ubuntu app
         if: matrix.os == 'ubuntu-latest'
         run: |
           npm run electron:build
