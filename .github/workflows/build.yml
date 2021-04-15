@@ -55,6 +55,13 @@ jobs:
         env:
           GH_TOKEN: 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
 
+      - name: build mac ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run electron:build
+        env:
+          GH_TOKEN: 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
+
       # step5: cleanup artifacts in dist_electron
       - name: cleanup artifacts for windows
         if: matrix.os == 'windows-latest'
