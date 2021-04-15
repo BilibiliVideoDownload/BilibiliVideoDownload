@@ -74,8 +74,6 @@ const parseEP = (html, url) => {
     try {
       const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_BILI\_CONFIG\_\_\=\{\"show_bv\"\:true\}/)[1]
       const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
-      console.log(JSON.parse(downloadInfo))
-      console.log(JSON.parse(videoInfo))
       const { data } = JSON.parse(downloadInfo)
       const { h1Title, mediaInfo } = JSON.parse(videoInfo)
       const obj = {

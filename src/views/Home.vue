@@ -67,7 +67,6 @@ export default {
           return
         }
         const videoInfo = await parseHtml(res.body, type, url)
-        console.log(videoInfo)
         this.$refs.videoModal.show(videoInfo)
       } catch (error) {
         console.log(error)

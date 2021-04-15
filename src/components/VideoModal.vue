@@ -120,7 +120,7 @@ export default {
           }
         }
         const res = await this.got(`${this.videoInfo.url}?p=${this.selected}`, config)
-        const { downloadInfo: { data } } = parseHtml(res.body, type)
+        const { downloadPath: { video, audio } } = await parseHtml(res.body, type)
         const videoInfo = {
           id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
           ...this.videoInfo,
@@ -132,8 +132,8 @@ export default {
           size: null,
           url: `${this.videoInfo.url}?p=${this.selected}`,
           downloadPath: {
-            video: data.dash.video.find(item => item.id === this.quality).baseUrl,
-            audio: data.dash.audio[0].baseUrl
+            video: video.find(item => item.id === this.quality).baseUrl,
+            audio: audio[0].baseUrl
           }
         }
         console.log(videoInfo)
@@ -191,6 +191,7 @@ export default {
     },
     handleCancel () {
       this.visible = false
+      this.confirmLoading = false
       this.quality = null
       this.selected = []
     },
