@@ -43,9 +43,14 @@ const parseBV = (html, url) => {
       const videoInfo = html.match(/\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)/)[1]
       const { data } = JSON.parse(downloadInfo)
       const { videoData } = JSON.parse(videoInfo)
+      console.log('parseBV')
+      console.log(data)
+      console.log(videoData)
       const obj = {
         title: videoData.title,
         url,
+        bvid: videoData.bvid,
+        cid: videoData.cid,
         cover: videoData.pic,
         createdTime: formatDataTime({ isNow: true, rules: 'YYYY-MM-DD HH:mm:ss' }),
         watch: videoData.stat.view,
@@ -54,11 +59,8 @@ const parseBV = (html, url) => {
         duration: formatSeconed(videoData.duration),
         up: videoData.hasOwnProperty('staff') ? videoData.staff.map(item => ({ name: item.name, mid: item.mid })) : [{ name: videoData.owner.name, mid: videoData.owner.mid }],
         qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
-        page: videoData.pages.map(item => ({ title: item.part, page: item.page, duration: item.duration })),
-        downloadPath: {
-          video: data.dash.video,
-          audio: data.dash.audio
-        }
+        page: videoData.pages.map(item => ({ title: item.part, page: item.page, duration: item.duration, cid: item.cid })),
+        downloadPath: {}
       }
       resolve(obj)
     } catch (error) {
@@ -75,10 +77,12 @@ const parseEP = (html, url) => {
       const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_BILI\_CONFIG\_\_\=\{\"show_bv\"\:true\}/)[1]
       const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
       const { data } = JSON.parse(downloadInfo)
-      const { h1Title, mediaInfo } = JSON.parse(videoInfo)
+      const { h1Title, mediaInfo, epInfo } = JSON.parse(videoInfo)
       const obj = {
         title: h1Title,
         url,
+        bvid: epInfo.bvid,
+        cid: epInfo.cid,
         cover: `http:${mediaInfo.cover}`,
         createdTime: formatDataTime({ isNow: true, rules: 'YYYY-MM-DD HH:mm:ss' }),
         watch: mediaInfo.stat.views,
@@ -88,10 +92,7 @@ const parseEP = (html, url) => {
         up: [{ name: mediaInfo.upInfo.name, mid: mediaInfo.upInfo.mid }],
         qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
         page: [],
-        downloadPath: {
-          video: data.dash.video,
-          audio: data.dash.audio
-        }
+        downloadPath: {}
       }
       resolve(obj)
     } catch (error) {

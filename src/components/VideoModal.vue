@@ -30,7 +30,12 @@
       </div>
       <div v-if="videoInfo.page && videoInfo.page.length > 1" class="fr ac warp mt16">
         <div v-for="(item, index) in videoInfo.page" :key="index" :class="['video-item', selected === item.page ? 'active' : '']" @click="toggle(item.page)">
-          <span class="ellipsis-1">{{ item.title }}</span>
+          <a-tooltip>
+            <template slot="title">
+              {{ item.title }}
+            </template>
+            <span class="ellipsis-1">{{ item.title }}</span>
+          </a-tooltip>
         </div>
       </div>
     </div>
@@ -38,7 +43,6 @@
 </template>
 
 <script>
-import { checkUrl, parseHtml } from '../utlis/bilibili'
 import randomNum from '../utlis/randomNum'
 // import sleep from '../utlis/sleep'
 import filterTitle from '../utlis/filterTitle'
@@ -63,18 +67,7 @@ export default {
   },
   components: {},
   computed: {},
-  watch: {
-    // selected: {
-    //   handler (val) {
-    //     if (val.length && val.length === this.videoInfo.page.length) {
-    //       this.checked = true
-    //     } else {
-    //       this.checked = false
-    //     }
-    //   },
-    //   immediate: true
-    // }
-  },
+  watch: {},
   filters: {
     formatCover (img) {
       return `http://127.0.0.1:8964/?img=${img}`
@@ -100,27 +93,33 @@ export default {
         this.$message.info('请选择清晰度')
         return
       }
+      const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+      if (!SESSDATA) {
+        this.$message.error('请设置SESSDATA')
+        return
+      }
+      const config = {
+        headers: {
+          'User-Agent': `${UA}`,
+          cookie: `SESSDATA=${SESSDATA}`
+        }
+      }
       this.confirmLoading = true
+      // 判断是否多p视频
       if (this.videoInfo.page.length > 1) {
         if (!this.selected) {
           this.$message.info('请选择分P')
           return
         }
-        // 多P视频
-        const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
-        const type = checkUrl(this.videoInfo.url)
-        if (!SESSDATA) {
-          this.$message.error('请设置SESSDATA')
-          return
-        }
-        const config = {
-          headers: {
-            'User-Agent': `${UA}`,
-            cookie: `SESSDATA=${SESSDATA}`
+        // 请求选中清晰度视频下载地址
+        const cid = this.videoInfo.page.find(item => item.page === this.selected).cid
+        const { body: { data: { dash: { video, audio } } } } = await this.got(
+          `https://api.bilibili.com/x/player/playurl?cid=${cid}&bvid=${this.videoInfo.bvid}&qn=${this.quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
+          {
+            ...config,
+            responseType: 'json'
           }
-        }
-        const res = await this.got(`${this.videoInfo.url}?p=${this.selected}`, config)
-        const { downloadPath: { video, audio } } = await parseHtml(res.body, type)
+        )
         const videoInfo = {
           id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
           ...this.videoInfo,
@@ -165,6 +164,14 @@ export default {
         //   })
         // }
       } else {
+        // 请求选中清晰度视频下载地址
+        const { body: { data: { dash: { video, audio } } } } = await this.got(
+          `https://api.bilibili.com/x/player/playurl?cid=${this.videoInfo.cid}&bvid=${this.videoInfo.bvid}&qn=${this.quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
+          {
+            ...config,
+            responseType: 'json'
+          }
+        )
         const videoInfo = {
           id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
           ...this.videoInfo,
@@ -174,8 +181,8 @@ export default {
           progress: 0,
           size: null,
           downloadPath: {
-            video: this.videoInfo.downloadPath.video.find(item => item.id === this.quality).baseUrl,
-            audio: this.videoInfo.downloadPath.audio[0].baseUrl
+            video: video.find(item => item.id === this.quality).baseUrl,
+            audio: audio[0].baseUrl
           }
         }
         console.log(videoInfo)
