@@ -94,6 +94,7 @@ export default {
         return
       }
       const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+      const bfeId = window.remote.getGlobal('store').get('setting.bfe_id') ? window.remote.getGlobal('store').get('setting.bfe_id') : ''
       if (!SESSDATA) {
         this.$message.error('请设置SESSDATA')
         return
@@ -101,7 +102,7 @@ export default {
       const config = {
         headers: {
           'User-Agent': `${UA}`,
-          cookie: `SESSDATA=${SESSDATA}`
+          cookie: `SESSDATA=${SESSDATA};bfe_id=${bfeId}`
         }
       }
       this.confirmLoading = true
@@ -113,13 +114,15 @@ export default {
         }
         // 请求选中清晰度视频下载地址
         const cid = this.videoInfo.page.find(item => item.page === this.selected).cid
-        const { body: { data: { dash: { video, audio } } } } = await this.got(
+        const { body: { data: { dash: { video, audio } } }, headers: { 'set-cookie': responseCookies } } = await this.got(
           `https://api.bilibili.com/x/player/playurl?cid=${cid}&bvid=${this.videoInfo.bvid}&qn=${this.quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
           {
             ...config,
             responseType: 'json'
           }
         )
+        // 保存返回的cookies
+        this.saveResponseCookies(responseCookies)
         const videoInfo = {
           id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
           ...this.videoInfo,
@@ -165,13 +168,15 @@ export default {
         // }
       } else {
         // 请求选中清晰度视频下载地址
-        const { body: { data: { dash: { video, audio } } } } = await this.got(
+        const { body: { data: { dash: { video, audio } } }, headers: { 'set-cookie': responseCookies } } = await this.got(
           `https://api.bilibili.com/x/player/playurl?cid=${this.videoInfo.cid}&bvid=${this.videoInfo.bvid}&qn=${this.quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
           {
             ...config,
             responseType: 'json'
           }
         )
+        // 保存返回的cookies
+        this.saveResponseCookies(responseCookies)
         const videoInfo = {
           id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
           ...this.videoInfo,
@@ -213,6 +218,16 @@ export default {
       // } else {
       //   this.selected.push(index)
       // }
+    },
+    saveResponseCookies (cookies) {
+      if (cookies && cookies.length) {
+        const cookiesString = cookies.join(';')
+        const setting = window.remote.getGlobal('store').get('setting')
+        window.remote.getGlobal('store').set('setting', {
+          ...setting,
+          bfe_id: cookiesString
+        })
+      }
     }
     // onCheckboxChange (e) {
     //   this.selected = []

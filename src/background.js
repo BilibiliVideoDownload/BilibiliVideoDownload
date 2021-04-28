@@ -85,12 +85,15 @@ function registerLocalResourceProtocol () {
 }
 
 function initSetting () {
+  console.log('store.get(setting)')
+  console.log(store.get('setting'))
   if (!store.get('setting')) {
     store.set('setting', {
       downloadPath: app.getPath('downloads'),
       SESSDATA: null,
       isMerge: true,
-      isDelete: true
+      isDelete: true,
+      bfe_id: null
     })
   }
 }
