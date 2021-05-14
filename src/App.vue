@@ -13,6 +13,7 @@
     </div>
     <SettingDrawer ref="settingDrawer"></SettingDrawer>
     <UserModal ref="userModal"></UserModal>
+    <CheckUpdate ref="checkUpdate"></CheckUpdate>
   </div>
 </template>
 
@@ -20,6 +21,7 @@
 import LayoutHeader from './components/LayoutHeader'
 import SettingDrawer from './components/SettingDrawer'
 import UserModal from './components/UserModal'
+import CheckUpdate from './components/CheckUpdate'
 export default {
   data () {
     return {
@@ -29,11 +31,15 @@ export default {
   components: {
     LayoutHeader,
     SettingDrawer,
-    UserModal
+    UserModal,
+    CheckUpdate
   },
   computed: {},
   watch: {},
-  mounted () {},
+  mounted () {
+    // 检查更新
+    this.$refs.checkUpdate.checkUpdate()
+  },
   created () {},
   methods: {
     openSetting () {
