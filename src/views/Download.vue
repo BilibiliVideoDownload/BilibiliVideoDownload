@@ -3,7 +3,7 @@
     <div class="back-icon">
       <a-icon type="rollback" class="icon" @click="goHome" />
     </div>
-    <a-empty v-if="!taskList || !taskList.length" image="https://wong-1251253615.cos.ap-shanghai.myqcloud.com/no-data.png">
+    <a-empty v-if="!taskList || !taskList.length" :image="require('../assets/images/no-data.png')">
       <span slot="description" class="text-active" style="font-weight: bold">暂无数据</span>
     </a-empty>
     <template v-else>
@@ -48,9 +48,11 @@
 </template>
 
 <script>
-import quality from '../assets/data/quality'
+import base from '../mixin/base'
+import { quality } from '../assets/data/quality'
 const fs = require('fs')
 export default {
+  mixins: [base],
   data () {
     return {
       taskList: [],
@@ -99,7 +101,7 @@ export default {
   },
   methods: {
     openFolder (videoInfo) {
-      const setting = window.remote.getGlobal('store').get('setting')
+      const setting = this.store.get('setting')
       let dir = ''
       if (process.platform === 'win32') {
         dir = `${setting.downloadPath}\\${videoInfo.title}-${videoInfo.id}`
@@ -116,7 +118,7 @@ export default {
         okText: '删除',
         onOk: () => {
           // 删除文件
-          const setting = window.remote.getGlobal('store').get('setting')
+          const setting = this.store.get('setting')
           fs.rmdir(`${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}`, { recursive: true }, err => {
             if (err) {
               console.log(err)
@@ -125,10 +127,10 @@ export default {
             }
           })
           // 删除记录
-          const taskList = window.remote.getGlobal('store').get('taskList')
+          const taskList = this.store.get('taskList')
           const index = taskList.findIndex(item => item.id === videoInfo.id)
           taskList.splice(index, 1)
-          window.remote.getGlobal('store').set('taskList', taskList)
+          this.store.set('taskList', taskList)
           this.$message.success('删除成功')
           this.getTaskList()
         },
@@ -138,15 +140,15 @@ export default {
       })
     },
     getVideoSize (videoInfo) {
-      const setting = window.remote.getGlobal('store').get('setting')
+      const setting = this.store.get('setting')
       fs.stat(`${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/${videoInfo.title}.mp4`, (err, info) => {
         if (err) {
           console.log(err)
         } else {
-          const taskList = window.remote.getGlobal('store').get('taskList')
+          const taskList = this.store.get('taskList')
           const index = taskList.findIndex(item => item.id === videoInfo.id)
           taskList[index].size = `${(info.size / 1000 / 1000).toFixed(2)}MB`
-          window.remote.getGlobal('store').set('taskList', taskList)
+          this.store.set('taskList', taskList)
           this.getTaskList()
         }
       })
@@ -162,11 +164,11 @@ export default {
         })
         // 成功/失败 后更新数据
         if (videoInfo.status === 0 || videoInfo.status === -1) {
-          const taskList = window.remote.getGlobal('store').get('taskList')
+          const taskList = this.store.get('taskList')
           const index = taskList.findIndex(item => item.id === videoInfo.id)
           taskList[index].status = videoInfo.status
           taskList[index].progress = videoInfo.progress
-          window.remote.getGlobal('store').set('taskList', taskList)
+          this.store.set('taskList', taskList)
         }
         if (videoInfo.status === 0) {
           this.getVideoSize({
@@ -183,7 +185,7 @@ export default {
       }
     },
     getTaskList () {
-      this.taskList = window.remote.getGlobal('store').get('taskList') ? window.remote.getGlobal('store').get('taskList').reverse() : []
+      this.taskList = this.store.get('taskList') ? this.store.get('taskList').reverse() : []
       if (this.taskList && this.taskList.length) {
         this.switchItem(0)
       }

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="download-icon">
-      <a-badge :color="isDot ? '#fb7299' : ''">
+      <a-badge>
         <a-icon type="download" class="icon" @click="goDownload" />
       </a-badge>
     </div>
@@ -13,47 +13,69 @@
         <a-icon slot="addonAfter" type="arrow-down" class="icon" @click="download" />
       </a-input>
     </div>
-    <VideoModal ref="videoModal"></VideoModal>
+    <div class="setting" v-if="$route.path === '/'">
+      <a-icon type="setting" class="icon" @click="$refs.settingDrawer.show(store.get('setting'))" />
+    </div>
+    <div class="user" v-if="$route.path === '/'">
+      <a-icon type="user" class="icon" @click="$refs.userModal.show()"/>
+    </div>
+    <VideoModal ref="videoModal" />
+    <SettingDrawer ref="settingDrawer" />
+    <UserModal ref="userModal" />
+    <LoginModal ref="loginModal" />
   </div>
 </template>
 
 <script>
-import { checkUrl, parseHtml } from '../utlis/bilibili'
+import base from '../mixin/base'
+import { checkUrl, parseHtml, checkLogin } from '../core/bilibili'
 import UA from '../assets/data/ua'
 import VideoModal from '../components/VideoModal'
+import SettingDrawer from '../components/SettingDrawer'
 export default {
+  mixins: [base],
   data () {
     return {
-      url: '',
-      got: null,
-      isDot: false
+      url: ''
     }
   },
   components: {
-    VideoModal
+    VideoModal,
+    SettingDrawer
   },
   computed: {},
   watch: {},
   mounted () {},
-  created () {
-    this.got = window.remote.getGlobal('got')
-  },
+  created () {},
   methods: {
+    test () {
+      this.$refs.loginModal.openLoginModal()
+      // this.$store.commit('setShowLoginModal', false)
+    },
     goDownload () {
       this.$router.push('/download')
     },
     async download () {
-      const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
-      if (!SESSDATA) {
-        this.$message.info('请设置SESSDATA')
+      // 检测url
+      if (!this.url) {
+        this.$message.info('请输入视频地址')
         return
+      }
+      // 检测登录状态
+      if (this.$store.state.showLoginModal) {
+        const status = await checkLogin()
+        this.$store.commit('setLoginStatus', status)
+        if (status === 0) {
+          this.$refs.loginModal.openLoginModal()
+          return
+        }
       }
       const params = {
         url: this.url,
         config: {
           headers: {
             'User-Agent': `${UA}`,
-            cookie: `SESSDATA=${SESSDATA}`
+            cookie: `SESSDATA=${this.store.get('setting.SESSDATA')}`
           }
         }
       }
@@ -84,6 +106,7 @@ export default {
   box-sizing: border-box;
   padding: 16px;
   position: relative;
+  height: calc(100% - 28px);
   .download-icon{
     position: absolute;
     top: 16px;
@@ -111,6 +134,22 @@ export default {
       color: #ffffff;
       font-size: 18px;
     }
+  }
+  .setting{
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    z-index: 100;
+    color: @primary-color;
+    font-size: 16px;
+  }
+  .user{
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    z-index: 100;
+    color: @primary-color;
+    font-size: 16px;
   }
 }
 </style>

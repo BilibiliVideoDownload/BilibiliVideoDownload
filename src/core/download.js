@@ -1,6 +1,7 @@
 import UA from '../assets/data/ua'
 import FFmpeg from '../core/ffmpeg'
 import sleep from '../utlis/sleep'
+import { downloadSubtitle } from './subtitle'
 const stream = require('stream');
 const {promisify} = require('util');
 const fs = require('fs');
@@ -68,6 +69,10 @@ export default async (videoInfo, event) => {
       }),
     fs.createWriteStream(`${dir}${videoInfo.title}.png`)
   )
+  // 下载字幕
+  if (setting.isSubtitle) {
+    downloadSubtitle(dir, videoInfo.subtitle)
+  }
   // 下载视频
   await pipeline(
     got.stream(videoInfo.downloadPath.video, downloadConfig)
@@ -75,7 +80,6 @@ export default async (videoInfo, event) => {
         let nowTime = +new Date()
         clearTimeout(videoTimer)
         if (!videoLastTime || nowTime - videoLastTime > 1000) {
-          console.log('--下载视频进度--')
           event.reply('reply-download-video', {
             id: videoInfo.id,
             status: 1,
@@ -110,7 +114,6 @@ export default async (videoInfo, event) => {
         let nowTime = +new Date()
         clearTimeout(audioTimer)
         if (!audioLastTime || nowTime - audioLastTime > 1000) {
-          console.log('--下载音频进度--')
           event.reply('reply-download-video', {
             id: videoInfo.id,
             status: 2,
@@ -146,8 +149,6 @@ export default async (videoInfo, event) => {
       mergePath: `${dir}${videoInfo.title}.mp4`
     })
     ffmpeg.startMerge(res => {
-      console.log('--合成视频--')
-      console.log(res)
       if (res === 'start') {
         event.reply('reply-download-video', {
           id: videoInfo.id,

@@ -4,6 +4,7 @@ import { app, Menu, protocol, BrowserWindow, ipcMain, dialog, shell } from 'elec
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import downloadTask from './core/download'
+import { settingStore } from './assets/data/setting'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const got = require('got')
 const express = require('express')
@@ -85,15 +86,12 @@ function registerLocalResourceProtocol () {
 }
 
 function initSetting () {
-  console.log('store.get(setting)')
+  console.log('setting info')
   console.log(store.get('setting'))
   if (!store.get('setting')) {
     store.set('setting', {
-      downloadPath: app.getPath('downloads'),
-      SESSDATA: null,
-      isMerge: true,
-      isDelete: true,
-      bfe_id: null
+      ...settingStore,
+      downloadPath: app.getPath('downloads')
     })
   }
 }

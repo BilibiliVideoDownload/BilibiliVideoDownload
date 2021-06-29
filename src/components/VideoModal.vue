@@ -21,7 +21,7 @@
       <div class="mt16">
         选择清晰度：
         <div class="mt8">
-          <a-radio-group v-model="quality" :options="videoInfo.qualityOptions" />
+          <a-radio-group v-model="quality" :options="qualityOptions" />
         </div>
       </div>
       <div v-if="videoInfo.page && videoInfo.page.length > 1" class="fr ac jsb mt16">
@@ -42,12 +42,15 @@
 </template>
 
 <script>
+import base from '../mixin/base'
 import randomNum from '../utlis/randomNum'
 import sleep from '../utlis/sleep'
 import filterTitle from '../utlis/filterTitle'
 import UA from '../assets/data/ua'
 import formatSeconed from '../utlis/formatSeconed'
+import { userQuality } from '../assets/data/quality'
 export default {
+  mixins: [base],
   data () {
     return {
       visible: false,
@@ -59,12 +62,16 @@ export default {
       },
       selected: [],
       videoOptions: [],
-      quality: null,
-      got: null
+      quality: null
     }
   },
   components: {},
-  computed: {},
+  computed: {
+    qualityOptions () {
+      const quality = userQuality[this.$store.state.loginStatus]
+      return this.videoInfo.qualityOptions.filter(item => quality.includes(item.value))
+    }
+  },
   watch: {},
   filters: {
     formatCover (img) {
@@ -72,9 +79,7 @@ export default {
     }
   },
   mounted () {},
-  created () {
-    this.got = window.remote.getGlobal('got')
-  },
+  created () {},
   methods: {
     openExternal (url) {
       if (url) {
@@ -91,12 +96,8 @@ export default {
         this.$message.info('请选择清晰度')
         return
       }
-      const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
-      const bfeId = window.remote.getGlobal('store').get('setting.bfe_id') ? window.remote.getGlobal('store').get('setting.bfe_id') : ''
-      if (!SESSDATA) {
-        this.$message.error('请设置SESSDATA')
-        return
-      }
+      const SESSDATA = this.store.get('setting.SESSDATA')
+      const bfeId = this.store.get('setting.bfe_id') ? this.store.get('setting.bfe_id') : ''
       const config = {
         headers: {
           'User-Agent': `${UA}`,
@@ -126,7 +127,7 @@ export default {
           const videoInfo = {
             id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
             ...this.videoInfo,
-            title: `[P${currentPage}]${filterTitle(this.videoInfo.page.find(item => item.page === currentPage).title)}}`,
+            title: `[P${currentPage}]${filterTitle(this.videoInfo.page.find(item => item.page === currentPage).title)}`,
             quality: this.quality,
             duration: formatSeconed(this.videoInfo.page.find(item => item.page === currentPage).duration),
             status: 1,
@@ -140,9 +141,9 @@ export default {
           }
           console.log(videoInfo)
           // 保存数据
-          let taskList = window.remote.getGlobal('store').get('taskList') ? window.remote.getGlobal('store').get('taskList') : []
+          let taskList = this.store.get('taskList') ? this.store.get('taskList') : []
           taskList = taskList.concat(videoInfo)
-          window.remote.getGlobal('store').set('taskList', taskList)
+          this.store.set('taskList', taskList)
           // 调用下载
           window.ipcRenderer.send('download-video', videoInfo)
           if (index !== this.selected.length - 1) {
@@ -178,9 +179,9 @@ export default {
         }
         console.log(videoInfo)
         // 保存数据
-        let taskList = window.remote.getGlobal('store').get('taskList') ? window.remote.getGlobal('store').get('taskList') : []
+        let taskList = this.store.get('taskList') ? this.store.get('taskList') : []
         taskList = taskList.concat(videoInfo)
-        window.remote.getGlobal('store').set('taskList', taskList)
+        this.store.set('taskList', taskList)
         this.confirmLoading = false
         // 调用下载
         window.ipcRenderer.send('download-video', videoInfo)
@@ -204,8 +205,8 @@ export default {
     saveResponseCookies (cookies) {
       if (cookies && cookies.length) {
         const cookiesString = cookies.join(';')
-        const setting = window.remote.getGlobal('store').get('setting')
-        window.remote.getGlobal('store').set('setting', {
+        const setting = this.store.get('setting')
+        this.store.set('setting', {
           ...setting,
           bfe_id: cookiesString
         })

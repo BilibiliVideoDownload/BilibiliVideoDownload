@@ -1,55 +1,33 @@
 <template>
-  <div id="app">
-    <LayoutHeader></LayoutHeader>
-    <router-view></router-view>
-    <div class="bg">
-      <img :src="wallpaper" alt="" ref="img">
+  <a-config-provider :locale="zh_CN">
+    <div id="app">
+      <LayoutHeader />
+      <router-view></router-view>
     </div>
-    <div class="setting" v-if="$route.path === '/'">
-      <a-icon type="setting" class="icon" @click="openSetting" />
-    </div>
-    <div class="user" v-if="$route.path === '/'">
-      <a-icon type="user" class="icon" @click="openUser"/>
-    </div>
-    <SettingDrawer ref="settingDrawer"></SettingDrawer>
-    <UserModal ref="userModal"></UserModal>
-    <CheckUpdate ref="checkUpdate"></CheckUpdate>
-  </div>
+  </a-config-provider>
 </template>
 
 <script>
+import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN'
 import LayoutHeader from './components/LayoutHeader'
-import SettingDrawer from './components/SettingDrawer'
-import UserModal from './components/UserModal'
-import CheckUpdate from './components/CheckUpdate'
 export default {
   data () {
     return {
-      wallpaper: require('./assets/images/bg.png')
+      wallpaper: require('./assets/images/bg.png'),
+      zh_CN
     }
   },
   components: {
-    LayoutHeader,
-    SettingDrawer,
-    UserModal,
-    CheckUpdate
+    LayoutHeader
   },
   computed: {},
   watch: {},
   mounted () {
     // 检查更新
-    this.$refs.checkUpdate.checkUpdate()
+    this.$checkUpdate.checkUpdate()
   },
   created () {},
-  methods: {
-    openSetting () {
-      const setting = window.remote.getGlobal('store').get('setting')
-      this.$refs.settingDrawer.show(setting)
-    },
-    openUser () {
-      this.$refs.userModal.show()
-    }
-  }
+  methods: {}
 }
 </script>
 
@@ -62,33 +40,7 @@ export default {
   width: 100%;
   height: 100%;
   user-select: none;
-  .bg{
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    z-index: -1;
-    img{
-      width: 100%;
-      height: 100%;
-    }
-  }
-  .setting{
-    position: absolute;
-    left: 16px;
-    bottom: 16px;
-    z-index: 100;
-    color: @primary-color;
-    font-size: 16px;
-  }
-  .user{
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    z-index: 100;
-    color: @primary-color;
-    font-size: 16px;
-  }
+  background-image: url('./assets/images/bg.png');
+  background-size: 100% 100%;
 }
 </style>

@@ -7,19 +7,22 @@
     @ok="handleOk"
     @cancel="handleCancel">
     <p>检查到新版本<a>v{{ newVersion }}</a>，当前版本<a>v{{ oldVersion }}</a>可能有BUG，请及时更新。安装新版本前请先卸载旧版本！</p>
+    <p>更新内容：{{ updateContent }}</p>
   </a-modal>
 </template>
 
 <script>
-const packageInfo = require('../../package.json')
+import base from '../../mixin/base'
+const packageInfo = require('../../../package.json')
 export default {
+  mixins: [base],
   data () {
     return {
-      got: null,
       visible: false,
       newVersion: '',
       oldVersion: '',
-      htmlUrl: ''
+      htmlUrl: '',
+      updateContent: ''
     }
   },
   components: {},
@@ -28,9 +31,7 @@ export default {
   mounted () {
     this.oldVersion = packageInfo.version
   },
-  created () {
-    this.got = window.remote.getGlobal('got')
-  },
+  created () {},
   methods: {
     handleOk () {
       console.log('handleOk')
@@ -48,6 +49,7 @@ export default {
           console.log(res.body)
           this.newVersion = res.body.tag_name.substr(1)
           this.htmlUrl = res.body.html_url
+          this.updateContent = res.body.body
           const newVersionArray = res.body.tag_name.substr(1).split('.').map(item => Number(item))
           const oldVersionArray = this.oldVersion.split('.').map(item => Number(item))
           if (newVersionArray[0] > oldVersionArray[0]) {

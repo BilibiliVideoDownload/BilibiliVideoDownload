@@ -79,3 +79,16 @@
   color: @primary-color;
   cursor: pointer;
 }
+.dot{
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-right: 4px;
+  &.offline{
+    background: #f5222d;
+  }
+  &.line{
+    background: @primary-color;
+  }
+}

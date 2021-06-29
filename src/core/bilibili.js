@@ -1,9 +1,28 @@
-import formatDataTime from './formatDataTime'
-import formatSeconed from './formatSeconed'
-import quality from '../assets/data/quality'
+import formatDataTime from '../utlis/formatDataTime'
+import formatSeconed from '../utlis/formatSeconed'
+import { quality } from '../assets/data/quality'
 import UA from '../assets/data/ua'
-const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
-const got = window.remote.getGlobal('got')
+const got = require('got')
+
+/**
+ *
+ * @returns 0: 未登录 1：普通会员 2：大会员
+ */
+const checkLogin = async () => {
+  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+  const { body } = await got('https://api.bilibili.com/x/web-interface/nav', {
+    headers: {
+      'User-Agent': `${UA}`,
+      cookie: `SESSDATA=${SESSDATA}`
+    },
+    responseType: 'json'
+  })
+  console.log(SESSDATA)
+  console.log(body)
+  if (!body.data.isLogin) return 0
+  if (body.data.isLogin && !body.data.vipStatus) return 1
+  if (body.data.isLogin && body.data.vipStatus) return 2
+}
 
 const checkUrl = url => {
   const mapUrl = {
@@ -60,6 +79,7 @@ const parseBV = (html, url) => {
         up: videoData.hasOwnProperty('staff') ? videoData.staff.map(item => ({ name: item.name, mid: item.mid })) : [{ name: videoData.owner.name, mid: videoData.owner.mid }],
         qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
         page: videoData.pages.map(item => ({ title: item.part, page: item.page, duration: item.duration, cid: item.cid })),
+        subtitle: videoData.subtitle.list,
         downloadPath: {}
       }
       resolve(obj)
@@ -92,6 +112,7 @@ const parseEP = (html, url) => {
         up: [{ name: mediaInfo.upInfo.name, mid: mediaInfo.upInfo.mid }],
         qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
         page: [],
+        subtitle: [],
         downloadPath: {}
       }
       resolve(obj)
@@ -104,6 +125,7 @@ const parseEP = (html, url) => {
 }
 
 const parseSS = async html => {
+  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
   const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
   const { mediaInfo } = JSON.parse(videoInfo)
   const params = {
@@ -126,5 +148,6 @@ const parseSS = async html => {
 
 export {
   checkUrl,
-  parseHtml
+  parseHtml,
+  checkLogin
 }

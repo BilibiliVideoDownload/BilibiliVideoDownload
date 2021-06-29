@@ -6,7 +6,7 @@
     <div class="user fc ac">
       <img src="../assets/images/user.png" alt="" class="avatar">
       <div class="version mt16">
-        {{ `${projectName} - v${version}` }} <a-icon type="reload" @click="$parent.$refs.checkUpdate.checkUpdate()" />
+        {{ `${projectName} - v${version}` }} <a-icon type="reload" @click="$checkUpdate.checkUpdate()" />
       </div>
       <div class="git mt16">项目地址：<span class="text-active">https://github.com/blogwy/BilibiliVideoDownload</span></div>
       <div class="desc mt16">个人作品，代码写的稀烂，大佬轻喷！</div>

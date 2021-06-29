@@ -4,10 +4,11 @@
     :width="320"
     :visible="visible"
     :closable="false"
+    wrapClassName="custom-drawer-scroll-bar"
     @close="hide">
     <a-form :form="form">
       <a-form-item
-        v-for="(item, index) in settingConfig"
+        v-for="(item, index) in formConfig"
         :key="index"
         :labelCol="item.full ? { span: 24, offset: 0 } : formItemLayout.labelCol"
         :wrapperCol="item.full ? { span: 24, offset: 0 } : formItemLayout.wrapperCol"
@@ -26,8 +27,13 @@
             <a-icon slot="suffix" type="folder" style="color: rgba(0,0,0,.45)" />
           </a-input>
         </div>
+        <a-slider v-if="item.type === 'slider'" :max="5" :min="1" v-decorator="item.decorator" />
         <a-input v-if="item.type === 'input'" v-decorator="item.decorator" :placeholder="item.placeholder"></a-input>
         <a-switch v-if="item.type === 'switch'" v-decorator="item.decorator" />
+        <div v-if="item.type === 'status'">
+          <span :class="['dot', statusText === '未登录' ? 'offline' : 'line']"></span> {{ statusText }} <a v-if="statusText === '未登录'" class="ml8" @click="$refs.loginModal.openLoginModal()">登录</a>
+          <a-input v-show="false" v-decorator="item.decorator"></a-input>
+        </div>
       </a-form-item>
     </a-form>
     <div
@@ -40,7 +46,7 @@
         padding: '10px 16px',
         background: '#fff',
         textAlign: 'right',
-        zIndex: 1,
+        zIndex: 5,
       }"
     >
       <a-button :style="{ marginRight: '8px' }" @click="hide">
@@ -50,26 +56,39 @@
         保存
       </a-button>
     </div>
+    <div class="custom-drawer-footer-placeholder"></div>
+    <LoginModal ref="loginModal" />
   </a-drawer>
 </template>
 
 <script>
-import settingConfig from '../assets/data/setting'
+import base from '../mixin/base'
+import { formConfig } from '../assets/data/setting'
+import { checkLogin } from '../core/bilibili'
 export default {
+  mixins: [base],
   data () {
     return {
       visible: false,
       form: this.$form.createForm(this),
-      settingConfig,
+      formConfig,
       formItemLayout: {
         labelCol: { span: 7, offset: 0 },
         wrapperCol: { span: 16, offset: 1 }
-      }
+      },
+      statusText: '未登录',
+      mapStatus: ['未登录', '普通会员', '大会员']
     }
   },
   components: {},
   computed: {},
-  watch: {},
+  watch: {
+    '$store.state.loginStatus' (val) {
+      if (typeof val === 'number') {
+        this.statusText = this.mapStatus[val]
+      }
+    }
+  },
   mounted () {
     window.ipcRenderer.on('dir-dialog-reply', (event, arg) => {
       console.log(arg)
@@ -91,12 +110,16 @@ export default {
       this.visible = false
       this.form.resetFields()
     },
-    show (info) {
+    async show (info) {
+      console.log(info)
       if (info) {
         setTimeout(() => {
           this.form.setFieldsValue(info)
         }, 300)
       }
+      const status = await checkLogin()
+      this.statusText = this.mapStatus[status]
+      this.$store.commit('setLoginStatus', status)
       this.visible = true
       // input设置readOnly
       this.$nextTick(() => {
@@ -107,7 +130,7 @@ export default {
       this.form.validateFields((error, values) => {
         if (!error) {
           console.log(values)
-          window.remote.getGlobal('store').set('setting', values)
+          this.store.set('setting', values)
           this.hide()
         }
       })

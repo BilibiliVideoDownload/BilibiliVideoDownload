@@ -17,6 +17,8 @@ module.exports = {
     'no-mixed-spaces-and-tabs': 'off',
     'no-useless-escape': 'off',
     'no-prototype-builtins': 'off',
-    'no-useless-return': 'off'
+    'no-useless-return': 'off',
+    'import/first': 'off',
+    'camelcase': 'off'
   }
 }
