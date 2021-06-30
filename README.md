@@ -16,7 +16,7 @@
 
 ## 安装
 
-到[releases](https://github.com/blogwy/BilibiliVideoDownload/releases)页面,下载对应平台安装包即可.打开软件后需要设置**SESSDATA**才可以下载视频，**SESSDATA**是B站已登录用户的**cookies**里面的一个字段，而且如果你的账号是非大会员，你拿到的**SESSDATA**也只可以下载非大会员视频。如果你是大会员则可以下载大会员视频。为了支持正版，大家购买大会员。获取**SESSDATA**教程大家可以到软件相关设置处查看，或者直接[点击这里](https://blog.wangyu.link/2020/01/25/2020-01-25/)
+到[releases](https://github.com/blogwy/BilibiliVideoDownload/releases)页面,下载对应平台安装包即可.下载视频时候会提示登录，登录后只会获取你的SESSDATA来用做下载，账号是普通账号最大下载1080P视频，大会员可以下载4K视频，不登录最大下载480P视频
 
 ## 演示
 
@@ -33,6 +33,7 @@
 * [x] 下载多P视频
 * [x] 下载电影(额外付费除外)
 * [x] 下载封面
+* [x] 下载字幕
 * [x] 下载进度
 * [x] 基本视频信息
 * [x] 删除下载记录
@@ -52,6 +53,11 @@ yarn electron:serve
 yarn electron:build
 ```
 ## 版本
+
+v3.1.0 `2021-06-29`
+
+1. 新增扫码登录获取cookie，不需要手动设置
+2. 新增下载字幕功能
 
 v3.0.6 `2021-05-22`
 
