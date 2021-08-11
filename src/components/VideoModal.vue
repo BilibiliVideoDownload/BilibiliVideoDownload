@@ -26,6 +26,11 @@
       </div>
       <div v-if="videoInfo.page && videoInfo.page.length > 1" class="fr ac jsb mt16">
         <div>这是一个多P视频，请选择</div>
+        <div>
+          <a-checkbox @change="onAllSelectedChange">
+            全选
+          </a-checkbox>
+        </div>
       </div>
       <div v-if="videoInfo.page && videoInfo.page.length > 1" class="fr ac warp mt16">
         <div v-for="(item, index) in videoInfo.page" :key="index" :class="['video-item', selected.includes(item.page) ? 'active' : '']" @click="toggle(item.page)">
@@ -43,11 +48,8 @@
 
 <script>
 import base from '../mixin/base'
-import randomNum from '../utlis/randomNum'
+import { getDownloadList } from '../core/bilibili'
 import sleep from '../utlis/sleep'
-import filterTitle from '../utlis/filterTitle'
-import UA from '../assets/data/ua'
-import formatSeconed from '../utlis/formatSeconed'
 import { userQuality } from '../assets/data/quality'
 export default {
   mixins: [base],
@@ -62,7 +64,8 @@ export default {
       },
       selected: [],
       videoOptions: [],
-      quality: null
+      quality: null,
+      allSelected: false
     }
   },
   components: {},
@@ -81,6 +84,16 @@ export default {
   mounted () {},
   created () {},
   methods: {
+    onAllSelectedChange (e) {
+      this.allSelected = e.target.checked
+      console.log(e.target.checked)
+      this.selected = []
+      if (e.target.checked) {
+        this.videoInfo.page.forEach(element => {
+          this.selected.push(element.page)
+        })
+      }
+    },
     openExternal (url) {
       if (url) {
         window.ipcRenderer.send('open-external', url)
@@ -89,104 +102,52 @@ export default {
     show (info) {
       this.visible = true
       this.videoInfo = info
+      // 如果是单p，则默认选中
+      if (this.videoInfo.page.length === 1) {
+        this.selected.push(this.videoInfo.page[0].page)
+      }
     },
     async handleOk () {
-      // 判断是否选择清晰度
+      console.log(this.videoInfo)
       if (!this.quality) {
         this.$message.info('请选择清晰度')
         return
       }
-      const SESSDATA = this.store.get('setting.SESSDATA')
-      const bfeId = this.store.get('setting.bfe_id') ? this.store.get('setting.bfe_id') : ''
-      const config = {
-        headers: {
-          'User-Agent': `${UA}`,
-          cookie: `SESSDATA=${SESSDATA};bfe_id=${bfeId}`
-        }
+      if (!this.selected.length) {
+        this.$message.info('请选择分P')
+        return
       }
       this.confirmLoading = true
-      // 判断是否多p视频
-      if (this.videoInfo.page.length > 1) {
-        if (!this.selected.length) {
-          this.$message.info('请选择分P')
-          return
+      const list = await getDownloadList(this.videoInfo, this.selected, this.quality)
+      console.log(list)
+      // 改状态
+      const allowDownTask = this.store.get('setting.downloadingSize') - this.$store.state.downloadingTask
+      if (allowDownTask > 0) {
+        for (let index = 0; index < allowDownTask; index++) {
+          if (list[index]) list[index].status = 1
         }
-        for (let index = 0; index < this.selected.length; index++) {
-          const currentPage = this.selected[index]
-          // 请求选中清晰度视频下载地址
-          const cid = this.videoInfo.page.find(item => item.page === currentPage).cid
-          const { body: { data: { dash: { video, audio } } }, headers: { 'set-cookie': responseCookies } } = await this.got(
-            `https://api.bilibili.com/x/player/playurl?cid=${cid}&bvid=${this.videoInfo.bvid}&qn=${this.quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
-            {
-              ...config,
-              responseType: 'json'
-            }
-          )
-          // 保存返回的cookies
-          this.saveResponseCookies(responseCookies)
-          const videoInfo = {
-            id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
-            ...this.videoInfo,
-            title: `[P${currentPage}]${filterTitle(this.videoInfo.page.find(item => item.page === currentPage).title)}`,
-            quality: this.quality,
-            duration: formatSeconed(this.videoInfo.page.find(item => item.page === currentPage).duration),
-            status: 1,
-            progress: 0,
-            size: null,
-            url: `${this.videoInfo.url}?p=${currentPage}`,
-            downloadPath: {
-              video: video.find(item => item.id === this.quality).baseUrl,
-              audio: audio[0].baseUrl
-            }
-          }
-          console.log(videoInfo)
-          // 保存数据
-          let taskList = this.store.get('taskList') ? this.store.get('taskList') : []
-          taskList = taskList.concat(videoInfo)
-          this.store.set('taskList', taskList)
-          // 调用下载
-          window.ipcRenderer.send('download-video', videoInfo)
-          if (index !== this.selected.length - 1) {
-            await sleep(1000)
-          }
-        }
-        this.confirmLoading = false
-        // 跳转到下载页面
-        this.$router.push('/download')
-      } else {
-        // 请求选中清晰度视频下载地址
-        const { body: { data: { dash: { video, audio } } }, headers: { 'set-cookie': responseCookies } } = await this.got(
-          `https://api.bilibili.com/x/player/playurl?cid=${this.videoInfo.cid}&bvid=${this.videoInfo.bvid}&qn=${this.quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
-          {
-            ...config,
-            responseType: 'json'
-          }
-        )
-        // 保存返回的cookies
-        this.saveResponseCookies(responseCookies)
-        const videoInfo = {
-          id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
-          ...this.videoInfo,
-          title: filterTitle(this.videoInfo.title),
-          quality: this.quality,
-          status: 1,
-          progress: 0,
-          size: null,
-          downloadPath: {
-            video: video.find(item => item.id === this.quality).baseUrl,
-            audio: audio[0].baseUrl
-          }
-        }
-        console.log(videoInfo)
-        // 保存数据
-        let taskList = this.store.get('taskList') ? this.store.get('taskList') : []
-        taskList = taskList.concat(videoInfo)
-        this.store.set('taskList', taskList)
-        this.confirmLoading = false
-        // 调用下载
-        window.ipcRenderer.send('download-video', videoInfo)
-        this.$router.push('/download')
       }
+      let taskList = this.store.get('taskList') ? this.store.get('taskList') : []
+      taskList = taskList.concat(list)
+      this.store.set('taskList', taskList)
+      const allowDownTaskData = list.filter(item => item.status === 1)
+      // 调用下载
+      if (allowDownTaskData.length) {
+        for (let index = 0; index < allowDownTaskData.length; index++) {
+          console.log('当前下载：', allowDownTaskData[index])
+          window.ipcRenderer.send('download-video', allowDownTaskData[index])
+          if (index !== allowDownTaskData.length - 1) {
+            await sleep(300)
+          }
+        }
+        // 增加正在下载数
+        this.$store.commit('addDownloadingTask', allowDownTaskData.length)
+      }
+      this.confirmLoading = false
+      console.log('下载列表')
+      console.log(taskList)
+      // 跳转到下载页面
+      this.$router.push('/download')
     },
     handleCancel () {
       this.visible = false

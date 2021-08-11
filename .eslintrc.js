@@ -19,6 +19,8 @@ module.exports = {
     'no-prototype-builtins': 'off',
     'no-useless-return': 'off',
     'import/first': 'off',
-    'camelcase': 'off'
+    'camelcase': 'off',
+    'dot-notation': 'off',
+    'one-var': 'off'
   }
 }

@@ -1,10 +1,5 @@
 <template>
   <div class="container">
-    <div class="download-icon">
-      <a-badge>
-        <a-icon type="download" class="icon" @click="goDownload" />
-      </a-badge>
-    </div>
     <div class="download-logo fr ac jc">
       <img src="../assets/images/logo.png" alt="">
     </div>
@@ -48,13 +43,6 @@ export default {
   mounted () {},
   created () {},
   methods: {
-    test () {
-      this.$refs.loginModal.openLoginModal()
-      // this.$store.commit('setShowLoginModal', false)
-    },
-    goDownload () {
-      this.$router.push('/download')
-    },
     async download () {
       // 检测url
       if (!this.url) {
@@ -107,17 +95,6 @@ export default {
   padding: 16px;
   position: relative;
   height: calc(100% - 28px);
-  .download-icon{
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 99;
-    cursor: pointer;
-    .icon{
-      font-size: 36px;
-      color: @primary-color;
-    }
-  }
   .download-logo{
     margin: 130px 0px 50px 0px;
     img{

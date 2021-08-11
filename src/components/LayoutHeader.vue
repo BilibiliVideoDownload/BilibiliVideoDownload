@@ -5,6 +5,9 @@
       <a-icon class="icon icon1" @click="close" type="close" />
       <a-icon class="icon icon2 ml8" @click="min" type="minus" />
     </div>
+    <div class="route-icon">
+      <a-icon :type="iconData.icon" class="icon" @click="goRoute(iconData.route)" />
+    </div>
   </div>
 </template>
 
@@ -13,12 +16,33 @@ const info = require('../../package.json')
 export default {
   data () {
     return {
-      projectName: info.name
+      projectName: info.name,
+      iconDataMap: {
+        '/': {
+          icon: 'download',
+          route: '/download'
+        },
+        '/download': {
+          icon: 'rollback',
+          route: '/'
+        }
+      },
+      iconData: {
+        icon: 'download',
+        route: '/download'
+      }
     }
   },
   components: {},
   computed: {},
-  watch: {},
+  watch: {
+    '$route.path': {
+      handler (val) {
+        this.iconData = this.iconDataMap[val]
+      },
+      immediate: true
+    }
+  },
   mounted () {},
   created () {},
   methods: {
@@ -28,6 +52,9 @@ export default {
     min () {
       const win = window.remote.getCurrentWindow()
       win.minimize()
+    },
+    goRoute (route) {
+      this.$router.push(route)
     }
   }
 }
@@ -69,6 +96,17 @@ export default {
           color: rgb(27, 27, 27);
         }
       }
+    }
+  }
+  .route-icon{
+    position: absolute;
+    bottom: -53px;
+    right: 16px;
+    z-index: 99;
+    cursor: pointer;
+    .icon{
+      font-size: 36px;
+      color: @primary-color;
     }
   }
 }

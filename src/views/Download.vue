@@ -1,8 +1,5 @@
 <template>
   <div :class="['container fr', !taskList || !taskList.length ? 'ac jc' : 'bg-fff']">
-    <div class="back-icon">
-      <a-icon type="rollback" class="icon" @click="goHome" />
-    </div>
     <a-empty v-if="!taskList || !taskList.length" :image="require('../assets/images/no-data.png')">
       <span slot="description" class="text-active" style="font-weight: bold">暂无数据</span>
     </a-empty>
@@ -50,6 +47,8 @@
 <script>
 import base from '../mixin/base'
 import { quality } from '../assets/data/quality'
+import taskStatus from '../assets/data/status'
+import sleep from '../utlis/sleep'
 const fs = require('fs')
 export default {
   mixins: [base],
@@ -65,24 +64,10 @@ export default {
   watch: {},
   filters: {
     formatStatus (status) {
-      const mapData = {
-        1: 'active',
-        2: 'active',
-        3: 'active',
-        0: 'success',
-        '-1': 'exception'
-      }
-      return mapData[status]
+      return taskStatus[status]['value']
     },
     formatProgress (status) {
-      const mapData = {
-        1: '视频下载中',
-        2: '音频下载中',
-        3: '视频合成中',
-        0: '已完成',
-        '-1': '下载失败'
-      }
-      return `${mapData[status]}`
+      return taskStatus[status]['label']
     },
     formatQuality (id) {
       return quality[id]
@@ -157,19 +142,25 @@ export default {
       // console.log(JSON.stringify(videoInfo))
       const index = this.taskList.findIndex(item => item.id === videoInfo.id)
       if (index !== -1) {
+        // 更新页面下载进度和状态
         this.$set(this.taskList, index, {
           ...this.taskList[index],
           status: videoInfo.status,
           progress: videoInfo.progress
         })
-        // 成功/失败 后更新数据
+        // 成功/失败 后更新store数据结果
         if (videoInfo.status === 0 || videoInfo.status === -1) {
           const taskList = this.store.get('taskList')
           const index = taskList.findIndex(item => item.id === videoInfo.id)
           taskList[index].status = videoInfo.status
           taskList[index].progress = videoInfo.progress
           this.store.set('taskList', taskList)
+          // 减少正在下载数
+          this.$store.commit('reduceDownloadingTask', 1)
+          // 继续下载
+          this.continueDownload()
         }
+        // 下载成功后更新当前任务的videoSize页面和store
         if (videoInfo.status === 0) {
           this.getVideoSize({
             ...this.taskList[index],
@@ -190,12 +181,40 @@ export default {
         this.switchItem(0)
       }
     },
-    goHome () {
-      this.$router.push('/')
-    },
     switchItem (index) {
       this.selected = index
       this.current = this.taskList[index]
+    },
+    async continueDownload () {
+      // 从当前下载列表中找出可以继续下载的视频，并提交下载
+      const allowDownTask = this.store.get('setting.downloadingSize') - this.$store.state.downloadingTask
+      const waitTasks = this.taskList.filter(item => item.status === 4)
+      const waitTaskIndex = []
+      const allowDownTaskData = []
+      if (allowDownTask > 0) {
+        for (let index = 0; index < allowDownTask; index++) {
+          if (waitTasks[index]) {
+            waitTaskIndex.push(this.taskList.findIndex(item => item.id === waitTasks[index].id))
+            allowDownTaskData.push(waitTasks[index])
+          }
+        }
+      }
+      for (let index = 0; index < waitTaskIndex.length; index++) {
+        const element = waitTaskIndex[index]
+        this.$set(this.taskList, element, {
+          ...this.taskList[element],
+          status: 1
+        })
+      }
+      // 提交下载
+      for (let index = 0; index < allowDownTaskData.length; index++) {
+        console.log('当前下载：', allowDownTaskData[index])
+        window.ipcRenderer.send('download-video', allowDownTaskData[index])
+        this.$store.commit('addDownloadingTask', 1)
+        if (index !== allowDownTaskData.length - 1) {
+          await sleep(300)
+        }
+      }
     }
   }
 }
@@ -209,17 +228,6 @@ export default {
   height: calc(100vh - 28px);
   &.bg-fff{
     background: #ffffff;
-  }
-  .back-icon{
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 99;
-    cursor: pointer;
-    .icon{
-      font-size: 36px;
-      color: @primary-color;
-    }
   }
   .left{
     flex: 5;

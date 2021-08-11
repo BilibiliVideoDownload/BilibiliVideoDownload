@@ -31,7 +31,10 @@
         <a-input v-if="item.type === 'input'" v-decorator="item.decorator" :placeholder="item.placeholder"></a-input>
         <a-switch v-if="item.type === 'switch'" v-decorator="item.decorator" />
         <div v-if="item.type === 'status'">
-          <span :class="['dot', statusText === '未登录' ? 'offline' : 'line']"></span> {{ statusText }} <a v-if="statusText === '未登录'" class="ml8" @click="$refs.loginModal.openLoginModal()">登录</a>
+          <span :class="['dot', statusText === '未登录' ? 'offline' : 'line']"></span>
+          {{ statusText }}
+          <!-- <a v-if="statusText === '未登录'" class="ml8" @click="$refs.loginModal.openLoginModal()">登录</a> -->
+          <a-icon :type="statusText === '未登录' ? 'login' : 'logout'" @click="handleLog" />
           <a-input v-show="false" v-decorator="item.decorator"></a-input>
         </div>
       </a-form-item>
@@ -138,6 +141,22 @@ export default {
     openFolder () {
       console.log('openFolder')
       window.ipcRenderer.send('open-dir-dialog', 'open')
+    },
+    handleLog () {
+      if (this.statusText === '未登录') {
+        this.$refs.loginModal.openLoginModal()
+      } else {
+        this.form.validateFields(async (error, values) => {
+          if (!error) {
+            console.log(values)
+            values.SESSDATA = null
+            this.store.set('setting', values)
+            const status = await checkLogin()
+            this.$store.commit('setLoginStatus', status)
+            // this.hide()
+          }
+        })
+      }
     }
   }
 }

@@ -1,8 +1,87 @@
 import formatDataTime from '../utlis/formatDataTime'
 import formatSeconed from '../utlis/formatSeconed'
+import filterTitle from '../utlis/filterTitle'
+import randomNum from '../utlis/randomNum'
+import sleep from '../utlis/sleep'
 import { quality } from '../assets/data/quality'
 import UA from '../assets/data/ua'
 const got = require('got')
+
+/**
+ * @params videoInfo: 当前下载的视频详情 selected：所选的分p quality：所选的清晰度
+ * @returns 返回下载数据 Array
+ */
+const getDownloadList = async (videoInfo, selected, quality) => {
+  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+  const bfeId = window.remote.getGlobal('store').get('setting.bfe_id') ? window.remote.getGlobal('store').get('setting.bfe_id') : ''
+  const config = {
+    headers: {
+      'User-Agent': `${UA}`,
+      cookie: `SESSDATA=${SESSDATA};bfe_id=${bfeId}`
+    }
+  }
+  const downloadList = []
+  for (let index = 0; index < selected.length; index++) {
+    const currentPage = selected[index]
+    // 请求选中清晰度视频下载地址
+    const currentCid = videoInfo.page.find(item => item.page === currentPage).cid
+    const { body: { data: { dash: { video, audio } } }, headers: { 'set-cookie': responseCookies } } = await got(
+      `https://api.bilibili.com/x/player/playurl?cid=${currentCid}&bvid=${videoInfo.bvid}&qn=${quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
+      {
+        ...config,
+        responseType: 'json'
+      }
+    )
+    // 保存返回的cookies
+    saveResponseCookies(responseCookies)
+    let videoTitle = '', videoDuration = '', videoUrl = ''
+    if (videoInfo.page.length > 1) {
+      videoTitle = `[P${currentPage}]${filterTitle(videoInfo.page.find(item => item.page === currentPage).title)}`
+      videoDuration = formatSeconed(videoInfo.page.find(item => item.page === currentPage).duration)
+      videoUrl = `${videoInfo.url}?p=${currentPage}`
+    } else {
+      videoTitle = filterTitle(videoInfo.title)
+      videoDuration = videoInfo.duration
+      videoUrl = videoInfo.url
+    }
+    const videoData = {
+      ...videoInfo,
+      id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
+      title: videoTitle,
+      quality: quality,
+      duration: videoDuration,
+      status: 4,
+      progress: 0,
+      size: null,
+      url: videoUrl,
+      downloadPath: {
+        video: video.find(item => item.id === quality) ? video.find(item => item.id === quality).baseUrl : video[0].baseUrl,
+        audio: audio[0].baseUrl
+      }
+    }
+    console.log(videoData)
+    downloadList.push(videoData)
+    if (index !== selected.length - 1) {
+      await sleep(1000)
+    }
+  }
+  return downloadList
+}
+
+/**
+ *
+ * @returns 保存cookie中的bfe_id
+ */
+const saveResponseCookies = cookies => {
+  if (cookies && cookies.length) {
+    const cookiesString = cookies.join(';')
+    const setting = window.remote.getGlobal('store').get('setting')
+    window.remote.getGlobal('store').set('setting', {
+      ...setting,
+      bfe_id: cookiesString
+    })
+  }
+}
 
 /**
  *
@@ -111,7 +190,7 @@ const parseEP = (html, url) => {
         duration: formatSeconed(data.dash.duration),
         up: [{ name: mediaInfo.upInfo.name, mid: mediaInfo.upInfo.mid }],
         qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
-        page: [],
+        page: [{ page: 1, cid: epInfo.cid }],
         subtitle: [],
         downloadPath: {}
       }
@@ -149,5 +228,6 @@ const parseSS = async html => {
 export {
   checkUrl,
   parseHtml,
-  checkLogin
+  checkLogin,
+  getDownloadList
 }

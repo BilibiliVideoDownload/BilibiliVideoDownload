@@ -16,6 +16,14 @@ const formConfig = [
     full: true
   },
   {
+    label: '最大下载数',
+    placeholder: '请选择同时下载的最大下载数',
+    type: 'slider',
+    decorator: ['downloadingSize', { rules: [{ required: true, message: '请选择同时下载的最大下载数' }] }],
+    tips: '没有选择同时下载的最大下载数不能下载',
+    full: true
+  },
+  {
     label: '下载成功后是否进行转码合并',
     type: 'switch',
     decorator: ['isMerge', { rules: [{ required: false }], valuePropName: 'checked' }],
@@ -44,7 +52,8 @@ const settingStore = {
   isMerge: true,
   isDelete: true,
   bfe_id: null,
-  isSubtitle: true
+  isSubtitle: true,
+  downloadingSize: 5
 }
 
 export {
