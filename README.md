@@ -54,6 +54,10 @@ yarn electron:build
 ```
 ## 版本
 
+v3.1.2 `2021-09-02`
+
+1. 修复up主多情况，排版出错的问题 [issues/36](https://github.com/blogwy/BilibiliVideoDownload/issues/36)
+
 v3.1.1 `2021-08-11`
 
 1. 多P视频新增全选功能

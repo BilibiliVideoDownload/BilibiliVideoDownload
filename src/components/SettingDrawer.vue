@@ -39,26 +39,6 @@
         </div>
       </a-form-item>
     </a-form>
-    <div
-      :style="{
-        position: 'absolute',
-        right: 0,
-        bottom: 0,
-        width: '100%',
-        borderTop: '1px solid #e9e9e9',
-        padding: '10px 16px',
-        background: '#fff',
-        textAlign: 'right',
-        zIndex: 5,
-      }"
-    >
-      <a-button :style="{ marginRight: '8px' }" @click="hide">
-        取消
-      </a-button>
-      <a-button type="primary" @click="save">
-        保存
-      </a-button>
-    </div>
     <div class="custom-drawer-footer-placeholder"></div>
     <LoginModal ref="loginModal" />
   </a-drawer>
@@ -110,8 +90,14 @@ export default {
       }
     },
     hide () {
-      this.visible = false
-      this.form.resetFields()
+      this.form.validateFields((error, values) => {
+        if (!error) {
+          console.log(values)
+          this.store.set('setting', values)
+          this.visible = false
+          this.form.resetFields()
+        }
+      })
     },
     async show (info) {
       console.log(info)
@@ -127,15 +113,6 @@ export default {
       // input设置readOnly
       this.$nextTick(() => {
         document.getElementById('customInput').childNodes[0].childNodes[0].setAttribute('readOnly', true)
-      })
-    },
-    save () {
-      this.form.validateFields((error, values) => {
-        if (!error) {
-          console.log(values)
-          this.store.set('setting', values)
-          this.hide()
-        }
       })
     },
     openFolder () {

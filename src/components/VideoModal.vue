@@ -15,7 +15,7 @@
         </div>
         <div class="content fc jsa pl16">
           <div class="text-active ellipsis-2" @click="openExternal(videoInfo.url)">{{ videoInfo.title }}</div>
-          <div>up：<span v-for="(item, index) in videoInfo.up" :key="index" class="text-active mr8" @click="openExternal(`https://space.bilibili.com/${item.mid}`)">{{item.name}}</span></div>
+          <div class="ellipsis-1">up：<span v-for="(item, index) in videoInfo.up" :key="index" class="text-active mr8" @click="openExternal(`https://space.bilibili.com/${item.mid}`)">{{item.name}}</span></div>
         </div>
       </div>
       <div class="mt16">
@@ -119,7 +119,6 @@ export default {
       }
       this.confirmLoading = true
       const list = await getDownloadList(this.videoInfo, this.selected, this.quality)
-      console.log(list)
       // 改状态
       const allowDownTask = this.store.get('setting.downloadingSize') - this.$store.state.downloadingTask
       if (allowDownTask > 0) {

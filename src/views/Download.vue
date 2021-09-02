@@ -23,9 +23,9 @@
           <img :src="current.cover | formatCover" :alt="current.title">
         </div>
         <div class="pl16 mt8 text-active" @click="openExternal(current.url)">{{ current.title }}</div>
-        <div class="fr ac pl16 mt8">
+        <div class="fr ac pl16 mt8 up-list">
           UP：<div v-for="(item, index) in current.up" :key="index" class="mr16">
-            <a @click="openExternal(`https://space.bilibili.com/${item.mid}`)">{{ item.name }}</a>
+            <a class="ellipsis-1 up-name" @click="openExternal(`https://space.bilibili.com/${item.mid}`)">{{ item.name }}</a>
           </div>
         </div>
         <div class="mt8 pl16">创建时间：<span class="text-active">{{ current.createdTime }}</span></div>
@@ -231,6 +231,7 @@ export default {
   }
   .left{
     flex: 5;
+    width: 0;
     border-top: 1px solid #eeeeee;
     border-right: 1px solid #eeeeee;
     overflow-y: scroll;
@@ -269,6 +270,7 @@ export default {
   .right{
     position: relative;
     flex: 3;
+    width: 0;
     .image{
       height: 179px;
       overflow: hidden;
@@ -287,6 +289,17 @@ export default {
       width: 100%;
       bottom: 0px;
       left: 0px;
+    }
+    .up-list{
+      width: 100%;
+      overflow-x: scroll;
+      &::-webkit-scrollbar{
+        display: none;
+      }
+      .up-name{
+        display: block;
+        width: 65px;
+      }
     }
   }
 }
