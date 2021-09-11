@@ -5,7 +5,7 @@
       title="扫码登录Bilibili账号"
       okText="确认登录"
       cancelText="不登录"
-      :ok-button-props="{ props: { disabled: statusText === '未扫码' } }"
+      :ok-button-props="{ props: { disabled: statusText !== '已登录' } }"
       :closable="false"
       :maskClosable="false"
       @ok="handleOk"
@@ -107,6 +107,12 @@ export default {
         })
         console.log(body)
         if (!body.status) {
+          if (body.data === -4) {
+            _this.statusText = '未扫码'
+          }
+          if (body.data === -5) {
+            _this.statusText = '已扫码'
+          }
           setTimeout(() => {
             run(oauthKey)
           }, 3000)
@@ -114,7 +120,7 @@ export default {
         }
         // 获取SESSDATA
         _this.SESSDATA = body.data.url.match(/SESSDATA=(\S*)&bili_jct/)[1]
-        _this.statusText = '扫码成功'
+        _this.statusText = '已登录'
         _this.isCheck = false
       }
     },

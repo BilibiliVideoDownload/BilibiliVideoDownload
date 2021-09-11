@@ -33,8 +33,16 @@
         <div v-if="item.type === 'status'">
           <span :class="['dot', statusText === '未登录' ? 'offline' : 'line']"></span>
           {{ statusText }}
-          <!-- <a v-if="statusText === '未登录'" class="ml8" @click="$refs.loginModal.openLoginModal()">登录</a> -->
-          <a-icon :type="statusText === '未登录' ? 'login' : 'logout'" @click="handleLog" />
+          <a-icon v-if="statusText === '未登录'" type="login" @click="$refs.loginModal.openLoginModal()" />
+          <a-popconfirm
+            v-if="statusText !== '未登录'"
+            title="你确定要退出登录吗?"
+            ok-text="是"
+            cancel-text="否"
+            @confirm="logout"
+          >
+            <a-icon type="logout" />
+          </a-popconfirm>
           <a-input v-show="false" v-decorator="item.decorator"></a-input>
         </div>
       </a-form-item>
@@ -69,6 +77,11 @@ export default {
     '$store.state.loginStatus' (val) {
       if (typeof val === 'number') {
         this.statusText = this.mapStatus[val]
+        // 表单重新赋值
+        const setting = this.store.get('setting')
+        setTimeout(() => {
+          this.form.setFieldsValue(setting)
+        }, 300)
       }
     }
   },
@@ -119,21 +132,16 @@ export default {
       console.log('openFolder')
       window.ipcRenderer.send('open-dir-dialog', 'open')
     },
-    handleLog () {
-      if (this.statusText === '未登录') {
-        this.$refs.loginModal.openLoginModal()
-      } else {
-        this.form.validateFields(async (error, values) => {
-          if (!error) {
-            console.log(values)
-            values.SESSDATA = null
-            this.store.set('setting', values)
-            const status = await checkLogin()
-            this.$store.commit('setLoginStatus', status)
-            // this.hide()
-          }
-        })
-      }
+    logout () {
+      this.form.validateFields(async (error, values) => {
+        if (!error) {
+          console.log(values)
+          values.SESSDATA = null
+          this.store.set('setting', values)
+          const status = await checkLogin()
+          this.$store.commit('setLoginStatus', status)
+        }
+      })
     }
   }
 }

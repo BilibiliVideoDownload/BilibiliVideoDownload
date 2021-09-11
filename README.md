@@ -52,6 +52,10 @@ yarn electron:build
 ```
 ## 版本
 
+v3.1.3 `2021-09-11`
+
+1. 修复在设置侧边栏登录bug
+
 v3.1.2 `2021-09-02`
 
 1. 修复up主多情况，排版出错的问题 [issues/36](https://github.com/blogwy/BilibiliVideoDownload/issues/36)
