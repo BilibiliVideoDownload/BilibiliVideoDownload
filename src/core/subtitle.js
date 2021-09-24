@@ -2,10 +2,10 @@ import UA from '../assets/data/ua'
 const got = require('got')
 const fs = require('fs')
 
-const downloadSubtitle = (dir, list = []) => {
+const downloadSubtitle = (fileName, list = []) => {
   for (let index = 0; index < list.length; index++) {
     const element = list[index]
-    getSubtitleData(element.subtitle_url, `${dir}${element.lan_doc}.srt`)
+    getSubtitleData(element.subtitle_url, `${fileName}-${element.lan_doc}.srt`)
   }
 }
 

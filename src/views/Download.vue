@@ -126,7 +126,13 @@ export default {
     },
     getVideoSize (videoInfo) {
       const setting = this.store.get('setting')
-      fs.stat(`${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/${videoInfo.title}.mp4`, (err, info) => {
+      let fileName = ''
+      if (setting.isFolder) {
+        fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/${videoInfo.title}`
+      } else {
+        fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}`
+      }
+      fs.stat(`${fileName}.mp4`, (err, info) => {
         if (err) {
           console.log(err)
         } else {

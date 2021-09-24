@@ -87,11 +87,16 @@ function registerLocalResourceProtocol () {
 
 function initSetting () {
   console.log('setting info')
-  console.log(store.get('setting'))
-  if (!store.get('setting')) {
+  const curSetting = store.get('setting')
+  if (!curSetting) {
     store.set('setting', {
       ...settingStore,
       downloadPath: app.getPath('downloads')
+    })
+  } else {
+    store.set('setting', {
+      ...settingStore,
+      ...curSetting
     })
   }
 }

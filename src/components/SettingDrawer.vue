@@ -47,7 +47,7 @@
         </div>
       </a-form-item>
     </a-form>
-    <div class="custom-drawer-footer-placeholder"></div>
+    <!-- <div class="custom-drawer-footer-placeholder"></div> -->
     <LoginModal ref="loginModal" />
   </a-drawer>
 </template>

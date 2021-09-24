@@ -38,6 +38,13 @@ const formConfig = [
     full: true
   },
   {
+    label: '下载到单独文件夹',
+    type: 'switch',
+    decorator: ['isFolder', { rules: [{ required: false }], valuePropName: 'checked' }],
+    tips: '开启后每个任务会下载到一个单独的文件夹里面',
+    full: true
+  },
+  {
     label: '下载字幕',
     type: 'switch',
     decorator: ['isSubtitle', { rules: [{ required: false }], valuePropName: 'checked' }],
@@ -53,6 +60,7 @@ const settingStore = {
   isDelete: true,
   bfe_id: null,
   isSubtitle: true,
+  isFolder: true,
   downloadingSize: 5
 }
 

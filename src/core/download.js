@@ -8,17 +8,17 @@ const fs = require('fs');
 const got = require('got');
 const pipeline = promisify(stream.pipeline);
 
-function delFile (setting, videoInfo, event, dir) {
+function delFile (setting, videoInfo, event, fileName) {
   // 删除原视频
   if (setting.isDelete) {
-    fs.rmdir(`${dir}${videoInfo.title}-video.m4s`, { recursive: true }, err => {
+    fs.rmdir(`${fileName}-video.m4s`, { recursive: true }, err => {
       if (err) {
         console.log(err)
       } else {
         console.log('video-删除成功')
       }
     })
-    fs.rmdir(`${dir}${videoInfo.title}-audio.m4s`, { recursive: true }, err => {
+    fs.rmdir(`${fileName}-audio.m4s`, { recursive: true }, err => {
       if (err) {
         console.log(err)
       } else {
@@ -54,12 +54,17 @@ export default async (videoInfo, event) => {
       referer: videoInfo.url
     }
   }
-  const dir = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/`
-  // 创建文件夹
-  try {
-    fs.mkdirSync(dir)
-  } catch (error) {
-    console.log(`创建文件夹失败：${error}`)
+  let fileName = ''
+  if (setting.isFolder) {
+    // 创建文件夹
+    try {
+      fs.mkdirSync(`${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/`)
+      fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/${videoInfo.title}`
+    } catch (error) {
+      console.log(`创建文件夹失败：${error}`)
+    }
+  } else {
+    fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}`
   }
   // 下载封面
   await pipeline(
@@ -67,11 +72,11 @@ export default async (videoInfo, event) => {
       .on('error', error => {
         console.log(error)
       }),
-    fs.createWriteStream(`${dir}${videoInfo.title}.png`)
+    fs.createWriteStream(`${fileName}.png`)
   )
   // 下载字幕
   if (setting.isSubtitle) {
-    downloadSubtitle(dir, videoInfo.subtitle)
+    downloadSubtitle(fileName, videoInfo.subtitle)
   }
   // 下载视频
   await pipeline(
@@ -104,7 +109,7 @@ export default async (videoInfo, event) => {
           progress: 100
         })
       }),
-    fs.createWriteStream(`${dir}${videoInfo.title}-video.m4s`)
+    fs.createWriteStream(`${fileName}-video.m4s`)
   )
   await sleep(500)
   // 下载音频
@@ -138,15 +143,15 @@ export default async (videoInfo, event) => {
           progress: 100
         })
       }),
-    fs.createWriteStream(`${dir}${videoInfo.title}-audio.m4s`)
+    fs.createWriteStream(`${fileName}-audio.m4s`)
   )
   await sleep(500)
   // 合成视频
   if (setting.isMerge) {
     const ffmpeg = new FFmpeg({
-      videoPath: `${dir}${videoInfo.title}-video.m4s`,
-      audioPath: `${dir}${videoInfo.title}-audio.m4s`,
-      mergePath: `${dir}${videoInfo.title}.mp4`
+      videoPath: `${fileName}-video.m4s`,
+      audioPath: `${fileName}-audio.m4s`,
+      mergePath: `${fileName}.mp4`
     })
     ffmpeg.startMerge(res => {
       if (res === 'start') {
@@ -163,7 +168,7 @@ export default async (videoInfo, event) => {
           progress: 100
         })
         // 删除原视频
-        delFile(setting, videoInfo, event, dir)
+        delFile(setting, videoInfo, event, fileName)
       }
       if (res === 'error') {
         event.reply('reply-download-video', {
@@ -171,7 +176,7 @@ export default async (videoInfo, event) => {
           status: -1,
           progress: 100
         })
-        delFile(setting, videoInfo, event, dir)
+        delFile(setting, videoInfo, event, fileName)
       }
     })
   } else {
@@ -180,6 +185,6 @@ export default async (videoInfo, event) => {
       status: 0,
       progress: 100
     })
-    delFile(setting, videoInfo, event, dir)
+    delFile(setting, videoInfo, event, fileName)
   }
 }
