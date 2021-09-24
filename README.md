@@ -52,6 +52,11 @@ yarn electron:build
 ```
 ## 版本
 
+v3.1.4 `2021-09-24`
+
+1. 修复在升级版本后，可能会导致设置页面无法关闭问题 [issues/39](https://github.com/blogwy/BilibiliVideoDownload/issues/39)
+2. 设置页面新增是否下载到单独文件夹功能
+
 v3.1.3 `2021-09-11`
 
 1. 修复在设置侧边栏登录bug
