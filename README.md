@@ -8,7 +8,7 @@
 
 * 软件不支持付费视频和地区限制视频，可能会报错
 
-* SESSDATA有过期时间，好像是半年
+* 登录信息有过期时间，好像是半年
 
 * 由于下载的音视频是分离的，项目使用ffmpeg合成导致安装包有点大(ffmpeg大约70+MB)
 
@@ -113,5 +113,10 @@ Node.js重构，以前的在vuejs分支
 
 ## 感谢
 
-特别感谢JetBrains为开源项目提供的免费许可证，申请地址：[https://www.jetbrains.com/zh-cn/community/opensource/#support](https://www.jetbrains.com/zh-cn/community/opensource/#support)
+* 特别感谢JetBrains为开源项目提供的免费许可证，申请地址：[https://www.jetbrains.com/zh-cn/community/opensource/#support](https://www.jetbrains.com/zh-cn/community/opensource/#support)
+* [FFmpeg](https://ffmpeg.org/)
+* [Electron](https://www.electronjs.org/)
+* [Vue.js](https://vuejs.org/)
+* [Ant Design Vue](https://antdv.com/docs/vue/introduce-cn/)
+* [got](https://github.com/sindresorhus/got)
 
