@@ -87,7 +87,6 @@ export default {
   },
   mounted () {
     window.ipcRenderer.on('dir-dialog-reply', (event, arg) => {
-      console.log(arg)
       if (!arg.canceled) {
         this.form.setFieldsValue({
           downloadPath: arg.filePaths[0]
@@ -105,7 +104,6 @@ export default {
     hide () {
       this.form.validateFields((error, values) => {
         if (!error) {
-          console.log(values)
           this.store.set('setting', values)
           this.visible = false
           this.form.resetFields()
@@ -113,7 +111,6 @@ export default {
       })
     },
     async show (info) {
-      console.log(info)
       if (info) {
         setTimeout(() => {
           this.form.setFieldsValue(info)
@@ -129,13 +126,11 @@ export default {
       })
     },
     openFolder () {
-      console.log('openFolder')
       window.ipcRenderer.send('open-dir-dialog', 'open')
     },
     logout () {
       this.form.validateFields(async (error, values) => {
         if (!error) {
-          console.log(values)
           values.SESSDATA = null
           this.store.set('setting', values)
           const status = await checkLogin()

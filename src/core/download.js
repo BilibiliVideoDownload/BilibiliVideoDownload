@@ -54,17 +54,14 @@ export default async (videoInfo, event) => {
       referer: videoInfo.url
     }
   }
-  let fileName = ''
+  let fileName = `${videoInfo.fileDir.dir}${videoInfo.fileDir.file}`
   if (setting.isFolder) {
     // 创建文件夹
     try {
-      fs.mkdirSync(`${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/`)
-      fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/${videoInfo.title}`
+      fs.mkdirSync(`${videoInfo.fileDir.dir}`)
     } catch (error) {
       console.log(`创建文件夹失败：${error}`)
     }
-  } else {
-    fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}`
   }
   // 下载封面
   await pipeline(
@@ -80,7 +77,7 @@ export default async (videoInfo, event) => {
   }
   // 下载视频
   await pipeline(
-    got.stream(videoInfo.downloadPath.video, downloadConfig)
+    got.stream(videoInfo.downloadLink.video, downloadConfig)
       .on('downloadProgress', progress => {
         let nowTime = +new Date()
         clearTimeout(videoTimer)
@@ -114,7 +111,7 @@ export default async (videoInfo, event) => {
   await sleep(500)
   // 下载音频
   await pipeline(
-    got.stream(videoInfo.downloadPath.audio, downloadConfig)
+    got.stream(videoInfo.downloadLink.audio, downloadConfig)
       .on('downloadProgress', progress => {
         let nowTime = +new Date()
         clearTimeout(audioTimer)

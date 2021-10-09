@@ -34,7 +34,6 @@ export default {
   created () {},
   methods: {
     handleOk () {
-      console.log('handleOk')
       window.ipcRenderer.send('open-external', this.htmlUrl)
     },
     handleCancel () {
@@ -46,7 +45,6 @@ export default {
       }
       this.got('https://api.github.com/repos/blogwy/BilibiliVideoDownload/releases/latest', { responseType: 'json' })
         .then(res => {
-          console.log(res.body)
           this.newVersion = res.body.tag_name.substr(1)
           this.htmlUrl = res.body.html_url
           this.updateContent = res.body.body

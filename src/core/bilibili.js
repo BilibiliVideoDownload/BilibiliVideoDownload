@@ -13,6 +13,8 @@ const got = require('got')
  */
 const getDownloadList = async (videoInfo, selected, quality) => {
   const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+  const isFolder = window.remote.getGlobal('store').get('setting.isFolder')
+  const downloadPath = window.remote.getGlobal('store').get('setting.downloadPath')
   const bfeId = window.remote.getGlobal('store').get('setting.bfe_id') ? window.remote.getGlobal('store').get('setting.bfe_id') : ''
   const config = {
     headers: {
@@ -44,9 +46,16 @@ const getDownloadList = async (videoInfo, selected, quality) => {
       videoDuration = videoInfo.duration
       videoUrl = videoInfo.url
     }
+    const taskId = `${new Date().getTime()}${randomNum(1000, 9999)}`
+    let delDir = []
+    if (isFolder) {
+      delDir = `${downloadPath}/${videoTitle}-${taskId}/`
+    } else {
+      delDir.push(`${downloadPath}/${videoTitle}-${taskId}.mp4`, `${downloadPath}/${videoTitle}-${taskId}.png`, `${downloadPath}/${videoTitle}-${taskId}-video.m4s`, `${downloadPath}/${videoTitle}-${taskId}-audio.m4s`)
+    }
     const videoData = {
       ...videoInfo,
-      id: `${new Date().getTime()}${randomNum(1000, 9999)}`,
+      id: taskId,
       title: videoTitle,
       quality: quality,
       duration: videoDuration,
@@ -54,9 +63,14 @@ const getDownloadList = async (videoInfo, selected, quality) => {
       progress: 0,
       size: null,
       url: videoUrl,
-      downloadPath: {
+      downloadLink: {
         video: video.find(item => item.id === quality) ? video.find(item => item.id === quality).baseUrl : video[0].baseUrl,
         audio: audio[0].baseUrl
+      },
+      fileDir: {
+        dir: isFolder ? `${downloadPath}/${videoTitle}-${taskId}/` : `${downloadPath}/`,
+        file: isFolder ? `${videoTitle}` : `${videoTitle}-${taskId}`,
+        delDir: delDir
       }
     }
     console.log(videoData)
@@ -96,8 +110,6 @@ const checkLogin = async () => {
     },
     responseType: 'json'
   })
-  console.log(SESSDATA)
-  console.log(body)
   if (!body.data.isLogin) return 0
   if (body.data.isLogin && !body.data.vipStatus) return 1
   if (body.data.isLogin && body.data.vipStatus) return 2
@@ -159,7 +171,8 @@ const parseBV = (html, url) => {
         qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
         page: videoData.pages.map(item => ({ title: item.part, page: item.page, duration: item.duration, cid: item.cid })),
         subtitle: videoData.subtitle.list,
-        downloadPath: {}
+        downloadLink: {},
+        fileDir: {}
       }
       resolve(obj)
     } catch (error) {
@@ -192,7 +205,8 @@ const parseEP = (html, url) => {
         qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
         page: [{ page: 1, cid: epInfo.cid }],
         subtitle: [],
-        downloadPath: {}
+        downloadLink: {},
+        fileDir: {}
       }
       resolve(obj)
     } catch (error) {

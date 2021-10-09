@@ -86,7 +86,6 @@ export default {
   methods: {
     onAllSelectedChange (e) {
       this.allSelected = e.target.checked
-      console.log(e.target.checked)
       this.selected = []
       if (e.target.checked) {
         this.videoInfo.page.forEach(element => {
@@ -108,7 +107,6 @@ export default {
       }
     },
     async handleOk () {
-      console.log(this.videoInfo)
       if (!this.quality) {
         this.$message.info('请选择清晰度')
         return
@@ -143,8 +141,6 @@ export default {
         this.$store.commit('addDownloadingTask', allowDownTaskData.length)
       }
       this.confirmLoading = false
-      console.log('下载列表')
-      console.log(taskList)
       // 跳转到下载页面
       this.$router.push('/download')
     },

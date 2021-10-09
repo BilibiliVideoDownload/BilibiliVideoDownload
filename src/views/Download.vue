@@ -35,7 +35,7 @@
         <div class="mt8 pl16">播放：<span class="text-active">{{ current.watch }}</span></div>
         <div class="mt8 pl16">弹幕：<span class="text-active">{{ current.danmu }}</span></div>
         <div class="mt8 pl16">评论：<span class="text-active">{{ current.comment }}</span></div>
-        <div class="operate fr ac jc">
+        <div class="operate fr ac jc" v-show="current.fileDir">
           <a-button icon="delete" type="primary" @click="delDir(current)">删除</a-button>
           <a-button class="ml16" icon="folder" type="primary" @click="openFolder(current)">打开</a-button>
         </div>
@@ -49,6 +49,7 @@ import base from '../mixin/base'
 import { quality } from '../assets/data/quality'
 import taskStatus from '../assets/data/status'
 import sleep from '../utlis/sleep'
+import formatPath from '../utlis/formatPath'
 const fs = require('fs')
 export default {
   mixins: [base],
@@ -79,60 +80,57 @@ export default {
   mounted () {
     this.getTaskList()
     window.ipcRenderer.on('reply-download-video', this.handleProgress)
+    window.ipcRenderer.on('delete-video-dialog-reply', this.handleDelVideo)
   },
   created () {},
   destroyed () {
     window.ipcRenderer.removeListener('reply-download-video', this.handleProgress)
+    window.ipcRenderer.removeListener('delete-video-dialog-reply', this.handleDelVideo)
   },
   methods: {
     openFolder (videoInfo) {
-      const setting = this.store.get('setting')
-      let dir = ''
-      if (process.platform === 'win32') {
-        dir = `${setting.downloadPath}\\${videoInfo.title}-${videoInfo.id}`
-      } else {
-        dir = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}`
-      }
-      window.remote.shell.showItemInFolder(dir)
+      const dir = formatPath(videoInfo.fileDir.dir)
+      window.remote.shell.openPath(dir)
     },
     delDir (videoInfo) {
-      this.$confirm({
-        title: '你确定要删除当前任务吗？',
-        content: '视频文件也会被删除',
-        cancelText: '取消',
-        okText: '删除',
-        onOk: () => {
-          // 删除文件
-          const setting = this.store.get('setting')
-          fs.rmdir(`${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}`, { recursive: true }, err => {
-            if (err) {
-              console.log(err)
-            } else {
-              console.log('video-删除成功')
+      window.ipcRenderer.send('open-delete-video-dialog', videoInfo)
+    },
+    handleDelVideo (event, { result, videoInfo }) {
+      console.log('handleDelVideo')
+      console.log(videoInfo)
+      if (!result.response) return
+      // 删除记录
+      const taskList = this.store.get('taskList')
+      const index = taskList.findIndex(item => item.id === videoInfo.id)
+      taskList.splice(index, 1)
+      this.store.set('taskList', taskList)
+      if (result.checkboxChecked) {
+        // 删除文件
+        const flag = Array.isArray(videoInfo.fileDir.delDir)
+        if (!flag) {
+          try {
+            fs.rmdirSync(`${videoInfo.fileDir.dir}`, { recursive: true })
+          } catch (error) {
+            console.log(error)
+            this.$message.error('视频文件删除失败')
+          }
+        } else {
+          try {
+            const fileList = videoInfo.fileDir.delDir
+            for (let index = 0; index < 3; index++) {
+              fs.unlinkSync(fileList[index])
             }
-          })
-          // 删除记录
-          const taskList = this.store.get('taskList')
-          const index = taskList.findIndex(item => item.id === videoInfo.id)
-          taskList.splice(index, 1)
-          this.store.set('taskList', taskList)
-          this.$message.success('删除成功')
-          this.getTaskList()
-        },
-        onCancel () {
-          console.log('取消')
+          } catch (error) {
+            console.log(error)
+            // this.$message.error('视频文件删除失败')
+          }
         }
-      })
+      }
+      this.$message.success('删除成功')
+      this.getTaskList()
     },
     getVideoSize (videoInfo) {
-      const setting = this.store.get('setting')
-      let fileName = ''
-      if (setting.isFolder) {
-        fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}/${videoInfo.title}`
-      } else {
-        fileName = `${setting.downloadPath}/${videoInfo.title}-${videoInfo.id}`
-      }
-      fs.stat(`${fileName}.mp4`, (err, info) => {
+      fs.stat(`${videoInfo.fileDir.dir}${videoInfo.fileDir.file}.mp4`, (err, info) => {
         if (err) {
           console.log(err)
         } else {

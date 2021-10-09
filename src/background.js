@@ -86,7 +86,6 @@ function registerLocalResourceProtocol () {
 }
 
 function initSetting () {
-  console.log('setting info')
   const curSetting = store.get('setting')
   if (!curSetting) {
     store.set('setting', {
@@ -103,7 +102,6 @@ function initSetting () {
 
 function creatImageServer () {
   server.get('/', async (req, res) => {
-    console.log(req.query.img)
     if (req.query.img) {
       const { rawBody } = await got(req.query.img)
       res.set('Content-Type', 'image/webp')
@@ -162,7 +160,6 @@ app.on('ready', async () => {
       properties: ['openDirectory']
     })
       .then(res => {
-        console.log(res)
         event.reply('dir-dialog-reply', res)
       })
       .catch(error => {
@@ -179,12 +176,31 @@ app.on('ready', async () => {
       buttons: ['取消', '关闭']
     })
       .then(res => {
-        console.log(res)
         if (res.response === 1) {
           app.exit()
-        } else {
-          console.log('点击取消')
         }
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  })
+
+  // 删除视频
+  ipcMain.on('open-delete-video-dialog', (event, arg) => {
+    console.log(arg.title)
+    dialog.showMessageBox(win, {
+      type: 'info',
+      title: '提示',
+      message: `是否要移除${arg.title}任务吗？`,
+      checkboxLabel: '同时删除文件',
+      buttons: ['取消', '删除']
+    })
+      .then(res => {
+        console.log(res)
+        event.reply('delete-video-dialog-reply', {
+          result: res,
+          videoInfo: arg
+        })
       })
       .catch(error => {
         console.log(error)
@@ -193,7 +209,6 @@ app.on('ready', async () => {
 
   // 打开浏览器
   ipcMain.on('open-external', (event, arg) => {
-    console.log(arg)
     shell.openExternal(arg)
   })
 

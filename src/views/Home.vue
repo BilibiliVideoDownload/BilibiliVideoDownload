@@ -4,7 +4,7 @@
       <img src="../assets/images/logo.png" alt="">
     </div>
     <div class="download-box">
-      <a-input v-model="url" size="large" placeholder="请输入视频地址">
+      <a-input v-model="url" size="large" placeholder="请输入视频地址" @keydown.enter="download">
         <a-icon slot="addonAfter" type="arrow-down" class="icon" @click="download" />
       </a-input>
     </div>
@@ -49,6 +49,11 @@ export default {
         this.$message.info('请输入视频地址')
         return
       }
+      const videoType = checkUrl(this.url)
+      if (videoType === -1) {
+        this.$message.error('请输入正确的视频地址')
+        return
+      }
       // 检测登录状态
       if (this.$store.state.showLoginModal) {
         const status = await checkLogin()
@@ -71,12 +76,7 @@ export default {
         const res = await this.got(params.url, params.config)
         // 检测是否有重定向
         const url = res.redirectUrls[0] ? res.redirectUrls[0] : this.url
-        const type = checkUrl(url)
-        if (type === -1) {
-          this.$message.error('请输入正确的视频地址')
-          return
-        }
-        const videoInfo = await parseHtml(res.body, type, url)
+        const videoInfo = await parseHtml(res.body, videoType, url)
         this.$refs.videoModal.show(videoInfo)
       } catch (error) {
         console.log(error)
