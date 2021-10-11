@@ -4,6 +4,13 @@
   <blockquote>PC端下载bilibili视频</blockquote>
 </div>
 
+<div align="center">
+  <a href="https://github.com/blogwy/BilibiliVideoDownload/issues"><img src="https://img.shields.io/github/issues/blogwy/BilibiliVideoDownload" alt="issues"></a>
+  <a><img src="https://img.shields.io/github/forks/blogwy/BilibiliVideoDownload" alt="forks"></a>
+  <a><img src="https://img.shields.io/github/stars/blogwy/BilibiliVideoDownload" alt="stars"></a>
+  <a><img src="https://img.shields.io/github/license/blogwy/BilibiliVideoDownload" alt="license"></a>
+</div>
+
 ## 注意
 
 * 软件不支持付费视频和地区限制视频，可能会报错
