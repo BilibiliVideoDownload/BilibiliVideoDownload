@@ -61,6 +61,11 @@ yarn electron:build
 ```
 ## 版本
 
+v3.1.5 `2021-11-06`
+
+1. 修复无法下载问题
+2. HDR视频支持
+
 v3.1.5 `2021-10-08`
 
 1. 修复无法删除的bug [issues/41](https://github.com/blogwy/BilibiliVideoDownload/issues/41)

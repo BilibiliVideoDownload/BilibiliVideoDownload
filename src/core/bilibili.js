@@ -115,6 +115,25 @@ const checkLogin = async () => {
   if (body.data.isLogin && body.data.vipStatus) return 2
 }
 
+const getAcceptQuality = async (cid, bvid) => {
+  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+  const bfeId = window.remote.getGlobal('store').get('setting.bfe_id') ? window.remote.getGlobal('store').get('setting.bfe_id') : ''
+  const config = {
+    headers: {
+      'User-Agent': `${UA}`,
+      cookie: `SESSDATA=${SESSDATA};bfe_id=${bfeId}`
+    }
+  }
+  const { body: { data: { accept_quality } } } = await got(
+    `https://api.bilibili.com/x/player/playurl?cid=${cid}&bvid=${bvid}&qn=125&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
+    {
+      ...config,
+      responseType: 'json'
+    }
+  )
+  return accept_quality
+}
+
 const checkUrl = url => {
   const mapUrl = {
     'video/BV': 'BV',
@@ -146,75 +165,70 @@ const parseHtml = (html, type, url) => {
   }
 }
 
-const parseBV = (html, url) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=/)[1]
-      const videoInfo = html.match(/\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)/)[1]
-      const { data } = JSON.parse(downloadInfo)
-      const { videoData } = JSON.parse(videoInfo)
-      console.log('parseBV')
-      console.log(data)
-      console.log(videoData)
-      const obj = {
-        title: videoData.title,
-        url,
-        bvid: videoData.bvid,
-        cid: videoData.cid,
-        cover: videoData.pic,
-        createdTime: formatDataTime({ isNow: true, rules: 'YYYY-MM-DD HH:mm:ss' }),
-        watch: videoData.stat.view,
-        danmu: videoData.stat.danmaku,
-        comment: videoData.stat.reply,
-        duration: formatSeconed(videoData.duration),
-        up: videoData.hasOwnProperty('staff') ? videoData.staff.map(item => ({ name: item.name, mid: item.mid })) : [{ name: videoData.owner.name, mid: videoData.owner.mid }],
-        qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
-        page: videoData.pages.map(item => ({ title: item.part, page: item.page, duration: item.duration, cid: item.cid })),
-        subtitle: videoData.subtitle.list,
-        downloadLink: {},
-        fileDir: {}
-      }
-      resolve(obj)
-    } catch (error) {
-      console.log(error)
-      const err = -1
-      reject(err)
+const parseBV = async (html, url) => {
+  try {
+    const videoInfo = html.match(/\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)/)[1]
+    const { videoData } = JSON.parse(videoInfo)
+    const acceptQuality = await getAcceptQuality(videoData.cid, videoData.bvid)
+    console.log('acceptQuality')
+    console.log(acceptQuality)
+    const obj = {
+      title: videoData.title,
+      url,
+      bvid: videoData.bvid,
+      cid: videoData.cid,
+      cover: videoData.pic,
+      createdTime: formatDataTime({ isNow: true, rules: 'YYYY-MM-DD HH:mm:ss' }),
+      watch: videoData.stat.view,
+      danmu: videoData.stat.danmaku,
+      comment: videoData.stat.reply,
+      duration: formatSeconed(videoData.duration),
+      up: videoData.hasOwnProperty('staff') ? videoData.staff.map(item => ({ name: item.name, mid: item.mid })) : [{ name: videoData.owner.name, mid: videoData.owner.mid }],
+      qualityOptions: acceptQuality.map(item => ({ label: quality[item], value: item })),
+      page: videoData.pages.map(item => ({ title: item.part, page: item.page, duration: item.duration, cid: item.cid })),
+      subtitle: videoData.subtitle.list,
+      downloadLink: {},
+      fileDir: {}
     }
-  })
+    return obj
+  } catch (error) {
+    console.log(error)
+    return -1
+  }
 }
 
-const parseEP = (html, url) => {
-  return new Promise((resolve, reject) => {
-    try {
-      const downloadInfo = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_BILI\_CONFIG\_\_\=\{\"show_bv\"\:true\}/)[1]
-      const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
-      const { data } = JSON.parse(downloadInfo)
-      const { h1Title, mediaInfo, epInfo } = JSON.parse(videoInfo)
-      const obj = {
-        title: h1Title,
-        url,
-        bvid: epInfo.bvid,
-        cid: epInfo.cid,
-        cover: `http:${mediaInfo.cover}`,
-        createdTime: formatDataTime({ isNow: true, rules: 'YYYY-MM-DD HH:mm:ss' }),
-        watch: mediaInfo.stat.views,
-        danmu: mediaInfo.stat.danmakus,
-        comment: mediaInfo.stat.reply,
-        duration: formatSeconed(data.dash.duration),
-        up: [{ name: mediaInfo.upInfo.name, mid: mediaInfo.upInfo.mid }],
-        qualityOptions: data.accept_quality.map(item => ({ label: quality[item], value: item })),
-        page: [{ page: 1, cid: epInfo.cid }],
-        subtitle: [],
-        downloadLink: {},
-        fileDir: {}
-      }
-      resolve(obj)
-    } catch (error) {
-      console.log(error)
-      const err = -1
-      reject(err)
+const parseEP = async (html, url) => {
+  try {
+    const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
+    const { h1Title, mediaInfo, epInfo } = JSON.parse(videoInfo)
+    const acceptQuality = await getAcceptQuality(epInfo.cid, epInfo.bvid)
+    console.log('acceptQuality')
+    console.log(acceptQuality)
+    const allEps = mediaInfo.episodes
+    const duration = allEps.find(item => item.cid === epInfo.cid) ? allEps.find(item => item.cid === epInfo.cid).duration : 0
+    const obj = {
+      title: h1Title,
+      url,
+      bvid: epInfo.bvid,
+      cid: epInfo.cid,
+      cover: `http:${mediaInfo.cover}`,
+      createdTime: formatDataTime({ isNow: true, rules: 'YYYY-MM-DD HH:mm:ss' }),
+      watch: mediaInfo.stat.views,
+      danmu: mediaInfo.stat.danmakus,
+      comment: mediaInfo.stat.reply,
+      duration: formatSeconed(duration),
+      up: [{ name: mediaInfo.upInfo.name, mid: mediaInfo.upInfo.mid }],
+      qualityOptions: acceptQuality.map(item => ({ label: quality[item], value: item })),
+      page: [{ page: 1, cid: epInfo.cid }],
+      subtitle: [],
+      downloadLink: {},
+      fileDir: {}
     }
-  })
+    return obj
+  } catch (error) {
+    console.log(error)
+    return -1
+  }
 }
 
 const parseSS = async html => {
