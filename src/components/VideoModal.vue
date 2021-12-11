@@ -11,7 +11,7 @@
     <div class="video-modal">
       <div class="video-info fr">
         <div class="image">
-          <img :src="videoInfo.cover | formatCover" alt="">
+          <img :src="videoInfo.cover" alt="">
         </div>
         <div class="content fc jsa pl16">
           <div class="text-active ellipsis-2" @click="openExternal(videoInfo.url)">{{ videoInfo.title }}</div>
@@ -21,7 +21,11 @@
       <div class="mt16">
         选择清晰度：
         <div class="mt8">
-          <a-radio-group v-model="quality" :options="qualityOptions" />
+          <a-radio-group v-model="quality">
+            <a-radio class="custom-radio" v-for="(item, index) in qualityOptions" :key="index" :value="item.value">
+              {{ item.label }}
+            </a-radio>
+          </a-radio-group>
         </div>
       </div>
       <div v-if="videoInfo.page && videoInfo.page.length > 1" class="fr ac jsb mt16">
@@ -221,5 +225,8 @@ export default {
       border: 1px solid @primary-color;
     }
   }
+}
+.custom-radio{
+  width: 130px;
 }
 </style>

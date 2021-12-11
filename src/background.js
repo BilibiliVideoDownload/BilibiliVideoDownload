@@ -152,7 +152,7 @@ app.on('ready', async () => {
   registerLocalResourceProtocol()
 
   // 创建图片服务
-  creatImageServer()
+  // creatImageServer()
 
   // 打开选择文件夹
   ipcMain.on('open-dir-dialog', (event, arg) => {
@@ -187,11 +187,11 @@ app.on('ready', async () => {
 
   // 删除视频
   ipcMain.on('open-delete-video-dialog', (event, arg) => {
-    console.log(arg.title)
+    console.log(arg.length)
     dialog.showMessageBox(win, {
       type: 'info',
       title: '提示',
-      message: `是否要移除${arg.title}任务吗？`,
+      message: `当前选中${arg.length}个任务，你确定要删除吗？`,
       checkboxLabel: '同时删除文件',
       buttons: ['取消', '删除']
     })

@@ -5,9 +5,14 @@
     </a-empty>
     <template v-else>
       <div class="left">
-        <div v-for="(item, index) in taskList" :key="index" :class="['fr', 'download-item', selected === index ? 'active' : '']" @click="switchItem(index)">
+        <div
+          v-for="(item, index) in taskList" :key="index"
+          :class="['fr', 'download-item', selected.includes(index) ? 'active' : '']"
+          @click.left.exact="switchItem(index)"
+          @click.shift.exact="multiSelect(index)"
+          @click.right="showContextmenu(index)">
           <div class="img fr ac">
-            <img :src="item.cover | formatCover" :alt="item.title">
+            <img :src="item.cover" :alt="item.title">
           </div>
           <div class="content fc jsb">
             <div class="ellipsis-1">{{ item.title }}</div>
@@ -20,7 +25,7 @@
       </div>
       <div class="right">
         <div class="image">
-          <img :src="current.cover | formatCover" :alt="current.title">
+          <img :src="current.cover" :alt="current.title">
         </div>
         <div class="pl16 mt8 text-active" @click="openExternal(current.url)">{{ current.title }}</div>
         <div class="fr ac pl16 mt8 up-list">
@@ -35,10 +40,10 @@
         <div class="mt8 pl16">播放：<span class="text-active">{{ current.watch }}</span></div>
         <div class="mt8 pl16">弹幕：<span class="text-active">{{ current.danmu }}</span></div>
         <div class="mt8 pl16">评论：<span class="text-active">{{ current.comment }}</span></div>
-        <div class="operate fr ac jc" v-show="current.fileDir">
+        <!-- <div class="operate fr ac jc" v-show="current.fileDir">
           <a-button icon="delete" type="primary" @click="delDir(current)">删除</a-button>
           <a-button class="ml16" icon="folder" type="primary" @click="openFolder(current)">打开</a-button>
-        </div>
+        </div> -->
       </div>
     </template>
   </div>
@@ -56,7 +61,7 @@ export default {
   data () {
     return {
       taskList: [],
-      selected: null,
+      selected: [],
       current: null
     }
   },
@@ -88,9 +93,61 @@ export default {
     window.ipcRenderer.removeListener('delete-video-dialog-reply', this.handleDelVideo)
   },
   methods: {
+    switchItem (index) {
+      console.log('switchItem', index)
+      this.selected = [index]
+      this.current = this.taskList[index]
+    },
+    // 按shift+click触发多选
+    multiSelect (index) {
+      console.log('multiSelect', index)
+      this.selected.push(index)
+    },
+    showContextmenu (index) {
+      console.log('showContextmenu', index)
+      // 注册右键事件
+      const Menu = window.remote.Menu
+      const MenuItem = window.remote.MenuItem
+      const menu = new Menu()
+      menu.append(new MenuItem({
+        label: '删除任务',
+        type: 'normal',
+        click: () => {
+          console.log('删除任务')
+          const cur = []
+          this.selected.forEach(item => {
+            cur.push(this.taskList[item])
+          })
+          this.delDir(cur)
+        }
+      }))
+      menu.append(new MenuItem({
+        label: '打开文件夹',
+        type: 'normal',
+        click: () => {
+          console.log('打开文件夹')
+          this.openFolder(this.taskList[index])
+        }
+      }))
+      menu.append(new MenuItem({
+        label: '全选',
+        type: 'normal',
+        click: () => {
+          console.log('全选')
+          const cur = []
+          this.taskList.forEach((item, index) => {
+            cur.push(index)
+          })
+          this.selected = cur
+        }
+      }))
+      menu.popup(window.remote.getCurrentWindow())
+    },
     openFolder (videoInfo) {
-      const dir = formatPath(videoInfo.fileDir.dir)
-      window.remote.shell.openPath(dir)
+      if (videoInfo.fileDir.dir) {
+        const dir = formatPath(videoInfo.fileDir.dir)
+        window.remote.shell.openPath(dir)
+      }
     },
     delDir (videoInfo) {
       window.ipcRenderer.send('open-delete-video-dialog', videoInfo)
@@ -100,29 +157,35 @@ export default {
       console.log(videoInfo)
       if (!result.response) return
       // 删除记录
-      const taskList = this.store.get('taskList')
-      const index = taskList.findIndex(item => item.id === videoInfo.id)
-      taskList.splice(index, 1)
-      this.store.set('taskList', taskList)
-      if (result.checkboxChecked) {
-        // 删除文件
-        const flag = Array.isArray(videoInfo.fileDir.delDir)
-        if (!flag) {
-          try {
-            fs.rmdirSync(`${videoInfo.fileDir.dir}`, { recursive: true })
-          } catch (error) {
-            console.log(error)
-            this.$message.error('视频文件删除失败')
+      for (let idx = 0; idx < videoInfo.length; idx++) {
+        const element = videoInfo[idx]
+        const taskList = this.store.get('taskList')
+        const index = taskList.findIndex(item => item.id === element.id)
+        taskList.splice(index, 1)
+        this.store.set('taskList', taskList)
+        if (result.checkboxChecked) {
+          if (!element.fileDir.delDir) {
+            return
           }
-        } else {
-          try {
-            const fileList = videoInfo.fileDir.delDir
-            for (let index = 0; index < 3; index++) {
-              fs.unlinkSync(fileList[index])
+          // 删除文件
+          const flag = Array.isArray(element.fileDir.delDir)
+          if (!flag) {
+            try {
+              fs.rmdirSync(`${element.fileDir.dir}`, { recursive: true })
+            } catch (error) {
+              console.log(error)
+              this.$message.error('视频文件删除失败')
             }
-          } catch (error) {
-            console.log(error)
-            // this.$message.error('视频文件删除失败')
+          } else {
+            try {
+              const fileList = element.fileDir.delDir
+              for (let index = 0; index < 3; index++) {
+                fs.unlinkSync(fileList[index])
+              }
+            } catch (error) {
+              console.log(error)
+              // this.$message.error('视频文件删除失败')
+            }
           }
         }
       }
@@ -184,10 +247,6 @@ export default {
       if (this.taskList && this.taskList.length) {
         this.switchItem(0)
       }
-    },
-    switchItem (index) {
-      this.selected = index
-      this.current = this.taskList[index]
     },
     async continueDownload () {
       // 从当前下载列表中找出可以继续下载的视频，并提交下载

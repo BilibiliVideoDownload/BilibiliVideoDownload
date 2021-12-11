@@ -27,15 +27,25 @@ const getDownloadList = async (videoInfo, selected, quality) => {
     const currentPage = selected[index]
     // 请求选中清晰度视频下载地址
     const currentCid = videoInfo.page.find(item => item.page === currentPage).cid
-    const { body: { data: { dash: { video, audio } } }, headers: { 'set-cookie': responseCookies } } = await got(
-      `https://api.bilibili.com/x/player/playurl?cid=${currentCid}&bvid=${videoInfo.bvid}&qn=${quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
-      {
-        ...config,
-        responseType: 'json'
-      }
-    )
-    // 保存返回的cookies
-    saveResponseCookies(responseCookies)
+    // 判断当前数据是否有下载地址列表，有则直接用，没有再去请求
+    let video = null
+    let audio = null
+    if (videoInfo.downloadList[currentCid]) {
+      video = videoInfo.downloadList[currentCid].video
+      audio = videoInfo.downloadList[currentCid].audio
+    } else {
+      const { body: { data: { dash } }, headers: { 'set-cookie': responseCookies } } = await got(
+        `https://api.bilibili.com/x/player/playurl?cid=${currentCid}&bvid=${videoInfo.bvid}&qn=${quality}&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
+        {
+          ...config,
+          responseType: 'json'
+        }
+      )
+      video = dash.video
+      audio = dash.audio
+      // 保存返回的cookies
+      saveResponseCookies(responseCookies)
+    }
     let videoTitle = '', videoDuration = '', videoUrl = ''
     if (videoInfo.page.length > 1) {
       videoTitle = `[P${currentPage}]${filterTitle(videoInfo.page.find(item => item.page === currentPage).title)}`
@@ -124,14 +134,18 @@ const getAcceptQuality = async (cid, bvid) => {
       cookie: `SESSDATA=${SESSDATA};bfe_id=${bfeId}`
     }
   }
-  const { body: { data: { accept_quality } } } = await got(
-    `https://api.bilibili.com/x/player/playurl?cid=${cid}&bvid=${bvid}&qn=125&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
+  const { body: { data: { accept_quality, dash: { video, audio } } } } = await got(
+    `https://api.bilibili.com/x/player/playurl?cid=${cid}&bvid=${bvid}&qn=127&type=&otype=json&fourk=1&fnver=0&fnval=80&session=68191c1dc3c75042c6f35fba895d65b0`,
     {
       ...config,
       responseType: 'json'
     }
   )
-  return accept_quality
+  return {
+    accept_quality,
+    video,
+    audio
+  }
 }
 
 const checkUrl = url => {
@@ -169,7 +183,22 @@ const parseBV = async (html, url) => {
   try {
     const videoInfo = html.match(/\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)/)[1]
     const { videoData } = JSON.parse(videoInfo)
-    const acceptQuality = await getAcceptQuality(videoData.cid, videoData.bvid)
+    // 获取视频下载地址
+    let acceptQuality = null
+    try {
+      let downLoadData = html.match(/\<script\>window\.\_\_playinfo\_\_\=([\s\S]*?)\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=/)[1]
+      downLoadData = JSON.parse(downLoadData)
+      acceptQuality = {
+        accept_quality: downLoadData.data.accept_quality,
+        video: downLoadData.data.dash.video,
+        audio: downLoadData.data.dash.audio
+      }
+    } catch (error) {
+      acceptQuality = await getAcceptQuality(videoData.cid, videoData.bvid)
+    }
+    if (!acceptQuality) {
+      acceptQuality = await getAcceptQuality(videoData.cid, videoData.bvid)
+    }
     console.log('acceptQuality')
     console.log(acceptQuality)
     const obj = {
@@ -184,10 +213,16 @@ const parseBV = async (html, url) => {
       comment: videoData.stat.reply,
       duration: formatSeconed(videoData.duration),
       up: videoData.hasOwnProperty('staff') ? videoData.staff.map(item => ({ name: item.name, mid: item.mid })) : [{ name: videoData.owner.name, mid: videoData.owner.mid }],
-      qualityOptions: acceptQuality.map(item => ({ label: quality[item], value: item })),
+      qualityOptions: acceptQuality.accept_quality.map(item => ({ label: quality[item], value: item })),
       page: videoData.pages.map(item => ({ title: item.part, page: item.page, duration: item.duration, cid: item.cid })),
       subtitle: videoData.subtitle.list,
       downloadLink: {},
+      downloadList: {
+        [videoData.cid]: {
+          video: acceptQuality.video,
+          audio: acceptQuality.audio
+        }
+      },
       fileDir: {}
     }
     return obj
@@ -218,10 +253,16 @@ const parseEP = async (html, url) => {
       comment: mediaInfo.stat.reply,
       duration: formatSeconed(duration),
       up: [{ name: mediaInfo.upInfo.name, mid: mediaInfo.upInfo.mid }],
-      qualityOptions: acceptQuality.map(item => ({ label: quality[item], value: item })),
+      qualityOptions: acceptQuality.accept_quality.map(item => ({ label: quality[item], value: item })),
       page: [{ page: 1, cid: epInfo.cid }],
       subtitle: [],
       downloadLink: {},
+      downloadList: {
+        [epInfo.cid]: {
+          video: acceptQuality.video,
+          audio: acceptQuality.audio
+        }
+      },
       fileDir: {}
     }
     return obj
