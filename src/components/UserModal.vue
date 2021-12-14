@@ -8,8 +8,8 @@
       <div class="version mt16">
         {{ `${projectName} - v${version}` }} <a-icon type="reload" @click="$checkUpdate.checkUpdate()" />
       </div>
-      <div class="git mt16">项目地址：<span class="text-active">https://github.com/blogwy/BilibiliVideoDownload</span></div>
-      <div class="desc mt16">个人作品，代码写的稀烂，大佬轻喷！</div>
+      <div class="git mt16">项目地址：<span class="text-active" @click="openExternal(projectUrl)">{{ projectUrl }}</span></div>
+      <div class="desc mt16">个人作品，代码稀烂，大佬轻喷，如有问题，<span class="text-active" @click="openExternal(`${projectUrl}/issues`)">请点这里</span></div>
     </div>
   </a-modal>
 </template>
@@ -21,7 +21,8 @@ export default {
     return {
       visible: false,
       projectName: '',
-      version: ''
+      version: '',
+      projectUrl: 'https://github.com/blogwy/BilibiliVideoDownload'
     }
   },
   components: {},
@@ -35,6 +36,11 @@ export default {
   methods: {
     show () {
       this.visible = true
+    },
+    openExternal (url) {
+      if (url) {
+        window.ipcRenderer.send('open-external', url)
+      }
     }
   }
 }

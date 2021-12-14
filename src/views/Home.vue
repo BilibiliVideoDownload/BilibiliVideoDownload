@@ -5,7 +5,7 @@
     </div>
     <div class="download-box">
       <a-input v-model="url" size="large" placeholder="请输入视频地址" @keydown.enter="download">
-        <a-icon slot="addonAfter" type="arrow-down" class="icon" @click="download" />
+        <a-icon slot="addonAfter" :type="loading ? 'loading' : 'arrow-down'" class="icon" @click="download" />
       </a-input>
     </div>
     <div class="setting" v-if="$route.path === '/'">
@@ -31,7 +31,8 @@ export default {
   mixins: [base],
   data () {
     return {
-      url: ''
+      url: '',
+      loading: false
     }
   },
   components: {
@@ -44,14 +45,17 @@ export default {
   created () {},
   methods: {
     async download () {
+      this.loading = true
       // 检测url
       if (!this.url) {
         this.$message.info('请输入视频地址')
+        this.loading = false
         return
       }
       const videoType = checkUrl(this.url)
       if (videoType === -1) {
         this.$message.error('请输入正确的视频地址')
+        this.loading = false
         return
       }
       // 检测登录状态
@@ -60,6 +64,7 @@ export default {
         this.$store.commit('setLoginStatus', status)
         if (status === 0) {
           this.$refs.loginModal.openLoginModal()
+          this.loading = false
           return
         }
       }
@@ -78,8 +83,10 @@ export default {
         const url = res.redirectUrls[0] ? res.redirectUrls[0] : this.url
         const videoInfo = await parseHtml(res.body, videoType, url)
         this.$refs.videoModal.show(videoInfo)
+        this.loading = false
       } catch (error) {
         console.log(error)
+        this.loading = false
         if (error === -1) {
           this.$message.info('不支持当前视频')
         }
