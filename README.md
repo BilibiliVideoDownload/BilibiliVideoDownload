@@ -29,6 +29,7 @@
 ![2](./screenshots/2.png)
 ![3](./screenshots/3.png)
 ![4](./screenshots/4.png)
+![5](./screenshots/4.png)
 
 
 ## 功能
@@ -60,6 +61,10 @@ yarn electron:serve
 yarn electron:build
 ```
 ## 版本
+
+v3.1.8 `2021-12-18`
+
+1. EP，SS视频(番剧、纪录片、电影),支持分P(批量)下载
 
 v3.1.7 `2021-12-11`
 
