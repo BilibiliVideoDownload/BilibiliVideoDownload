@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./build/icons/256x256.png" alt="" width="128">
   <h1>BilibiliVideoDownload</h1>
-  <blockquote>PC端下载bilibili视频</blockquote>
+  <blockquote>跨平台下载bilibili视频桌面端软件，支持windows、macOS、Linux</blockquote>
 </div>
 
 <div align="center">
@@ -21,7 +21,7 @@
 
 ## 安装
 
-到[releases](https://github.com/blogwy/BilibiliVideoDownload/releases)页面,下载对应平台安装包即可.下载视频时候会提示登录，登录后只会获取你的SESSDATA来用做下载，账号是普通账号最大下载1080P视频，大会员可以下载4K视频，不登录最大下载480P视频
+到[releases](https://github.com/blogwy/BilibiliVideoDownload/releases)页面,下载对应平台安装包即可.下载视频时候会提示登录，登录后只会获取你的SESSDATA来用做下载，账号是普通账号最大支持下载1080P视频，大会员可以下载8K视频，不登录最大支持下载480P视频
 
 ## 演示
 
