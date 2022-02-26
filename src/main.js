@@ -7,9 +7,8 @@ import 'ant-design-vue/dist/antd.less'
 import './assets/style/main.less'
 Vue.use(antd)
 
-const { ipcRenderer, remote } = require('electron')
+const { ipcRenderer } = require('electron')
 window.ipcRenderer = ipcRenderer
-window.remote = remote
 
 // checkUpdate checkLogin 组件中用到了ipcRenderer所以需放到其引入下面
 import checkUpdate from './components/CheckUpdate/index'

@@ -34,14 +34,13 @@ function delFile (setting, videoInfo, event, fileName) {
   }
 }
 
-export default async (videoInfo, event) => {
+export default async (videoInfo, event, setting) => {
   // throttle start
   let videoLastTime = null
   let videoTimer = null
   let audioLastTime = null
   let audioTimer = null
   // throttle end
-  const setting = global.store.get('setting')
   const imageConfig = {
     headers: {
       'User-Agent': `${UA}`,

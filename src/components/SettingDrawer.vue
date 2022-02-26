@@ -78,7 +78,7 @@ export default {
       if (typeof val === 'number') {
         this.statusText = this.mapStatus[val]
         // 表单重新赋值
-        const setting = this.store.get('setting')
+        const setting = window.ipcRenderer.sendSync('get-store', 'setting')
         setTimeout(() => {
           this.form.setFieldsValue(setting)
         }, 300)
@@ -103,8 +103,10 @@ export default {
     },
     hide () {
       this.form.validateFields((error, values) => {
+        console.log('error', error)
+        console.log('values', values)
         if (!error) {
-          this.store.set('setting', values)
+          window.ipcRenderer.send('set-store', ['setting', values])
           this.visible = false
           this.form.resetFields()
         }
@@ -132,7 +134,7 @@ export default {
       this.form.validateFields(async (error, values) => {
         if (!error) {
           values.SESSDATA = null
-          this.store.set('setting', values)
+          window.ipcRenderer.send('set-store', ['setting', values])
           const status = await checkLogin()
           this.$store.commit('setLoginStatus', status)
         }

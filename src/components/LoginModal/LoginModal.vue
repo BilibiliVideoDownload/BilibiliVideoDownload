@@ -28,6 +28,7 @@
 import base from '../../mixin/base'
 import qrCode from 'qrcode'
 import { checkLogin } from '../../core/bilibili'
+const got = require('got')
 export default {
   mixins: [base],
   data () {
@@ -69,7 +70,7 @@ export default {
       this.visible = false
     },
     async getQrcodeData () {
-      const { body } = await this.got('http://passport.bilibili.com/qrcode/getLoginUrl', { responseType: 'json' })
+      const { body } = await got('http://passport.bilibili.com/qrcode/getLoginUrl', { responseType: 'json' })
       this.createQrcode(body.data.url)
       this.oauthKey = body.data.oauthKey
       // 开始倒计时
@@ -97,7 +98,7 @@ export default {
       run(oauthKey)
       async function run (oauthKey) {
         if (!_this.isCheck) return
-        const { body } = await _this.got('http://passport.bilibili.com/qrcode/getLoginInfo', {
+        const { body } = await got('http://passport.bilibili.com/qrcode/getLoginInfo', {
           method: 'POST',
           responseType: 'json',
           headers: {
@@ -125,7 +126,7 @@ export default {
       }
     },
     async handleOk () {
-      this.store.set('setting.SESSDATA', this.SESSDATA)
+      window.ipcRenderer.send('set-store', ['setting.SESSDATA', this.SESSDATA])
       // 设置登录状态
       const status = await checkLogin()
       this.$store.commit('setLoginStatus', status)

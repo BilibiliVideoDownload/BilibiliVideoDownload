@@ -12,10 +12,11 @@ const got = require('got')
  * @returns 返回下载数据 Array
  */
 const getDownloadList = async (videoInfo, selected, quality) => {
-  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
-  const isFolder = window.remote.getGlobal('store').get('setting.isFolder')
-  const downloadPath = window.remote.getGlobal('store').get('setting.downloadPath')
-  const bfeId = window.remote.getGlobal('store').get('setting.bfe_id') ? window.remote.getGlobal('store').get('setting.bfe_id') : ''
+  const setting = window.ipcRenderer.sendSync('get-store', 'setting')
+  const SESSDATA = setting.SESSDATA
+  const isFolder = setting.isFolder
+  const downloadPath = setting.downloadPath
+  const bfeId = setting.bfe_id ? setting.bfe_id : ''
   const config = {
     headers: {
       'User-Agent': `${UA}`,
@@ -94,11 +95,11 @@ const getDownloadList = async (videoInfo, selected, quality) => {
 const saveResponseCookies = cookies => {
   if (cookies && cookies.length) {
     const cookiesString = cookies.join(';')
-    const setting = window.remote.getGlobal('store').get('setting')
-    window.remote.getGlobal('store').set('setting', {
+    const setting = window.ipcRenderer.sendSync('get-store', 'setting')
+    window.ipcRenderer.send('set-store', ['setting', {
       ...setting,
       bfe_id: cookiesString
-    })
+    }])
   }
 }
 
@@ -107,7 +108,7 @@ const saveResponseCookies = cookies => {
  * @returns 0: 未登录 1：普通会员 2：大会员
  */
 const checkLogin = async () => {
-  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+  const SESSDATA = window.ipcRenderer.sendSync('get-store', 'setting.SESSDATA')
   const { body } = await got('https://api.bilibili.com/x/web-interface/nav', {
     headers: {
       'User-Agent': `${UA}`,
@@ -121,8 +122,9 @@ const checkLogin = async () => {
 }
 
 const getAcceptQuality = async (cid, bvid) => {
-  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
-  const bfeId = window.remote.getGlobal('store').get('setting.bfe_id') ? window.remote.getGlobal('store').get('setting.bfe_id') : ''
+  const setting = window.ipcRenderer.sendSync('get-store', 'setting')
+  const SESSDATA = setting.SESSDATA
+  const bfeId = setting.bfe_id ? setting.bfe_id : ''
   const config = {
     headers: {
       'User-Agent': `${UA}`,
@@ -184,6 +186,7 @@ const parseEPPageData = epList => {
 
 const checkUrl = url => {
   const mapUrl = {
+    'video/av': 'BV',
     'video/BV': 'BV',
     'play/ss': 'ss',
     'play/ep': 'ep'
@@ -323,7 +326,7 @@ const parseEP = async (html, url) => {
 }
 
 const parseSS = async html => {
-  const SESSDATA = window.remote.getGlobal('store').get('setting.SESSDATA')
+  const SESSDATA = window.ipcRenderer.sendSync('get-store', 'setting.SESSDATA')
   const videoInfo = html.match(/\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)\{var s\;/)[1]
   const { mediaInfo } = JSON.parse(videoInfo)
   const params = {

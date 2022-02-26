@@ -4,6 +4,7 @@ module.exports = {
       externals: ['@ffmpeg-installer/ffmpeg'],
       nodeModulesPath: ['../../node_modules', './node_modules'],
       nodeIntegration: true,
+      contextIsolation: false,
       builderOptions: {
         productName: 'BilibiliVideoDownload',
         appId: 'com.blogwy.bilibilivideodownload',
@@ -26,7 +27,11 @@ module.exports = {
         },
         mac: {
           icon: 'build/icons/icon.icns',
-          identity: null
+          identity: null,
+          target: {
+            target: 'dmg',
+            arch: ['x64', 'arm64']
+          }
         },
         nsis: {
           oneClick: false,

@@ -14,6 +14,7 @@
 <script>
 import base from '../../mixin/base'
 const packageInfo = require('../../../package.json')
+const got = require('got')
 export default {
   mixins: [base],
   data () {
@@ -43,7 +44,7 @@ export default {
       if (this.visible) {
         return
       }
-      this.got('https://api.github.com/repos/blogwy/BilibiliVideoDownload/releases/latest', { responseType: 'json' })
+      got('https://api.github.com/repos/blogwy/BilibiliVideoDownload/releases/latest', { responseType: 'json' })
         .then(res => {
           this.newVersion = res.body.tag_name.substr(1)
           this.htmlUrl = res.body.html_url

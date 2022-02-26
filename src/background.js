@@ -1,19 +1,12 @@
 'use strict'
 
-import { app, Menu, protocol, BrowserWindow, ipcMain, dialog, shell } from 'electron'
+import { app, protocol, BrowserWindow, Menu, MenuItem, ipcMain, dialog, shell } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import downloadTask from './core/download'
 import { settingStore } from './assets/data/setting'
+import { getStore, setStore, deleteStore } from './core/store'
 const isDevelopment = process.env.NODE_ENV !== 'production'
-const got = require('got')
-const express = require('express')
-const server = express()
-const Store = require('electron-store')
-const store = new Store()
-global.store = store
-global.got = got
-
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
@@ -52,12 +45,12 @@ async function createWindow () {
     title: 'BilibiliVideoDownload',
     center: true,
     frame: false,
-    // titleBarStyle: 'hidden',
     webPreferences: {
+
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-      webSecurity: false
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
 
@@ -86,34 +79,45 @@ function registerLocalResourceProtocol () {
 }
 
 function initSetting () {
-  const curSetting = store.get('setting')
+  const curSetting = getStore('setting')
   if (!curSetting) {
-    store.set('setting', {
+    setStore('setting', {
       ...settingStore,
       downloadPath: app.getPath('downloads')
     })
   } else {
-    store.set('setting', {
+    setStore('setting', {
       ...settingStore,
       ...curSetting
     })
   }
 }
 
-function creatImageServer () {
-  server.get('/', async (req, res) => {
-    if (req.query.img) {
-      const { rawBody } = await got(req.query.img)
-      res.set('Content-Type', 'image/webp')
-      res.send(rawBody)
-    } else {
-      res.send('hello world')
+function addDropdownMenu (win, callBack1, callBack2, callBack3) {
+  // 注册右键事件
+  const menu = new Menu()
+  menu.append(new MenuItem({
+    label: '删除任务',
+    type: 'normal',
+    click: () => {
+      callBack1()
     }
-  })
-  
-  server.listen(8964, () => {
-    console.log('图片服务启动：http://127.0.0.1:8964')
-  })
+  }))
+  menu.append(new MenuItem({
+    label: '打开文件夹',
+    type: 'normal',
+    click: () => {
+      callBack2()
+    }
+  }))
+  menu.append(new MenuItem({
+    label: '全选',
+    type: 'normal',
+    click: () => {
+      callBack3()
+    }
+  }))
+  menu.popup(win)
 }
 
 // Quit when all windows are closed.
@@ -151,9 +155,6 @@ app.on('ready', async () => {
   // 注册自定义协议
   registerLocalResourceProtocol()
 
-  // 创建图片服务
-  // creatImageServer()
-
   // 打开选择文件夹
   ipcMain.on('open-dir-dialog', (event, arg) => {
     dialog.showOpenDialog(win, {
@@ -165,6 +166,11 @@ app.on('ready', async () => {
       .catch(error => {
         console.log(error)
       })
+  })
+
+  // 打开文件夹
+  ipcMain.on('open-dir', (event, arg) => {
+    shell.openPath(arg)
   })
 
   // 关闭软件
@@ -183,6 +189,11 @@ app.on('ready', async () => {
       .catch(error => {
         console.log(error)
       })
+  })
+
+  // 最小化软件
+  ipcMain.on('minimize-window', (event, arg) => {
+    win.minimize()
   })
 
   // 删除视频
@@ -214,7 +225,42 @@ app.on('ready', async () => {
 
   // 下载视频
   ipcMain.on('download-video', async (event, arg) => {
-    await downloadTask(arg, event)
+    await downloadTask(arg, event, getStore('setting'))
+  })
+
+  // 获取store
+  ipcMain.on('get-store', (event, arg) => {
+    event.returnValue = getStore(arg)
+  })
+  
+  // 设置store
+  ipcMain.on('set-store', (event, arg) => {
+    setStore(arg[0], arg[1])
+  })
+
+  // 删除store
+  ipcMain.on('delete-store', (event, arg) => {
+    deleteStore(arg)
+  })
+
+  // 添加右键菜单
+  ipcMain.on('add-dropdown-menu', (event, arg) => {
+    // arg 为当前选中任务index
+    addDropdownMenu(win,
+      () => {
+        // 删除
+        event.reply('contextmenu-delete', 'hello')
+      },
+      () => {
+        // 打开文件夹
+        console.log('main:', arg)
+        event.reply('contextmenu-opendir', arg)
+      },
+      () => {
+        // 全选
+        event.reply('contextmenu-allselected', 'hello')
+      }
+    )
   })
 })
 

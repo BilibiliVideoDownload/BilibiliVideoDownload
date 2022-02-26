@@ -50,8 +50,7 @@ export default {
       window.ipcRenderer.send('open-close-dialog', 'hello')
     },
     min () {
-      const win = window.remote.getCurrentWindow()
-      win.minimize()
+      window.ipcRenderer.send('minimize-window', 'hello')
     },
     goRoute (route) {
       this.$router.push(route)

@@ -122,15 +122,15 @@ export default {
       this.confirmLoading = true
       const list = await getDownloadList(this.videoInfo, this.selected, this.quality)
       // 改状态
-      const allowDownTask = this.store.get('setting.downloadingSize') - this.$store.state.downloadingTask
+      const allowDownTask = window.ipcRenderer.sendSync('get-store', 'setting.downloadingSize') - this.$store.state.downloadingTask
       if (allowDownTask > 0) {
         for (let index = 0; index < allowDownTask; index++) {
           if (list[index]) list[index].status = 1
         }
       }
-      let taskList = this.store.get('taskList') ? this.store.get('taskList') : []
+      let taskList = window.ipcRenderer.sendSync('get-store', 'taskList') ? window.ipcRenderer.sendSync('get-store', 'taskList') : []
       taskList = taskList.concat(list)
-      this.store.set('taskList', taskList)
+      window.ipcRenderer.send('set-store', ['taskList', taskList])
       const allowDownTaskData = list.filter(item => item.status === 1)
       // 调用下载
       if (allowDownTaskData.length) {
@@ -165,11 +165,11 @@ export default {
     saveResponseCookies (cookies) {
       if (cookies && cookies.length) {
         const cookiesString = cookies.join(';')
-        const setting = this.store.get('setting')
-        this.store.set('setting', {
+        const setting = window.ipcRenderer.sendSync('get-store', 'setting')
+        window.ipcRenderer.send('set-store', ['setting', {
           ...setting,
           bfe_id: cookiesString
-        })
+        }])
       }
     }
   }

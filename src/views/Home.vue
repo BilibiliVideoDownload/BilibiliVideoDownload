@@ -9,7 +9,7 @@
       </a-input>
     </div>
     <div class="setting" v-if="$route.path === '/'">
-      <a-icon type="setting" class="icon" @click="$refs.settingDrawer.show(store.get('setting'))" />
+      <a-icon type="setting" class="icon" @click="openSettingDrawer()" />
     </div>
     <div class="user" v-if="$route.path === '/'">
       <a-icon type="user" class="icon" @click="$refs.userModal.show()"/>
@@ -27,6 +27,7 @@ import { checkUrl, parseHtml, checkLogin } from '../core/bilibili'
 import UA from '../assets/data/ua'
 import VideoModal from '../components/VideoModal'
 import SettingDrawer from '../components/SettingDrawer'
+const got = require('got')
 export default {
   mixins: [base],
   data () {
@@ -44,6 +45,9 @@ export default {
   mounted () {},
   created () {},
   methods: {
+    openSettingDrawer () {
+      this.$refs.settingDrawer.show(window.ipcRenderer.sendSync('get-store', 'setting'))
+    },
     async download () {
       this.loading = true
       // 检测url
@@ -73,12 +77,12 @@ export default {
         config: {
           headers: {
             'User-Agent': `${UA}`,
-            cookie: `SESSDATA=${this.store.get('setting.SESSDATA')}`
+            cookie: `SESSDATA=${window.ipcRenderer.sendSync('get-store', 'setting.SESSDATA')}`
           }
         }
       }
       try {
-        const res = await this.got(params.url, params.config)
+        const res = await got(params.url, params.config)
         // 检测是否有重定向
         const url = res.redirectUrls[0] ? res.redirectUrls[0] : this.url
         const videoInfo = await parseHtml(res.body, videoType, url)

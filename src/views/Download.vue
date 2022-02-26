@@ -40,10 +40,6 @@
         <div class="mt8 pl16">播放：<span class="text-active">{{ current.watch }}</span></div>
         <div class="mt8 pl16">弹幕：<span class="text-active">{{ current.danmu }}</span></div>
         <div class="mt8 pl16">评论：<span class="text-active">{{ current.comment }}</span></div>
-        <!-- <div class="operate fr ac jc" v-show="current.fileDir">
-          <a-button icon="delete" type="primary" @click="delDir(current)">删除</a-button>
-          <a-button class="ml16" icon="folder" type="primary" @click="openFolder(current)">打开</a-button>
-        </div> -->
       </div>
     </template>
   </div>
@@ -86,11 +82,17 @@ export default {
     this.getTaskList()
     window.ipcRenderer.on('reply-download-video', this.handleProgress)
     window.ipcRenderer.on('delete-video-dialog-reply', this.handleDelVideo)
+    window.ipcRenderer.on('contextmenu-delete', this.onContextmenuDelete)
+    window.ipcRenderer.on('contextmenu-opendir', this.onContextmenuOpendir)
+    window.ipcRenderer.on('contextmenu-allselected', this.onContextmenuAllselect)
   },
   created () {},
   destroyed () {
     window.ipcRenderer.removeListener('reply-download-video', this.handleProgress)
     window.ipcRenderer.removeListener('delete-video-dialog-reply', this.handleDelVideo)
+    window.ipcRenderer.removeListener('contextmenu-delete', this.onContextmenuDelete)
+    window.ipcRenderer.removeListener('contextmenu-opendir', this.onContextmenuOpendir)
+    window.ipcRenderer.removeListener('contextmenu-allselected', this.onContextmenuAllselect)
   },
   methods: {
     switchItem (index) {
@@ -103,51 +105,30 @@ export default {
       console.log('multiSelect', index)
       this.selected.push(index)
     },
-    showContextmenu (index) {
-      console.log('showContextmenu', index)
-      // 注册右键事件
-      const Menu = window.remote.Menu
-      const MenuItem = window.remote.MenuItem
-      const menu = new Menu()
-      menu.append(new MenuItem({
-        label: '删除任务',
-        type: 'normal',
-        click: () => {
-          console.log('删除任务')
-          const cur = []
-          this.selected.forEach(item => {
-            cur.push(this.taskList[item])
-          })
-          this.delDir(cur)
-        }
-      }))
-      menu.append(new MenuItem({
-        label: '打开文件夹',
-        type: 'normal',
-        click: () => {
-          console.log('打开文件夹')
-          this.openFolder(this.taskList[index])
-        }
-      }))
-      menu.append(new MenuItem({
-        label: '全选',
-        type: 'normal',
-        click: () => {
-          console.log('全选')
-          const cur = []
-          this.taskList.forEach((item, index) => {
-            cur.push(index)
-          })
-          this.selected = cur
-        }
-      }))
-      menu.popup(window.remote.getCurrentWindow())
+    onContextmenuDelete () {
+      const cur = []
+      this.selected.forEach(item => {
+        cur.push(this.taskList[item])
+      })
+      this.delDir(cur)
     },
-    openFolder (videoInfo) {
+    onContextmenuOpendir (event, index) {
+      console.log('onContextmenuOpendir', index)
+      const videoInfo = this.taskList[index]
       if (videoInfo.fileDir.dir) {
         const dir = formatPath(videoInfo.fileDir.dir)
-        window.remote.shell.openPath(dir)
+        window.ipcRenderer.send('open-dir', dir)
       }
+    },
+    onContextmenuAllselect () {
+      const cur = []
+      this.taskList.forEach((item, index) => {
+        cur.push(index)
+      })
+      this.selected = cur
+    },
+    showContextmenu (index) {
+      window.ipcRenderer.send('add-dropdown-menu', index)
     },
     delDir (videoInfo) {
       window.ipcRenderer.send('open-delete-video-dialog', videoInfo)
@@ -159,10 +140,10 @@ export default {
       // 删除记录
       for (let idx = 0; idx < videoInfo.length; idx++) {
         const element = videoInfo[idx]
-        const taskList = this.store.get('taskList')
+        const taskList = window.ipcRenderer.sendSync('get-store', 'taskList')
         const index = taskList.findIndex(item => item.id === element.id)
         taskList.splice(index, 1)
-        this.store.set('taskList', taskList)
+        window.ipcRenderer.send('set-store', ['taskList', taskList])
         if (result.checkboxChecked) {
           if (!element.fileDir.delDir) {
             return
@@ -197,10 +178,10 @@ export default {
         if (err) {
           console.log(err)
         } else {
-          const taskList = this.store.get('taskList')
+          const taskList = window.ipcRenderer.sendSync('get-store', 'taskList')
           const index = taskList.findIndex(item => item.id === videoInfo.id)
           taskList[index].size = `${(info.size / 1000 / 1000).toFixed(2)}MB`
-          this.store.set('taskList', taskList)
+          window.ipcRenderer.send('set-store', ['taskList', taskList])
           this.getTaskList()
         }
       })
@@ -217,11 +198,11 @@ export default {
         })
         // 成功/失败 后更新store数据结果
         if (videoInfo.status === 0 || videoInfo.status === -1) {
-          const taskList = this.store.get('taskList')
+          const taskList = window.ipcRenderer.sendSync('get-store', 'taskList')
           const index = taskList.findIndex(item => item.id === videoInfo.id)
           taskList[index].status = videoInfo.status
           taskList[index].progress = videoInfo.progress
-          this.store.set('taskList', taskList)
+          window.ipcRenderer.send('set-store', ['taskList', taskList])
           // 减少正在下载数
           this.$store.commit('reduceDownloadingTask', 1)
           // 继续下载
@@ -243,14 +224,14 @@ export default {
       }
     },
     getTaskList () {
-      this.taskList = this.store.get('taskList') ? this.store.get('taskList').reverse() : []
+      this.taskList = window.ipcRenderer.sendSync('get-store', 'taskList') ? window.ipcRenderer.sendSync('get-store', 'taskList').reverse() : []
       if (this.taskList && this.taskList.length) {
         this.switchItem(0)
       }
     },
     async continueDownload () {
       // 从当前下载列表中找出可以继续下载的视频，并提交下载
-      const allowDownTask = this.store.get('setting.downloadingSize') - this.$store.state.downloadingTask
+      const allowDownTask = window.ipcRenderer.sendSync('get-store', 'setting.downloadingSize') - this.$store.state.downloadingTask
       const waitTasks = this.taskList.filter(item => item.status === 4)
       const waitTaskIndex = []
       const allowDownTaskData = []
