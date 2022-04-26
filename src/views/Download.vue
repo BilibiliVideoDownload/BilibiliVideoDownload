@@ -5,25 +5,22 @@
     </a-empty>
     <template v-else>
       <div class="left">
-        <VuePerfectScrollbar class="scroll-area" :settings="perfectScrollbarSettings">
-          <div
-            v-for="(item, index) in taskList" :key="index"
-            :class="['fr', 'download-item', selected.includes(index) ? 'active' : '']"
-            @click.left.exact="switchItem(index)"
-            @click.shift.exact="multiSelect(index)"
-            @click.right="showContextmenu(index)">
-            <div class="img fr ac">
-              <img :src="item.cover" :alt="item.title">
-            </div>
-            <div class="content fc jsb">
-              <div class="ellipsis-1">{{ item.title }}</div>
-              <div>状态：<span class="text-active">{{ item.status | formatProgress }}</span></div>
-              <div>
-                <a-progress :percent="item.progress" :status="item.status | formatStatus" strokeColor="#fb7299"></a-progress>
-              </div>
-            </div>
+        <VuePerfectScrollbar class="scroll-area" :settings="perfectScrollbarSettings" @ps-scroll-y="perfectScrollbarScrollHandle" ref="perfectScrollbar">
+          <div :style="`height: ${scrollHeight}`">
           </div>
         </VuePerfectScrollbar>
+          <VirtualList
+            style="overflow-y: scroll; height:540px"
+            :data-key="'id'"
+            :data-sources="taskList"
+            :data-component="DownloadItem"
+            :extra-props="{selected,switchItem,multiSelect,showContextmenu}"
+            class="virtual-list-scroll-area"
+            ref="virtualList"
+            @scroll="virtualListScrollHandle"
+          >
+          </VirtualList>
+
       </div>
       <div class="right">
         <div class="image">
@@ -50,10 +47,12 @@
 <script>
 import base from '../mixin/base'
 import { quality } from '../assets/data/quality'
-import taskStatus from '../assets/data/status'
 import sleep from '../utlis/sleep'
 import formatPath from '../utlis/formatPath'
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
+import DownloadItem from '../components/DownloadItem'
+import VirtualList from 'vue-virtual-scroll-list'
+
 const fs = require('fs')
 export default {
   mixins: [base],
@@ -64,19 +63,17 @@ export default {
       current: null,
       perfectScrollbarSettings: {
         minScrollbarLength: 50
-      }
+      },
+      DownloadItem,
+      scrollType: '',
+      scrollHeight: '0px',
+      scrollTimer: null
     }
   },
-  components: { VuePerfectScrollbar },
+  components: { VuePerfectScrollbar, VirtualList },
   computed: {},
   watch: {},
   filters: {
-    formatStatus (status) {
-      return taskStatus[status]['value']
-    },
-    formatProgress (status) {
-      return taskStatus[status]['label']
-    },
     formatQuality (id) {
       return quality[id]
     },
@@ -92,7 +89,9 @@ export default {
     window.ipcRenderer.on('contextmenu-opendir', this.onContextmenuOpendir)
     window.ipcRenderer.on('contextmenu-allselected', this.onContextmenuAllselect)
   },
-  created () {},
+  updated () {
+    this.calcScrollHeight()
+  },
   destroyed () {
     window.ipcRenderer.removeListener('reply-download-video', this.handleProgress)
     window.ipcRenderer.removeListener('delete-video-dialog-reply', this.handleDelVideo)
@@ -235,6 +234,34 @@ export default {
         this.switchItem(0)
       }
     },
+    perfectScrollbarScrollHandle (e) {
+      if (this.scrollType === '' || this.scrollType === 'perfectScrollbar') {
+        clearTimeout(this.scrollTimer)
+        this.scrollType = 'perfectScrollbar'
+        window.requestAnimationFrame(() => {
+          this.$refs.virtualList.$el.scrollTop = e.target.scrollTop
+        })
+        this.scrollTimer = setTimeout(() => {
+          this.scrollType = ''
+        }, 100)
+      }
+    },
+    virtualListScrollHandle (e) {
+      if (this.scrollType === '' || this.scrollType === 'virtualList') {
+        this.scrollType = 'virtualList'
+        clearTimeout(this.scrollTimer)
+        window.requestAnimationFrame(() => {
+          this.$refs.perfectScrollbar.$el.scrollTop = e.target.scrollTop
+        })
+        this.scrollTimer = setTimeout(() => {
+          this.scrollType = ''
+        }, 100)
+      }
+    },
+    calcScrollHeight () {
+      // this.$refs.virtualList.getScrollSize() is inaccurate
+      this.scrollHeight = `${80 * this.taskList.length}px`
+    },
     async continueDownload () {
       // 从当前下载列表中找出可以继续下载的视频，并提交下载
       const allowDownTask = window.ipcRenderer.sendSync('get-store', 'setting.downloadingSize') - this.$store.state.downloadingTask
@@ -284,36 +311,23 @@ export default {
     width: 0;
     border-top: 1px solid #eeeeee;
     border-right: 1px solid #eeeeee;
-    .scroll-area{
-      width: 100%;
-      height: 100%;
+    position: relative;
+    .virtual-list-scroll-area{
+      &::-webkit-scrollbar{
+        width: 0;
+      }
     }
-    .download-item{
-      border-bottom: 1px solid #eeeeee;
-      cursor: pointer;
-      &.active{
-        background: rgba(251, 114, 153, 0.2);
-      }
-      .img{
-        flex: none;
-        width: 106px;
-        height: 79px;
-        overflow: hidden;
-        position: relative;
-        img{
-          display: block;
-          width: 100%;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      }
-      .content{
-        box-sizing: border-box;
-        flex: none;
-        width: 364px;
-        padding: 8px;
+    .scroll-area{
+      width: 24px;
+      height: 100%;
+      position: absolute;
+      right: 0;
+      /deep/ .ps__rail-y{
+      // should use getBoundingClientRect to determine the position
+          position: fixed;
+          top: 45px !important;
+          right: 0px !important;
+          left: 481px !important;
       }
     }
   }
