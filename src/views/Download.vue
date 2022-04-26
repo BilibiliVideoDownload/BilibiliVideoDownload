@@ -5,23 +5,25 @@
     </a-empty>
     <template v-else>
       <div class="left">
-        <div
-          v-for="(item, index) in taskList" :key="index"
-          :class="['fr', 'download-item', selected.includes(index) ? 'active' : '']"
-          @click.left.exact="switchItem(index)"
-          @click.shift.exact="multiSelect(index)"
-          @click.right="showContextmenu(index)">
-          <div class="img fr ac">
-            <img :src="item.cover" :alt="item.title">
-          </div>
-          <div class="content fc jsb">
-            <div class="ellipsis-1">{{ item.title }}</div>
-            <div>状态：<span class="text-active">{{ item.status | formatProgress }}</span></div>
-            <div>
-              <a-progress :percent="item.progress" :status="item.status | formatStatus" strokeColor="#fb7299"></a-progress>
+        <VuePerfectScrollbar class="scroll-area" :settings="settings">
+          <div
+            v-for="(item, index) in taskList" :key="index"
+            :class="['fr', 'download-item', selected.includes(index) ? 'active' : '']"
+            @click.left.exact="switchItem(index)"
+            @click.shift.exact="multiSelect(index)"
+            @click.right="showContextmenu(index)">
+            <div class="img fr ac">
+              <img :src="item.cover" :alt="item.title">
+            </div>
+            <div class="content fc jsb">
+              <div class="ellipsis-1">{{ item.title }}</div>
+              <div>状态：<span class="text-active">{{ item.status | formatProgress }}</span></div>
+              <div>
+                <a-progress :percent="item.progress" :status="item.status | formatStatus" strokeColor="#fb7299"></a-progress>
+              </div>
             </div>
           </div>
-        </div>
+        </VuePerfectScrollbar>
       </div>
       <div class="right">
         <div class="image">
@@ -51,6 +53,7 @@ import { quality } from '../assets/data/quality'
 import taskStatus from '../assets/data/status'
 import sleep from '../utlis/sleep'
 import formatPath from '../utlis/formatPath'
+import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 const fs = require('fs')
 export default {
   mixins: [base],
@@ -58,10 +61,13 @@ export default {
     return {
       taskList: [],
       selected: [],
-      current: null
+      current: null,
+      settings: {
+        minScrollbarLength: 50
+      }
     }
   },
-  components: {},
+  components: { VuePerfectScrollbar },
   computed: {},
   watch: {},
   filters: {
@@ -278,9 +284,9 @@ export default {
     width: 0;
     border-top: 1px solid #eeeeee;
     border-right: 1px solid #eeeeee;
-    overflow-y: scroll;
-    &::-webkit-scrollbar{
-      display: none;
+    .scroll-area{
+      width: 100%;
+      height: 100%;
     }
     .download-item{
       border-bottom: 1px solid #eeeeee;
