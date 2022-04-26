@@ -5,7 +5,7 @@
     </a-empty>
     <template v-else>
       <div class="left">
-        <VuePerfectScrollbar class="scroll-area" :settings="settings">
+        <VuePerfectScrollbar class="scroll-area" :settings="perfectScrollbarSettings">
           <div
             v-for="(item, index) in taskList" :key="index"
             :class="['fr', 'download-item', selected.includes(index) ? 'active' : '']"
@@ -62,7 +62,7 @@ export default {
       taskList: [],
       selected: [],
       current: null,
-      settings: {
+      perfectScrollbarSettings: {
         minScrollbarLength: 50
       }
     }
