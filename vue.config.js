@@ -1,10 +1,9 @@
 module.exports = {
   pluginOptions: {
     electronBuilder: {
-      externals: ['@ffmpeg-installer/ffmpeg'],
+      externals: ['@ffmpeg-installer/ffmpeg', 'fluent-ffmpeg'],
       nodeModulesPath: ['../../node_modules', './node_modules'],
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: 'src/preload.js',
       builderOptions: {
         productName: 'BilibiliVideoDownload',
         appId: 'com.blogwy.bilibilivideodownload',
@@ -30,7 +29,7 @@ module.exports = {
           identity: null,
           target: {
             target: 'dmg',
-            arch: ['x64', 'arm64', 'universal']
+            arch: ['x64']
           }
         },
         nsis: {
@@ -52,15 +51,19 @@ module.exports = {
       }
     }
   },
+  configureWebpack: {},
   css: {
     loaderOptions: {
       less: {
-        javascriptEnabled: true,
-        modifyVars: {
-          // less 全局变量
-          // 主色
-          '@primary-color': '#fb7299',
-          '@link-color': '#fb7299'
+        lessOptions: {
+          javascriptEnabled: true,
+          modifyVars: {
+            // less 全局变量
+            // 主色
+            'primary-color': '#fb7299',
+            'link-color': '#fb7299',
+            'text-color': 'rgba(0, 0, 0, 0.65)'
+          }
         }
       }
     }

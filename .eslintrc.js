@@ -1,26 +1,26 @@
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
+    "vue/setup-compiler-macros": true
   },
   extends: [
-    'plugin:vue/essential',
-    '@vue/standard'
+    'plugin:vue/vue3-essential',
+    '@vue/standard',
+    '@vue/typescript/recommended'
   ],
   parserOptions: {
-    parser: 'babel-eslint'
+    ecmaVersion: 2020
   },
+  ignorePatterns: ['src/core/xmlToAss.js'],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-tabs': 'off',
-    'no-mixed-spaces-and-tabs': 'off',
-    'no-useless-escape': 'off',
-    'no-prototype-builtins': 'off',
-    'no-useless-return': 'off',
-    'import/first': 'off',
     'camelcase': 'off',
-    'dot-notation': 'off',
-    'one-var': 'off'
+    'vue/multi-word-component-names': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
+    'no-prototype-builtins': 'off',
+    'eol-last': 'off',
+    'no-useless-escape': 'off'
   }
 }

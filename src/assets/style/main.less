@@ -4,12 +4,23 @@ html,body{
   margin: 0px;
   padding: 0px;
 }
+#app {
+  position: relative;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  background-image: url('../images/bg.png');
+  background-size: 100% 100%;
+}
 .is-full{
   display: flex;
   flex-direction: column;
 }
 .custom-drawer-scroll-bar{
-  .ant-drawer-wrapper-body{
+  .ant-drawer-body{
     &::-webkit-scrollbar{
       display: none;
     }
@@ -19,4 +30,23 @@ html,body{
   position: relative;
   z-index: 4;
   height: 53px;
+}
+.custom-modal-padding{
+  .ant-modal-body{
+    padding: 10px 16px;
+  }
+}
+
+.custom-scroll-bar{
+  &::-webkit-scrollbar {
+    width: 10px;
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    width: 10px;
+    height: 30px;
+    background-color: #dddddd;
+    border-radius: 6px;
+    cursor: pointer;
+  }
 }

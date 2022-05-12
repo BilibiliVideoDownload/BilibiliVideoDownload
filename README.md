@@ -40,6 +40,7 @@
 * [x] 下载电影(额外付费除外)
 * [x] 下载封面
 * [x] 下载字幕
+* [x] 下载弹幕
 * [x] 下载进度
 * [x] 基本视频信息
 * [x] 删除下载记录
@@ -61,6 +62,16 @@ yarn electron:serve
 yarn electron:build
 ```
 ## 版本
+
+v3.3.0 `2022-05-12`
+
+1. 升级vue3+typescript electron16
+2. 优化代码，使用contextBridge代替Node integration
+3. 添加手动输入SESSDATA功能
+4. 添加右键重新下载
+5. 修改下载文件夹/名格式为[px]视频名称-第一up主名称-bv号-uuid
+6. 下载页面添加滚动条
+7. 下载弹幕
 
 v3.2.0 `2022-02-26`
 

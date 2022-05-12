@@ -1,46 +1,110 @@
 <template>
-  <a-config-provider :locale="zh_CN">
-    <div id="app">
-      <LayoutHeader />
-      <router-view></router-view>
-    </div>
+  <a-config-provider :locale="zhCN">
+    <TitleBar
+      title="BilibiliVideoDownload"
+      :isBackground="false"
+      :isMinimizable="true"
+      :isMaximizable="false"
+      @onClose="onClose"
+      @onMinimize="onMinimize"
+    />
+    <TabBar />
+    <CheckUpdate ref="checkUpdate" />
+    <router-view/>
   </a-config-provider>
 </template>
 
-<script>
-import zh_CN from 'ant-design-vue/lib/locale-provider/zh_CN'
-import LayoutHeader from './components/LayoutHeader'
-export default {
-  data () {
-    return {
-      wallpaper: require('./assets/images/bg.png'),
-      zh_CN
-    }
-  },
-  components: {
-    LayoutHeader
-  },
-  computed: {},
-  watch: {},
-  mounted () {
-    // 检查更新
-    this.$checkUpdate.checkUpdate()
-  },
-  created () {},
-  methods: {}
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import TitleBar from './components/TitleBar/index.vue'
+import TabBar from './components/TabBar/index.vue'
+import CheckUpdate from './components/CheckUpdate/index.vue'
+import zh_CN from 'ant-design-vue/es/locale/zh_CN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import { pinia, store } from './store'
+import { checkLogin, addDownload } from './core/bilibili'
+import { parseFile, generateASS, setPosition, setConfig } from './core/xmlToAss.js'
+import { SettingData, TaskData, TaskList } from './type'
+import { resolution } from './assets/data/quality'
+import { sleep } from './utils'
+
+dayjs.locale('zh-cn')
+const zhCN = ref(zh_CN)
+const checkUpdate = ref<any>(null)
+
+const onMinimize = () => {
+  window.electron.minimizeApp()
 }
+
+const onClose = () => {
+  window.electron.closeApp()
+}
+
+onMounted(() => {
+  // 初始化pinia数据
+  window.electron.once('init-store', async ({ setting, taskList }: { setting: SettingData, taskList: TaskData[] }) => {
+    store.settingStore(pinia).setSetting(setting)
+    const loginStatus = await checkLogin(store.settingStore(pinia).SESSDATA)
+    store.baseStore(pinia).setLoginStatus(loginStatus)
+    const taskMap: TaskList = new Map()
+    for (const key in taskList) {
+      const task = taskList[key]
+      taskMap.set(task.id, task)
+    }
+    store.taskStore(pinia).setTaskList(taskMap)
+  })
+  // 监听下载进度
+  window.electron.on('download-video-status', async ({ id, status, progress }: { id: string, status: number, progress: number }) => {
+    const task = store.taskStore(pinia).getTask(id) ? JSON.parse(JSON.stringify(store.taskStore(pinia).getTask(id))) : null
+    // 成功和失败 更新 pinia electron-store，减少正在下载数；检查taskList是否有等待中任务，有则下载
+    if (task && (status === 0 || status === 5)) {
+      window.log.info(`${id} ${status}`)
+      let size = -1
+      if (status === 0) {
+        size = await window.electron.getVideoSize(id)
+      }
+      store.taskStore(pinia).setTask([{ ...task, status, progress, size }])
+      store.baseStore(pinia).reduceDownloadingTaskCount(1)
+      // 检查下载
+      const taskList = store.taskStore(pinia).taskList
+      let allowDownload: TaskData[] = []
+      taskList.forEach((value) => {
+        if (value.status === 4) allowDownload.push(JSON.parse(JSON.stringify(value)))
+      })
+      allowDownload = addDownload(allowDownload)
+      let count = 0
+      for (const key in allowDownload) {
+        const item = allowDownload[key]
+        if (item.status === 1) {
+          window.electron.downloadVideo(item)
+          count += 1
+        }
+        await sleep(300)
+      }
+      store.baseStore(pinia).addDownloadingTaskCount(count)
+    }
+    // 视频下载中 音频下载中 合成中 只更新pinia
+    if (task && (status === 1 || status === 2 || status === 3)) {
+      store.taskStore(pinia).setTaskEasy([{ ...task, status, progress }])
+    }
+  })
+  // 检查软件更新
+  checkUpdate.value.checkUpdate()
+  // 监听XML弹幕数据
+  window.electron.on('danmuku-xml-data', async ({ quality, data, save }: { quality: string, data: string, save: string }) => {
+    setConfig({
+      playResX: resolution[quality].width,
+      playResY: resolution[quality].height
+    })
+    const danmaku = parseFile(data)
+    const ass = generateASS(setPosition(danmaku), {
+      title: 'bilibili ASS 弹幕在线转换'
+    })
+    window.electron.danmukuAssData({ data: ass, save: save })
+  })
+})
 </script>
 
-<style lang="less">
-#app {
-  position: relative;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  width: 100%;
-  height: 100%;
-  user-select: none;
-  background-image: url('./assets/images/bg.png');
-  background-size: 100% 100%;
-}
+<style lang="less" scoped>
 </style>
