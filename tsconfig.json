@@ -38,7 +38,6 @@
     "tests/**/*.tsx"
   ],
   "exclude": [
-    "node_modules",
-    "src/core/xmlToAss.js"
+    "node_modules"
   ]
 }

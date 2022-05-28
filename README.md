@@ -63,6 +63,10 @@ yarn electron:build
 ```
 ## 版本
 
+v3.3.1 `2022-05-28`
+
+1. 修复弹幕样式异常问题
+
 v3.3.0 `2022-05-12`
 
 1. 升级vue3+typescript electron16
@@ -161,10 +165,11 @@ Node.js重构，以前的在vuejs分支
 ## 感谢
 
 * 特别感谢JetBrains为开源项目提供的免费许可证，申请地址：[https://www.jetbrains.com/zh-cn/community/opensource/#support](https://www.jetbrains.com/zh-cn/community/opensource/#support)
+* 感谢[bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect)B站接口支持
+* 感谢[Bilibili-Evolved](https://github.com/the1812/Bilibili-Evolved)弹幕支持
 * [FFmpeg](https://ffmpeg.org/)
 * [Electron](https://www.electronjs.org/)
 * [Vue.js](https://vuejs.org/)
 * [Ant Design Vue](https://antdv.com/docs/vue/introduce-cn/)
 * [got](https://github.com/sindresorhus/got)
-* [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect)
 

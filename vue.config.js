@@ -1,7 +1,7 @@
 module.exports = {
   pluginOptions: {
     electronBuilder: {
-      externals: ['@ffmpeg-installer/ffmpeg', 'fluent-ffmpeg'],
+      externals: ['@ffmpeg-installer/ffmpeg', 'fluent-ffmpeg', 'canvas'],
       nodeModulesPath: ['../../node_modules', './node_modules'],
       preload: 'src/preload.js',
       builderOptions: {

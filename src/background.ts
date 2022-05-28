@@ -196,18 +196,6 @@ ipcMain.on('minimize-app', () => {
   if (!win.isMinimized()) win.minimize()
 })
 
-// 保存ass弹幕
-ipcMain.on('danmuku-ass-data', (event, assData) => {
-  const { data, save } = assData
-  if (data) {
-    fs.writeFile(save, data, { encoding: 'utf8' }, (err: any) => {
-      if (!err) {
-        console.log('success')
-      }
-    })
-  }
-})
-
 // 打开删除任务dialog
 ipcMain.handle('open-reload-video-dialog', (event, taskCount) => {
   return new Promise((resolve, reject) => {

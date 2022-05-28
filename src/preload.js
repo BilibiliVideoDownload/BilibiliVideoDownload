@@ -49,13 +49,9 @@ contextBridge.exposeInMainWorld('electron', {
   openReloadVideoDialog (count) {
     return ipcRenderer.invoke('open-reload-video-dialog', count);
   },
-  danmukuAssData (data) {
-    ipcRenderer.send('danmuku-ass-data', data);
-  },
   on(channel, func) {
     const validChannels = [
-      'download-video-status',
-      'danmuku-xml-data'
+      'download-video-status'
     ];
     if (validChannels.includes(channel)) {
       const subscription = (_event, ...args) =>

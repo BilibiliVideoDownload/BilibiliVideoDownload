@@ -3,7 +3,7 @@ import UA from '../assets/data/ua'
 import { mergeVideoAudio } from './media'
 import { sleep } from '../utils'
 import { downloadSubtitle } from './subtitle'
-import { getDanmakuXml } from './danmaku'
+import { downloadDanmaku } from './danmaku'
 import { TaskData, SettingData } from '../type'
 
 const stream = require('stream')
@@ -66,7 +66,7 @@ export default async (videoInfo: TaskData, event: IpcMainEvent, setting: Setting
   }
   // 下载弹幕
   if (setting.isDanmaku) {
-    getDanmakuXml(fileName, videoInfo, event)
+    downloadDanmaku(videoInfo.cid, videoInfo.title, `${fileName}.ass`, imageConfig)
   }
   // 下载视频
   await pipeline(

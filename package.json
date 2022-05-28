@@ -1,6 +1,6 @@
 {
   "name": "bilibilivideodownload",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "private": true,
   "author": "wangyu <wangyu@wangyu.link>",
   "description": "欢迎使用BilibiliVideoDownload",
@@ -20,6 +20,7 @@
     "@types/lodash": "^4.14.182",
     "@types/qrcode": "^1.4.2",
     "ant-design-vue": "^3.2.2",
+    "canvas": "^2.9.1",
     "dayjs": "^1.11.1",
     "electron-log": "^4.4.6",
     "electron-store": "^8.0.1",
@@ -29,6 +30,7 @@
     "lodash": "^4.17.21",
     "nanoid": "^3.3.3",
     "pinia": "^2.0.13",
+    "protobufjs": "^6.11.3",
     "qrcode": "^1.5.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3"
