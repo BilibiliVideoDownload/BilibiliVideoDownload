@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, 'ubuntu-latest']
+        os: [windows-2019, macos-latest, 'ubuntu-latest']
 
     # create steps
     steps:
@@ -37,7 +37,7 @@ jobs:
 
       # step3: Install Dependencies for mac/win/linux
       - name: Install Windows Dependencies
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019'
         run: |
           Invoke-WebRequest "https://ftp-osl.osuosl.org/pub/gnome/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip" -OutFile "gtk.zip"
           Expand-Archive gtk.zip -DestinationPath "C:\GTK"
@@ -65,7 +65,7 @@ jobs:
 
       # step5: build app for mac/win/linux
       - name: Build windows app
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019'
         run: |
           npm run electron:build
         env:
@@ -87,7 +87,7 @@ jobs:
 
       # step5: cleanup artifacts in dist_electron
       - name: cleanup artifacts for windows
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019'
         run: |
           npx rimraf "dist_electron/!(*.exe)"
 
