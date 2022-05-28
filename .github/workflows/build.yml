@@ -43,6 +43,7 @@ jobs:
           Expand-Archive gtk.zip -DestinationPath "C:\GTK"
           Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "libjpeg.exe" -UserAgent NativeHost
           .\libjpeg.exe /S
+          npm install --global --production windows-build-tools
           npm install -g node-gyp@latest
           npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
 
@@ -85,7 +86,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # step5: cleanup artifacts in dist_electron
+      # step6: cleanup artifacts in dist_electron
       - name: cleanup artifacts for windows
         if: matrix.os == 'windows-2019'
         run: |
@@ -101,14 +102,14 @@ jobs:
         run: |
           npx rimraf "dist_electron/!(*.AppImage)"
 
-      # step6: upload artifacts
+      # step7: upload artifacts
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}
           path: dist_electron
 
-      # step7: create release
+      # step8: create release
       - name: release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
