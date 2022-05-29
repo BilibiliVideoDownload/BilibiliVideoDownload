@@ -20,7 +20,6 @@
     "@types/lodash": "^4.14.182",
     "@types/qrcode": "^1.4.2",
     "ant-design-vue": "^3.2.2",
-    "canvas": "^2.9.1",
     "dayjs": "^1.11.1",
     "electron-log": "^4.4.6",
     "electron-store": "^8.0.1",

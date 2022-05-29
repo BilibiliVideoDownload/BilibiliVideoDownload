@@ -1,6 +1,6 @@
 import { convertHexColorForDialogue, convertTimeByDuration, normalizeContent } from './ass-utils'
 import {
-  Duration, BlockTypes, AssDanmaku, AssDanmakuDocument, Resolution,
+  Duration, BlockTypes, AssDanmaku, AssDanmakuDocument, Resolution
 } from './ass-danmaku'
 import { Danmaku } from './danmaku-data'
 import { XmlDanmaku } from './xml-danmaku'
@@ -28,8 +28,8 @@ export class DanmakuConverter {
   resolution: Resolution
   bold: boolean
   danmakuStack: DanmakuStack
-  constructor({
-    title, font, alpha, duration, blockTypes, blockFilter, resolution, bottomMarginPercent, bold,
+  constructor ({
+    title, font, alpha, duration, blockTypes, blockFilter, resolution, bottomMarginPercent, bold
   }: DanmakuConverterConfig) {
     this.title = title
     this.font = font
@@ -41,16 +41,18 @@ export class DanmakuConverter {
     this.bold = bold
     this.danmakuStack = new DanmakuStack(font, resolution, duration, bottomMarginPercent)
   }
-  get fontStyles() {
+
+  get fontStyles () {
     return {
       36: `Style: Larger,${this.font},72,&H${this.alpha}FFFFFF,&H${this.alpha}FFFFFF,&H${this.alpha}000000,&H${this.alpha}000000,${this.bold ? '1' : '0'},0,0,0,100,100,0,0,1,1.2,0,5,0,0,0,0`,
       30: `Style: Large,${this.font},64,&H${this.alpha}FFFFFF,&H${this.alpha}FFFFFF,&H${this.alpha}000000,&H${this.alpha}000000,${this.bold ? '1' : '0'},0,0,0,100,100,0,0,1,1.2,0,5,0,0,0,0`,
       25: `Style: Medium,${this.font},52,&H${this.alpha}FFFFFF,&H${this.alpha}FFFFFF,&H${this.alpha}000000,&H${this.alpha}000000,${this.bold ? '1' : '0'},0,0,0,100,100,0,0,1,1.2,0,5,0,0,0,0`,
       18: `Style: Small,${this.font},36,&H${this.alpha}FFFFFF,&H${this.alpha}FFFFFF,&H${this.alpha}000000,&H${this.alpha}000000,${this.bold ? '1' : '0'},0,0,0,100,100,0,0,1,1.2,0,5,0,0,0,0`,
-      45: `Style: ExtraLarge,${this.font},90,&H${this.alpha}FFFFFF,&H${this.alpha}FFFFFF,&H${this.alpha}000000,&H${this.alpha}000000,${this.bold ? '1' : '0'},0,0,0,100,100,0,0,1,1.2,0,5,0,0,0,0`,
+      45: `Style: ExtraLarge,${this.font},90,&H${this.alpha}FFFFFF,&H${this.alpha}FFFFFF,&H${this.alpha}000000,&H${this.alpha}000000,${this.bold ? '1' : '0'},0,0,0,100,100,0,0,1,1.2,0,5,0,0,0,0`
     }
   }
-  xmlDanmakuToAssDocument(xmlDanmakus: XmlDanmaku[]) {
+
+  xmlDanmakuToAssDocument (xmlDanmakus: XmlDanmaku[]) {
     const assDanmakus = []
     for (const xmlDanmaku of xmlDanmakus) {
       // 跳过设置为屏蔽的弹幕类型
@@ -65,7 +67,7 @@ export class DanmakuConverter {
       }
       const [startTime, endTime] = convertTimeByDuration(
         xmlDanmaku.startTime,
-        this.duration(xmlDanmaku),
+        this.duration(xmlDanmaku)
       )
       assDanmakus.push(new AssDanmaku({
         content: normalizeContent(xmlDanmaku.content),
@@ -75,7 +77,7 @@ export class DanmakuConverter {
         fontSize: xmlDanmaku.fontSize.toString(),
         color: xmlDanmaku.color.toString(),
         typeTag: this.convertType(xmlDanmaku),
-        colorTag: convertHexColorForDialogue(xmlDanmaku.color.toString(16)),
+        colorTag: convertHexColorForDialogue(xmlDanmaku.color.toString(16))
       }))
     }
     return new AssDanmakuDocument(
@@ -83,10 +85,11 @@ export class DanmakuConverter {
       this.title,
       this.fontStyles,
       this.blockTypes,
-      this.resolution,
+      this.resolution
     )
   }
-  convertType(danmaku: Danmaku) {
+
+  convertType (danmaku: Danmaku) {
     return this.danmakuStack.push(danmaku).tags
   }
 }

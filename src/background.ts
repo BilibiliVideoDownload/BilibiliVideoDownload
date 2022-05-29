@@ -90,6 +90,21 @@ ipcMain.handle('got', (event, url, option) => {
   })
 })
 
+// 发送http请求，得到buffer
+ipcMain.handle('got-buffer', (event, url, option) => {
+  return new Promise((resolve, reject) => {
+    got(url, option)
+      .buffer()
+      .then((res: any) => {
+        return resolve(res)
+      })
+      .catch((error: any) => {
+        log.error(`http error: ${error.message}`)
+        return reject(error.message)
+      })
+  })
+})
+
 // electron-store 操作
 ipcMain.handle('get-store', (event, path) => {
   return Promise.resolve(store.get(path))
@@ -110,22 +125,22 @@ ipcMain.handle('show-context-menu', (event) => {
       {
         label: '删除任务',
         type: 'normal',
-        click: () => resolve('delete'),
+        click: () => resolve('delete')
       },
       {
         label: '重新下载',
         type: 'normal',
-        click: () => resolve('reload'),
+        click: () => resolve('reload')
       },
       {
         label: '打开文件夹',
         type: 'normal',
-        click: () => resolve('open'),
+        click: () => resolve('open')
       },
       {
         label: '全选',
         type: 'normal',
-        click: () => resolve('selectAll'),
+        click: () => resolve('selectAll')
       }
     ]
     const contextMenu = Menu.buildFromTemplate(template)
@@ -214,7 +229,10 @@ ipcMain.handle('open-reload-video-dialog', (event, taskCount) => {
   })
 })
 
-// 
+// 保存弹幕文件
+ipcMain.on('save-danmuku-file', (event, content, path) => {
+  fs.writeFile(path, content, { encoding: 'utf8' })
+})
 
 async function createWindow () {
   // Create the browser window.
@@ -271,7 +289,7 @@ function initStore () {
 function handleCloseApp () {
   // 检查当前是否有下载中任务
   const taskList = store.get('taskList')
-  let count: number = 0
+  let count = 0
   for (const key in taskList) {
     const task = taskList[key]
     if (task.status !== 0 && task.status !== 5) {
@@ -299,7 +317,7 @@ function handleCloseApp () {
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  app.quit();
+  app.quit()
 })
 
 app.on('activate', () => {
@@ -332,7 +350,7 @@ app.on('ready', async () => {
   })
   // 添加快捷键
   globalShortcut.register('CommandOrControl+Shift+L', () => {
-    let focusWin = BrowserWindow.getFocusedWindow()
+    const focusWin = BrowserWindow.getFocusedWindow()
     if (focusWin && focusWin.webContents.isDevToolsOpened()) {
       focusWin.webContents.closeDevTools()
     } else if (focusWin && !focusWin.webContents.isDevToolsOpened()) {

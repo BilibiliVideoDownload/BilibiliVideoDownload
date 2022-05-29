@@ -3,11 +3,10 @@ import UA from '../assets/data/ua'
 import { mergeVideoAudio } from './media'
 import { sleep } from '../utils'
 import { downloadSubtitle } from './subtitle'
-import { downloadDanmaku } from './danmaku'
 import { TaskData, SettingData } from '../type'
 
 const stream = require('stream')
-const {promisify} = require('util')
+const { promisify } = require('util')
 const fs = require('fs-extra')
 const got = require('got')
 const log = require('electron-log')
@@ -24,9 +23,9 @@ function handleDeleteFile (setting: SettingData, videoInfo: TaskData) {
 
 export default async (videoInfo: TaskData, event: IpcMainEvent, setting: SettingData) => {
   // throttle start
-  let videoLastTime: number = 0
+  let videoLastTime = 0
   let videoTimer: any = null
-  let audioLastTime: number = 0
+  let audioLastTime = 0
   let audioTimer: any = null
   // throttle end
   const imageConfig = {
@@ -42,7 +41,7 @@ export default async (videoInfo: TaskData, event: IpcMainEvent, setting: Setting
     }
   }
   // 去掉扩展名的文件路径
-  let fileName = videoInfo.filePathList[0].substring(0, videoInfo.filePathList[0].length - 4)
+  const fileName = videoInfo.filePathList[0].substring(0, videoInfo.filePathList[0].length - 4)
   if (setting.isFolder) {
     // 创建文件夹
     try {
@@ -66,13 +65,13 @@ export default async (videoInfo: TaskData, event: IpcMainEvent, setting: Setting
   }
   // 下载弹幕
   if (setting.isDanmaku) {
-    downloadDanmaku(videoInfo.cid, videoInfo.title, `${fileName}.ass`, imageConfig)
+    event.reply('download-danmuku', videoInfo.cid, videoInfo.title, `${fileName}.ass`)
   }
   // 下载视频
   await pipeline(
     got.stream(videoInfo.downloadUrl.video, downloadConfig)
       .on('downloadProgress', (progress: any) => {
-        let nowTime = +new Date()
+        const nowTime = +new Date()
         clearTimeout(videoTimer)
         if (!videoLastTime || nowTime - videoLastTime > 1000) {
           event.reply('download-video-status', {
@@ -106,7 +105,7 @@ export default async (videoInfo: TaskData, event: IpcMainEvent, setting: Setting
   await pipeline(
     got.stream(videoInfo.downloadUrl.audio, downloadConfig)
       .on('downloadProgress', (progress: any) => {
-        let nowTime = +new Date()
+        const nowTime = +new Date()
         clearTimeout(audioTimer)
         if (!audioLastTime || nowTime - audioLastTime > 1000) {
           event.reply('download-video-status', {

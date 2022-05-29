@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2019, macos-latest, 'ubuntu-latest']
+        os: [windows-latest, macos-latest, 'ubuntu-latest']
 
     # create steps
     steps:
@@ -35,38 +35,14 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
 
-      # step3: Install Dependencies for mac/win/linux
-      - name: Install Windows Dependencies
-        if: matrix.os == 'windows-2019'
-        run: |
-          Invoke-WebRequest "https://ftp-osl.osuosl.org/pub/gnome/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip" -OutFile "gtk.zip"
-          Expand-Archive gtk.zip -DestinationPath "C:\GTK"
-          Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "libjpeg.exe" -UserAgent NativeHost
-          .\libjpeg.exe /S
-          npm install --global --production windows-build-tools
-          npm install -g node-gyp@latest
-          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-
-      - name: Install macOS Dependencies
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew update
-          brew install pkg-config cairo pango libpng jpeg giflib librsvg
-
-      - name: Install Linux Dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt update
-          sudo apt install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev
-
-      # step4: npm install
+      # step3: npm install
       - name: npm install
         run: |
           npm install
 
-      # step5: build app for mac/win/linux
+      # step4: build app for mac/win/linux
       - name: Build windows app
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         run: |
           npm run electron:build
         env:
@@ -86,9 +62,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # step6: cleanup artifacts in dist_electron
+      # step5: cleanup artifacts in dist_electron
       - name: cleanup artifacts for windows
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         run: |
           npx rimraf "dist_electron/!(*.exe)"
 
@@ -102,14 +78,14 @@ jobs:
         run: |
           npx rimraf "dist_electron/!(*.AppImage)"
 
-      # step7: upload artifacts
+      # step6: upload artifacts
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }}
           path: dist_electron
 
-      # step8: create release
+      # step7: create release
       - name: release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

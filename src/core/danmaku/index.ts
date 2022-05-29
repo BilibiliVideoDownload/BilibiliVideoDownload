@@ -1,10 +1,17 @@
-const fs = require('fs/promises')
-const got = require('got')
 import lodash from 'lodash'
 import { ascendingSort } from './utils/sort'
 import { decodeDanmakuSegment, decodeDanmakuView } from './danmaku-segment'
 import { DanmakuConverterConfig, DanmakuConverter } from './danmaku-converter'
 import { XmlDanmaku } from './xml-danmaku'
+import UA from '../../assets/data/ua'
+import { store, pinia } from '../../store'
+
+const gotConfig = {
+  headers: {
+    'User-Agent': `${UA}`,
+    cookie: `SESSDATA=${store.settingStore(pinia).SESSDATA}`
+  }
+}
 
 interface GotConfig {
   headers: {
@@ -30,13 +37,15 @@ export class JsonDanmaku {
     pool: number
     attr: number
   }[] = []
-  constructor(
-    public cid: number | string,
+
+  constructor (
+    public cid: number | string
   ) { }
+
   // get segmentCount() {
   //   return Math.ceil(this.duration / JsonDanmaku.SegmentSize)
   // }
-  get xmlDanmakus() {
+  get xmlDanmakus () {
     return this.jsonDanmakus.map(json => ({
       content: json.content,
       time: json.progress ? (json.progress / 1000).toString() : '0',
@@ -46,23 +55,24 @@ export class JsonDanmaku {
       timeStamp: json.ctime?.toString() ?? '0',
       pool: json.pool?.toString() ?? '0',
       userHash: json.midHash ?? '0',
-      rowId: json.idStr ?? '0',
+      rowId: json.idStr ?? '0'
     }))
   }
-  async fetchInfo(gotConfig: GotConfig) {
-    const viewBuffer = await got(`https://api.bilibili.com/x/v2/dm/web/view?type=1&oid=${this.cid}`, gotConfig).buffer()
+
+  async fetchInfo () {
+    const viewBuffer = await window.electron.gotBuffer(`https://api.bilibili.com/x/v2/dm/web/view?type=1&oid=${this.cid}`, gotConfig)
     if (!viewBuffer) {
       throw new Error('获取弹幕信息失败')
     }
     const view = await decodeDanmakuView(viewBuffer)
     const { total } = view.dmSge
-    if (total === undefined || !total.low) {
+    if (total === undefined) {
       throw new Error(`获取弹幕分页数失败: ${JSON.stringify(lodash.omit(view, 'flag'))}`)
     }
-    const segments = await Promise.all(new Array(total.low).fill(0).map(async (_, index) => {
-      const buffer = await got(`https://api.bilibili.com/x/v2/dm/web/seg.so?type=1&oid=${this.cid}&segment_index=${index + 1}`, gotConfig).buffer()
+    const segments = await Promise.all(new Array(total).fill(0).map(async (_, index) => {
+      const buffer = await window.electron.gotBuffer(`https://api.bilibili.com/x/v2/dm/web/seg.so?type=1&oid=${this.cid}&segment_index=${index + 1}`, gotConfig)
       if (!buffer) {
-        console.error(new Error(`弹幕片段${index + 1}下载失败`));
+        console.error(new Error(`弹幕片段${index + 1}下载失败`))
         return []
       }
       const result = await decodeDanmakuSegment(buffer)
@@ -90,12 +100,12 @@ export const getUserDanmakuConfig = async (title: string) => {
     blockTypes: [7, 8],
     resolution: {
       x: 1920,
-      y: 1080,
+      y: 1080
     },
     bottomMarginPercent: 0.15,
-    bold: false,
+    bold: false
   }
-  let config = { ...defaultConfig, title } as DanmakuConverterConfig
+  const config = { ...defaultConfig, title } as DanmakuConverterConfig
   for (const [key, value] of Object.entries(config)) {
     if (value === undefined || value === null) {
       console.warn('danmaku config invalid for key', key, ', value =', value)
@@ -108,13 +118,13 @@ export const getUserDanmakuConfig = async (title: string) => {
 export const convertToAssFromJson = async (danmaku: JsonDanmaku, title: string) => {
   const converter = new DanmakuConverter(await getUserDanmakuConfig(title))
   const assDocument = converter.xmlDanmakuToAssDocument(
-    danmaku.xmlDanmakus.map(x => new XmlDanmaku(x)),
+    danmaku.xmlDanmakus.map(x => new XmlDanmaku(x))
   )
   return assDocument.generateAss()
 }
 
-export const downloadDanmaku = async (cid: number, title: string, path: string, config: GotConfig) => {
-  const danmaku = await new JsonDanmaku(cid).fetchInfo(config)
+export const downloadDanmaku = async (cid: number, title: string, path: string) => {
+  const danmaku = await new JsonDanmaku(cid).fetchInfo()
   const str = await convertToAssFromJson(danmaku, title)
-  await fs.writeFile(path, str, { encoding: 'utf8' })
+  window.electron.saveDanmukuFile(str, path)
 }

@@ -3,7 +3,7 @@ const normalizeMap = {
   '&lt;': '<',
   '&gt;': '>',
   '&#34;': '"',
-  '&#39;': "'",
+  '&#39;': "'"
 }
 const escapeMap = Object.fromEntries(Object.entries(normalizeMap).map(entry => entry.reverse()))
 const replace = (content: string, map: Record<string, string>) => {

@@ -6,7 +6,7 @@ const parseHexColor = (hexColor: string) => {
   const green = hexColor.substring(2, 4)
   const blue = hexColor.substring(4, 6)
   return {
-    red, green, blue,
+    red, green, blue
   }
 }
 export const convertHexColorForDialogue = (hexColor: string) => {
@@ -50,7 +50,7 @@ export const normalizeContent = (content: string) => {
     '&gt;': '>',
     '&quot;': '"',
     '&apos;': "'",
-    '\n': '\\N',
+    '\n': '\\N'
   }
   for (const [key, value] of Object.entries(map)) {
     content = content.replace(new RegExp(key, 'g'), value)

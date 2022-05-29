@@ -14,11 +14,11 @@ export class XmlDanmaku extends Danmaku {
   userHash: string
   rowId: number
   pDataArray: Array<number | string>
-  constructor({
-    content, time, type, fontSize, color, timeStamp, pool, userHash, rowId,
+  constructor ({
+    content, time, type, fontSize, color, timeStamp, pool, userHash, rowId
   }: XmlDanmakuData) {
     super({
-      content, time, type, fontSize, color,
+      content, time, type, fontSize, color
     })
     this.timeStamp = parseInt(timeStamp)
     this.pool = parseInt(pool)
@@ -26,7 +26,8 @@ export class XmlDanmaku extends Danmaku {
     this.rowId = parseInt(rowId)
     this.pDataArray = [time, type, fontSize, color, timeStamp, pool, userHash, rowId]
   }
-  text() {
+
+  text () {
     const pData = this.pDataArray.join(',')
     return `<d p="${pData}">${escapeContent(this.content)}</d>`
   }

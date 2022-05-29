@@ -2,7 +2,7 @@
  * @param num 数字
  * @param precision 精度
  */
- export const fixed = (num: number, precision = 1): string => {
+export const fixed = (num: number, precision = 1): string => {
   const factor = 10 ** precision
   let str = (Math.trunc(num * factor) / factor).toString()
   const index = str.indexOf('.')

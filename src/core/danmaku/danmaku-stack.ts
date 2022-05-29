@@ -1,4 +1,3 @@
-import { createCanvas, Canvas, CanvasRenderingContext2D } from 'canvas'
 import { fixed } from './utils/fixed'
 import { DanmakuType } from './danmaku-type'
 import { Resolution, Duration, FontStyles } from './ass-danmaku'
@@ -33,8 +32,9 @@ export class DanmakuStack {
     [DanmakuType.Top]: 'top',
     [DanmakuType.Reversed]: 'reversed',
     [DanmakuType.Special]: 'special',
-    [DanmakuType.Special2]: 'special',
+    [DanmakuType.Special2]: 'special'
   }
+
   static readonly margin = 4
   static readonly nextDanmakuDelay = 0.05
 
@@ -44,18 +44,17 @@ export class DanmakuStack {
   verticalTrack: Track
   resolution: Resolution
   duration: Duration
-  canvas: Canvas
-  context: CanvasRenderingContext2D
+  context: any
   fontSizes: FontStyles
   bottomMarginPercent: number
   danmakuHeight: number
   trackHeight: number
   trackCount: number
-  constructor(
+  constructor (
     font: string,
     resolution: Resolution,
     duration: Duration,
-    bottomMarginPercent: number,
+    bottomMarginPercent: number
   ) {
     this.horizontalStack = []
     this.horizontalTrack = []
@@ -63,8 +62,7 @@ export class DanmakuStack {
     this.verticalTrack = []
     this.resolution = resolution
     this.duration = duration
-    this.canvas = createCanvas(300, 150)
-    this.context = this.canvas.getContext('2d')
+    this.context = document.createElement('canvas').getContext('2d')
     this.danmakuHeight = 0
     this.trackHeight = 0
     this.trackCount = 0
@@ -73,29 +71,31 @@ export class DanmakuStack {
       30: `64px ${font}`,
       25: `52px ${font}`,
       18: `36px ${font}`,
-      45: `90px ${font}`,
+      45: `90px ${font}`
     }
 
     this.bottomMarginPercent = bottomMarginPercent
     this.generateTracks()
   }
-  generateTracks() {
+
+  generateTracks () {
     const height = 52
     this.danmakuHeight = height
     this.trackHeight = DanmakuStack.margin * 2 + height
     this.trackCount = parseInt(
-      fixed((this.resolution.y * (1 - this.bottomMarginPercent)) / this.trackHeight, 0),
+      fixed((this.resolution.y * (1 - this.bottomMarginPercent)) / this.trackHeight, 0)
     )
   }
-  getTextSize(danmaku: Danmaku) {
+
+  getTextSize (danmaku: Danmaku) {
     this.context.font = this.fontSizes[danmaku.fontSize]
     const metrics = this.context.measureText(danmaku.content)
     const x = metrics.width / 2
     return [x, this.danmakuHeight / 2]
   }
 
-  getTags(danmaku: Danmaku, {
-    targetTrack, initTrackNumber, nextTrackNumber, willOverlay, getTrackItem, getTag,
+  getTags (danmaku: Danmaku, {
+    targetTrack, initTrackNumber, nextTrackNumber, willOverlay, getTrackItem, getTag
   }: TagData) {
     const [x, y] = this.getTextSize(danmaku)
     const width = x * 2
@@ -108,8 +108,8 @@ export class DanmakuStack {
       当前弹幕的速度 v = (x + w) / d
       完全进入屏幕所需时间 = visibleTime = delay + w / v = delay + wd / (x + w)
     */
-    const visibleTime = (this.duration(danmaku) * width)
-      / (this.resolution.x + width) + DanmakuStack.nextDanmakuDelay
+    const visibleTime = (this.duration(danmaku) * width) /
+      (this.resolution.x + width) + DanmakuStack.nextDanmakuDelay
     let trackNumber = initTrackNumber
     let overlayDanmaku = null
     // 寻找前面已发送的弹幕中可能重叠的
@@ -128,7 +128,8 @@ export class DanmakuStack {
     targetTrack.push(getTrackItem(trackNumber, width, visibleTime))
     return getTag({ trackNumber, x, y })
   }
-  getHorizontalTags(danmaku: Danmaku) {
+
+  getHorizontalTags (danmaku: Danmaku) {
     return this.getTags(danmaku, {
       targetTrack: this.horizontalTrack,
       initTrackNumber: 0,
@@ -153,8 +154,8 @@ export class DanmakuStack {
             即 t <= end
             也就是 start + dx / (x + w) <= end 或 dx / (x + w) <= end - start
           */
-          return (this.duration(danmaku) * this.resolution.x)
-            / (this.resolution.x + width) <= it.end - danmaku.startTime
+          return (this.duration(danmaku) * this.resolution.x) /
+            (this.resolution.x + width) <= it.end - danmaku.startTime
         } // 前面弹幕完全进入屏幕的时间点晚于当前弹幕的开始时间, 就一定会重叠
         return (it.visible ? it.visible : 0) > danmaku.startTime
       },
@@ -163,12 +164,13 @@ export class DanmakuStack {
         start: danmaku.startTime,
         visible: danmaku.startTime + visibleTime,
         end: danmaku.startTime + this.duration(danmaku),
-        trackNumber,
+        trackNumber
       } as HorizontalTrackItem),
-      getTag: ({ trackNumber, x, y }) => `\\move(${this.resolution.x + x},${trackNumber * this.trackHeight + DanmakuStack.margin + y},${-x},${trackNumber * this.trackHeight + DanmakuStack.margin + y},0,${this.duration(danmaku) * 1000})`,
+      getTag: ({ trackNumber, x, y }) => `\\move(${this.resolution.x + x},${trackNumber * this.trackHeight + DanmakuStack.margin + y},${-x},${trackNumber * this.trackHeight + DanmakuStack.margin + y},0,${this.duration(danmaku) * 1000})`
     })
   }
-  getVerticalTags(danmaku: Danmaku) {
+
+  getVerticalTags (danmaku: Danmaku) {
     const isTop = DanmakuStack.danmakuType[danmaku.type] === 'top'
     return this.getTags(danmaku, {
       targetTrack: this.verticalTrack,
@@ -183,17 +185,18 @@ export class DanmakuStack {
       getTrackItem: trackNumber => ({
         start: danmaku.startTime,
         end: danmaku.startTime + this.duration(danmaku),
-        trackNumber,
+        trackNumber
       }),
       getTag: ({ trackNumber, y }) => {
         if (isTop) {
           return `\\pos(${this.resolution.x / 2},${trackNumber * this.trackHeight + DanmakuStack.margin + y})`
         }
         return `\\pos(${this.resolution.x / 2},${this.resolution.y - DanmakuStack.margin - y - (this.trackCount - 1 - trackNumber) * this.trackHeight})`
-      },
+      }
     })
   }
-  push(danmaku: Danmaku) {
+
+  push (danmaku: Danmaku) {
     let tags = ''
     let stack: { tags: string }[] = []
     switch (DanmakuStack.danmakuType[danmaku.type]) {
@@ -215,12 +218,12 @@ export class DanmakuStack {
       default:
       {
         return {
-          tags: '\\pos(0,-999)',
+          tags: '\\pos(0,-999)'
         }
       }
     }
     const info = {
-      tags,
+      tags
     }
     stack.push(info)
     return info

@@ -24,6 +24,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import { pinia, store } from './store'
 import { checkLogin, addDownload } from './core/bilibili'
+import { downloadDanmaku } from './core/danmaku'
 import { SettingData, TaskData, TaskList } from './type'
 import { sleep } from './utils'
 
@@ -86,6 +87,10 @@ onMounted(() => {
     if (task && (status === 1 || status === 2 || status === 3)) {
       store.taskStore(pinia).setTaskEasy([{ ...task, status, progress }])
     }
+  })
+  // 下载弹幕
+  window.electron.on('download-danmuku', (cid: number, title: string, path: string) => {
+    downloadDanmaku(cid, title, path)
   })
   // 检查软件更新
   checkUpdate.value.checkUpdate()
