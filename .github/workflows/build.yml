@@ -90,6 +90,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
+          prerelease: true
           files: "dist_electron/**"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
