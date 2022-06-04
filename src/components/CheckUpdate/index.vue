@@ -4,8 +4,9 @@
     title="有新版本了"
     okText="更新"
     cancelText="取消"
+    @cancel="cancel"
     @ok="handleOk">
-    <p>检查到新版本<a>v{{ newVersion }}</a>，当前版本<a>v{{ oldVersion }}</a>可能有BUG，请及时更新。安装新版本前请先卸载旧版本！</p>
+    <p>检查到新版本<a>v{{ newVersion }}</a>，当前版本<a>v{{ oldVersion }}</a>，安装新版本前请先卸载旧版本！</p>
     <p>更新内容：{{ updateContent }}</p>
   </a-modal>
 </template>
@@ -21,13 +22,13 @@ const oldVersion = ref<string>(packageInfo.version)
 const updateContent = ref<string>('')
 const url = ref<string>('')
 
-const open = () => {
-  visible.value = true
+const cancel = () => {
+  visible.value = false
 }
 
 const handleOk = () => {
   console.log('handleOk')
-  window.electron.send('open-browser', url.value)
+  window.electron.openBrowser(url.value)
   visible.value = false
 }
 

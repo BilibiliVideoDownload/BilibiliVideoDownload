@@ -4,7 +4,7 @@
       <img src="../assets/images/logo.png" alt="">
     </div>
     <div class="download-box">
-      <a-input v-model:value="videoUrl" size="large" placeholder="请输入视频地址" @keydown.enter="download">
+      <a-input v-model:value="videoUrl" size="large" placeholder="请输入视频地址" @keydown.enter="download" @click.right="showContextmenu">
         <template #addonAfter>
           <ArrowDownOutlined v-if="!loading" :style="{fontSize: '18px', color: '#ffffff'}" @click="download" />
           <LoadingOutlined v-else :style="{fontSize: '18px', color: '#ffffff'}" />
@@ -42,6 +42,10 @@ const settingDrawer = ref<any>(null)
 const loginModal = ref<any>(null)
 const videoModal = ref<any>(null)
 
+const showContextmenu = () => {
+  window.electron.showContextmenu('home')
+}
+
 const download = async () => {
   console.log('download')
   loading.value = true
@@ -74,12 +78,11 @@ const download = async () => {
     loading.value = false
     videoModal.value.open(videoInfo)
   } catch (error: any) {
-    console.log(error)
     loading.value = false
     if (error === -1) {
       message.error('解析错误或者不支持当前视频')
     } else {
-      message.error(error)
+      message.error(`解析错误：${error}`)
     }
   }
 }

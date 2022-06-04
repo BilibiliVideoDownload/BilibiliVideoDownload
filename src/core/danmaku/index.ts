@@ -1,3 +1,4 @@
+import { message } from 'ant-design-vue'
 import lodash from 'lodash'
 import { ascendingSort } from './utils/sort'
 import { decodeDanmakuSegment, decodeDanmakuView } from './danmaku-segment'
@@ -60,7 +61,12 @@ export class JsonDanmaku {
   }
 
   async fetchInfo () {
-    const viewBuffer = await window.electron.gotBuffer(`https://api.bilibili.com/x/v2/dm/web/view?type=1&oid=${this.cid}`, gotConfig)
+    let viewBuffer: any
+    try {
+      viewBuffer = await window.electron.gotBuffer(`https://api.bilibili.com/x/v2/dm/web/view?type=1&oid=${this.cid}`, gotConfig)
+    } catch (error) {
+      throw new Error('获取弹幕信息失败')
+    }
     if (!viewBuffer) {
       throw new Error('获取弹幕信息失败')
     }
@@ -70,7 +76,12 @@ export class JsonDanmaku {
       throw new Error(`获取弹幕分页数失败: ${JSON.stringify(lodash.omit(view, 'flag'))}`)
     }
     const segments = await Promise.all(new Array(total).fill(0).map(async (_, index) => {
-      const buffer = await window.electron.gotBuffer(`https://api.bilibili.com/x/v2/dm/web/seg.so?type=1&oid=${this.cid}&segment_index=${index + 1}`, gotConfig)
+      let buffer: any
+      try {
+        buffer = await window.electron.gotBuffer(`https://api.bilibili.com/x/v2/dm/web/seg.so?type=1&oid=${this.cid}&segment_index=${index + 1}`, gotConfig)
+      } catch (error) {
+        throw new Error('获取弹幕信息失败')
+      }
       if (!buffer) {
         console.error(new Error(`弹幕片段${index + 1}下载失败`))
         return []
@@ -124,7 +135,11 @@ export const convertToAssFromJson = async (danmaku: JsonDanmaku, title: string) 
 }
 
 export const downloadDanmaku = async (cid: number, title: string, path: string) => {
-  const danmaku = await new JsonDanmaku(cid).fetchInfo()
-  const str = await convertToAssFromJson(danmaku, title)
-  window.electron.saveDanmukuFile(str, path)
+  try {
+    const danmaku = await new JsonDanmaku(cid).fetchInfo()
+    const str = await convertToAssFromJson(danmaku, title)
+    window.electron.saveDanmukuFile(str, path)
+  } catch (error: any) {
+    message.error(`弹幕下载错误：${error.message}`)
+  }
 }

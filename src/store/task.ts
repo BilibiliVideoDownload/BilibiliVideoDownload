@@ -19,6 +19,9 @@ export const taskStore = defineStore('task', {
       } else {
         return taskData
       }
+    },
+    taskListArray (state) {
+      return Array.from(state.taskList)
     }
   },
   actions: {

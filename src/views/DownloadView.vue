@@ -62,7 +62,7 @@ import { checkUrl, checkUrlRedirect, parseHtml, getDownloadList, addDownload } f
 import { sleep } from '../utils'
 
 const route = useRoute()
-const { taskList, rightTask } = storeToRefs(store.taskStore())
+const { taskList, rightTask, taskListArray, rightTaskId } = storeToRefs(store.taskStore())
 const selected = ref<string[]>([])
 const left = ref<any>(null)
 
@@ -98,9 +98,8 @@ const multiSelect = (key: string) => {
 }
 
 const rangeSelect = (key: string) => {
-  const taskListArray = Array.from(taskList.value)
-  let start = taskListArray.findIndex(item => item[0] === selected.value[0])
-  let end = taskListArray.findIndex(item => item[0] === key)
+  let start = taskListArray.value.findIndex(item => item[0] === selected.value[0])
+  let end = taskListArray.value.findIndex(item => item[0] === key)
   let cancel = null
   if (start > end) {
     cancel = end
@@ -114,7 +113,7 @@ const rangeSelect = (key: string) => {
 }
 
 const showContextmenu = async () => {
-  const res = await window.electron.showContextmenu()
+  const res = await window.electron.showContextmenu('download')
   console.log(res)
   if (res === 'open') {
     openDir()
@@ -190,8 +189,7 @@ const deleteVideos = async () => {
   // 删除文件
   if (checkboxChecked) window.electron.deleteVideos(filelist)
   message.success('任务已删除')
-  const taskListArray = Array.from(taskList.value)
-  if (taskListArray && taskListArray[0]) switchItem(taskListArray[0][0])
+  if (taskListArray.value && taskListArray.value[0]) switchItem(taskListArray[0][0])
 }
 
 const selectAll = () => {
@@ -202,23 +200,16 @@ const selectAll = () => {
 }
 
 onMounted(() => {
-  const select: any = route.params.selectedTask
-  if (select) {
-    switchItem(select)
-    const keyArray = Array.from(taskList.value)
-    keyArray.forEach((item, index) => {
-      if (item[0] === select && index >= 3) {
-        // 滚动
-        left.value.scrollTo({
-          top: 83 * (index - 2),
-          behavior: 'smooth'
-        })
-      }
-    })
-  } else {
-    const taskListArray = Array.from(taskList.value)
-    if (taskListArray && taskListArray[0]) switchItem(taskListArray[0][0])
-  }
+  if (!rightTaskId.value) return
+  switchItem(rightTaskId.value)
+  taskListArray.value.forEach((item, index) => {
+    if (item[0] === rightTaskId.value && index >= 3) {
+      // 滚动
+      left.value.scrollTo({
+        top: 83 * (index - 2)
+      })
+    }
+  })
 })
 
 </script>

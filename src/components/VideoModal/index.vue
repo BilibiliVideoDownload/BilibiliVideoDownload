@@ -99,7 +99,8 @@ const handleDownload = async () => {
   store.baseStore().addDownloadingTaskCount(count)
   confirmLoading.value = false
   visible.value = false
-  router.push({ name: 'download', params: { selectedTask } })
+  store.taskStore().setRightTaskId(selectedTask)
+  router.push({ name: 'download' })
 }
 
 const open = (data: VideoData) => {

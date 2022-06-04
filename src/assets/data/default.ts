@@ -37,6 +37,7 @@ export const settingData: SettingData = {
   isSubtitle: true,
   isDanmaku: true,
   isFolder: true,
+  isCover: true,
   downloadingMaxSize: 5
 }
 

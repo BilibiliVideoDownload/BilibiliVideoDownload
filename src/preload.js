@@ -25,8 +25,8 @@ contextBridge.exposeInMainWorld('electron', {
   deleteStore (path) {
     ipcRenderer.send('delete-store', path)
   },
-  showContextmenu () {
-    return ipcRenderer.invoke('show-context-menu')
+  showContextmenu (type) {
+    return ipcRenderer.invoke('show-context-menu', type)
   },
   openDir (list) {
     ipcRenderer.send('open-dir', list)

@@ -119,30 +119,38 @@ ipcMain.on('delete-store', (event, path) => {
 })
 
 // 创建右键菜单
-ipcMain.handle('show-context-menu', (event) => {
+ipcMain.handle('show-context-menu', (event, type: string) => {
   return new Promise((resolve, reject) => {
-    const template: any = [
-      {
-        label: '删除任务',
-        type: 'normal',
-        click: () => resolve('delete')
-      },
-      {
-        label: '重新下载',
-        type: 'normal',
-        click: () => resolve('reload')
-      },
-      {
-        label: '打开文件夹',
-        type: 'normal',
-        click: () => resolve('open')
-      },
-      {
-        label: '全选',
-        type: 'normal',
-        click: () => resolve('selectAll')
-      }
-    ]
+    const menuMap = {
+      download: [
+        {
+          label: '删除任务',
+          type: 'normal',
+          click: () => resolve('delete')
+        },
+        {
+          label: '重新下载',
+          type: 'normal',
+          click: () => resolve('reload')
+        },
+        {
+          label: '打开文件夹',
+          type: 'normal',
+          click: () => resolve('open')
+        },
+        {
+          label: '全选',
+          type: 'normal',
+          click: () => resolve('selectAll')
+        }
+      ],
+      home: [
+        { label: '全选', role: 'selectAll' },
+        { label: '复制', role: 'copy' },
+        { label: '粘贴', role: 'paste' }
+      ]
+    }
+    const template: any = menuMap[type]
     const contextMenu = Menu.buildFromTemplate(template)
     contextMenu.popup({ window: win })
   })
@@ -272,6 +280,11 @@ function initStore () {
     store.set('setting', {
       ...settingData,
       downloadPath: app.getPath('downloads')
+    })
+  } else {
+    store.set('setting', {
+      ...settingData,
+      ...store.get('setting')
     })
   }
   if (!taskList) {

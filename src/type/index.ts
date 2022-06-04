@@ -7,6 +7,7 @@ export interface SettingData {
   isSubtitle: boolean,
   isDanmaku: boolean,
   isFolder: boolean,
+  isCover: boolean,
   downloadingMaxSize: number
 }
 

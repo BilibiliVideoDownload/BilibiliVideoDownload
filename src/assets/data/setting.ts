@@ -47,6 +47,12 @@ const formConfig = [
     type: 'switch',
     name: 'isDanmaku',
     tips: '开启后会下载视频当前弹幕'
+  },
+  {
+    label: '下载封面',
+    type: 'switch',
+    name: 'isCover',
+    tips: '开启后会下载视频封面'
   }
 ]
 
@@ -57,6 +63,7 @@ const settingData = {
   isSubtitle: true,
   isDanmaku: true,
   isFolder: true,
+  isCover: true,
   downloadingMaxSize: 5
 }
 
@@ -94,6 +101,11 @@ const settingRules = {
     }
   ],
   isDanmaku: [
+    {
+      required: false
+    }
+  ],
+  isCover: [
     {
       required: false
     }

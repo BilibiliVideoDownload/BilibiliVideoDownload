@@ -52,6 +52,8 @@ onMounted(() => {
       taskMap.set(task.id, task)
     }
     store.taskStore(pinia).setTaskList(taskMap)
+    const taskId = store.taskStore(pinia).taskListArray[0] ? store.taskStore(pinia).taskListArray[0][0] : ''
+    if (taskId) store.taskStore(pinia).setRightTaskId(taskId)
   })
   // 监听下载进度
   window.electron.on('download-video-status', async ({ id, status, progress }: { id: string, status: number, progress: number }) => {

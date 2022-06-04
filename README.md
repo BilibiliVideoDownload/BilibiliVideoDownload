@@ -63,6 +63,13 @@ yarn electron:build
 ```
 ## 版本
 
+v3.3.2 `2022-06-04`
+
+1. 修复下载视频的音频码率错误(issues/76)[https://github.com/blogwy/BilibiliVideoDownload/issues/76]，现在音频码率修改为当前最高音频码率。
+2. 修复更新弹窗点击按钮没反应问题(issues/83)[https://github.com/blogwy/BilibiliVideoDownload/issues/83]
+3. 添加是否下载封面设置项(issues/81)[https://github.com/blogwy/BilibiliVideoDownload/issues/81]
+4. 下载地址输入框加入复制/粘贴/全选右键菜单(issues/82)[https://github.com/blogwy/BilibiliVideoDownload/issues/82]
+
 v3.3.1 `2022-05-28`
 
 1. 修复弹幕样式异常问题

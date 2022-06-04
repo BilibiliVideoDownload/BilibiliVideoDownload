@@ -1,10 +1,5 @@
 import { defineStore } from 'pinia'
 
-interface DownloadingTask {
-  progress: number,
-  status: number
-}
-
 interface BaseData {
   loginStatus: 0 | 1 | 2,
   downloadingTaskCount: number,

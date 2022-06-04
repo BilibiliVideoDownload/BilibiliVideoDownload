@@ -52,13 +52,15 @@ export default async (videoInfo: TaskData, event: IpcMainEvent, setting: Setting
     }
   }
   // 下载封面
-  await pipeline(
-    got.stream(videoInfo.cover, imageConfig)
-      .on('error', (error: any) => {
-        console.log(error)
-      }),
-    fs.createWriteStream(videoInfo.filePathList[1])
-  )
+  if (setting.isCover) {
+    await pipeline(
+      got.stream(videoInfo.cover, imageConfig)
+        .on('error', (error: any) => {
+          console.log(error)
+        }),
+      fs.createWriteStream(videoInfo.filePathList[1])
+    )
+  }
   // 下载字幕
   if (setting.isSubtitle) {
     downloadSubtitle(fileName, videoInfo.subtitle)

@@ -13,6 +13,7 @@ export const settingStore = defineStore('setting', {
       isSubtitle: true,
       isDanmaku: true,
       isFolder: true,
+      isCover: true,
       downloadingMaxSize: 5
     }
     return setting
@@ -27,6 +28,7 @@ export const settingStore = defineStore('setting', {
       isSubtitle: state.isSubtitle,
       isDanmaku: state.isDanmaku,
       isFolder: state.isFolder,
+      isCover: state.isCover,
       downloadingMaxSize: state.downloadingMaxSize
     })
   },
@@ -62,6 +64,10 @@ export const settingStore = defineStore('setting', {
     setIsFolder (data: boolean) {
       this.isFolder = data
       window.electron.setStore('setting.isFolder', data)
+    },
+    setIsCover (data: boolean) {
+      this.isCover = data
+      window.electron.setStore('setting.isCover', data)
     },
     setDownloadingMaxSize (size: number) {
       this.downloadingMaxSize = size

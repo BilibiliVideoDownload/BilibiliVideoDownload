@@ -3,7 +3,7 @@ import { formatSeconed, filterTitle, sleep } from '../utils'
 import { qualityMap } from '../assets/data/quality'
 import { customAlphabet } from 'nanoid'
 import alphabet from '../assets/data/alphabet'
-import { VideoData, Page, DownloadUrl, Subtitle, TaskData } from '../type'
+import { VideoData, Page, DownloadUrl, Subtitle, TaskData, Audio } from '../type'
 import { store, pinia } from '../store'
 
 // 自定义uuid
@@ -26,7 +26,7 @@ const getDownloadList = async (videoInfo: VideoData, selected: number[], quality
     // 判断当前数据是否有下载地址列表，有则直接用，没有再去请求
     const downloadUrl: DownloadUrl = { video: '', audio: '' }
     const videoUrl = videoInfo.video.find(item => item.id === quality && item.cid === currentCid)
-    const audioUrl = videoInfo.audio[1]
+    const audioUrl = getHighQualityAudio(videoInfo.audio)
     if (videoUrl && audioUrl) {
       downloadUrl.video = videoUrl.url
       downloadUrl.audio = audioUrl.url
@@ -336,7 +336,7 @@ const getDownloadUrl = async (cid: number, bvid: string, quality: number) => {
   saveResponseCookies(responseCookies)
   return {
     video: dash.video.find((item: any) => item.id === quality) ? dash.video.find((item: any) => item.id === quality).baseUrl : dash.video[0].baseUrl,
-    audio: dash.audio[0].baseUrl
+    audio: getHighQualityAudio(dash.audio).baseUrl
   }
 }
 
@@ -414,6 +414,11 @@ const parseEPPageData = (epList: any[]): Page[] => {
     bvid: item.bvid,
     url: item.share_url
   }))
+}
+
+// 获取码率最高的audio
+const getHighQualityAudio = (audioArray: any[]) => {
+  return audioArray.sort((a, b) => b.id - a.id)[0]
 }
 
 export {
