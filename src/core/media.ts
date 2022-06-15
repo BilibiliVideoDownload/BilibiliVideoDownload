@@ -1,4 +1,4 @@
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
+const ffmpegPath = require('ffmpeg-static')
 const ffmpeg = require('fluent-ffmpeg')
 const log = require('electron-log')
 const isDevelopment = process.env.NODE_ENV !== 'production'

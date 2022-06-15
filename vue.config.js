@@ -1,7 +1,7 @@
 module.exports = {
   pluginOptions: {
     electronBuilder: {
-      externals: ['@ffmpeg-installer/ffmpeg', 'fluent-ffmpeg'],
+      externals: ['ffmpeg-static', 'fluent-ffmpeg'],
       nodeModulesPath: ['../../node_modules', './node_modules'],
       preload: 'src/preload.js',
       builderOptions: {
@@ -28,8 +28,7 @@ module.exports = {
           icon: 'build/icons/icon.icns',
           identity: null,
           target: {
-            target: 'dmg',
-            arch: ['x64']
+            target: 'dmg'
           }
         },
         nsis: {
