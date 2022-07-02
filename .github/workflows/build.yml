@@ -40,7 +40,7 @@ jobs:
       # step3: npm install
       - name: npm install
         run: |
-          npm install
+          npm install --legacy-peer-deps
 
       # step4: build app for mac/win/linux
       - name: Build windows app
