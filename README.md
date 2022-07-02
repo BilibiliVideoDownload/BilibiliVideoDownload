@@ -63,6 +63,11 @@ yarn electron:build
 ```
 ## 版本
 
+v3.3.3 `2022-07-02`
+
+1. 修复关闭软件事件不正常错误(issues/88)[https://github.com/blogwy/BilibiliVideoDownload/issues/88]
+2. 下载列表右键添加播放视频功能(issues/86)[https://github.com/blogwy/BilibiliVideoDownload/issues/86]
+
 v3.3.2 `2022-06-04`
 
 1. 修复下载视频的音频码率错误(issues/76)[https://github.com/blogwy/BilibiliVideoDownload/issues/76]，现在音频码率修改为当前最高音频码率。

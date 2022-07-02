@@ -123,6 +123,14 @@ const showContextmenu = async () => {
     selectAll()
   } else if (res === 'reload') {
     reloadDownload()
+  } else if (res === 'play') {
+    playVideo()
+  }
+}
+
+const playVideo = () => {
+  if (rightTask.value.status === 0) {
+    window.electron.openPath(rightTask.value.filePathList[0])
   }
 }
 

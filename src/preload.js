@@ -7,6 +7,9 @@ contextBridge.exposeInMainWorld('electron', {
   openBrowser (url) {
     ipcRenderer.send('open-browser', url)
   },
+  openPath (path) {
+    ipcRenderer.send('open-path', path)
+  },
   openDirDialog () {
     return ipcRenderer.invoke('open-dir-dialog')
   },

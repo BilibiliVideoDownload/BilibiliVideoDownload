@@ -50,6 +50,11 @@ ipcMain.on('open-browser', (event, url) => {
   shell.openExternal(url)
 })
 
+// 打开本地文件
+ipcMain.on('open-path', (event, path) => {
+  shell.openPath(path)
+})
+
 // 打开选择文件夹dialog
 ipcMain.handle('open-dir-dialog', () => {
   const filePaths = dialog.showOpenDialogSync({
@@ -142,6 +147,11 @@ ipcMain.handle('show-context-menu', (event, type: string) => {
           label: '全选',
           type: 'normal',
           click: () => resolve('selectAll')
+        },
+        {
+          label: '播放视频',
+          type: 'normal',
+          click: () => resolve('play')
         }
       ],
       home: [
@@ -318,10 +328,9 @@ function handleCloseApp () {
     buttons: ['取消', '关闭']
   })
     .then(res => {
-      if (res.response === 1 && count) {
-        store.set('taskList', taskList)
-      }
-      win.destroy()
+      console.log(res);
+      if (count) store.set('taskList', taskList)
+      if (res.response === 1) win.destroy()
     })
     .catch(error => {
       console.log(error)
