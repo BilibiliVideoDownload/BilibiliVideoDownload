@@ -359,7 +359,7 @@ const getSubtitle = async (cid: number, bvid: string) => {
 // 处理filePathList
 const handleFilePathList = (page: number, title: string, up: string, bvid: string, id: string): string[] => {
   const downloadPath = store.settingStore().downloadPath
-  const name = filterTitle(`${!page ? '' : `[P${page}]`}${title}-${up}-${bvid}-${id}`)
+  const name = `${!page ? '' : `[P${page}]`}${filterTitle(`${title}-${up}-${bvid}-${id}`)}`
   const isFolder = store.settingStore().isFolder
   return [
     `${downloadPath}/${isFolder ? `${name}/` : ''}${name}.mp4`,
@@ -373,7 +373,7 @@ const handleFilePathList = (page: number, title: string, up: string, bvid: strin
 // 处理fileDir
 const handleFileDir = (page: number, title: string, up: string, bvid: string, id: string): string => {
   const downloadPath = store.settingStore().downloadPath
-  const name = filterTitle(`${!page ? '' : `[P${page}]`}${title}-${up}-${bvid}-${id}`)
+  const name = `${!page ? '' : `[P${page}]`}${filterTitle(`${title}-${up}-${bvid}-${id}`)}`
   const isFolder = store.settingStore().isFolder
   return `${downloadPath}${isFolder ? `/${name}/` : ''}`
 }
