@@ -6,6 +6,7 @@ export interface SettingData {
   bfeId: string,
   isSubtitle: boolean,
   isDanmaku: boolean,
+  isDownloadAudioOnly: boolean,
   isFolder: boolean,
   isCover: boolean,
   downloadingMaxSize: number

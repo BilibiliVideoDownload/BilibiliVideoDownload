@@ -31,6 +31,12 @@ const formConfig = [
     tips: '删除合并前的m4s文件'
   },
   {
+    label: '是否只下载音频',
+    type: 'switch',
+    name: 'isDownloadAudioOnly',
+    tips: '开启后只下载音频的m4s文件，不下载视频'
+  },
+  {
     label: '下载到单独文件夹',
     type: 'switch',
     name: 'isFolder',
@@ -62,6 +68,7 @@ const settingData = {
   isDelete: true,
   isSubtitle: true,
   isDanmaku: true,
+  isDownloadAudioOnly: false,
   isFolder: true,
   isCover: true,
   downloadingMaxSize: 5
@@ -101,6 +108,11 @@ const settingRules = {
     }
   ],
   isDanmaku: [
+    {
+      required: false
+    }
+  ],
+  isDownloadAudioOnly: [
     {
       required: false
     }
