@@ -69,40 +69,42 @@ export default async (videoInfo: TaskData, event: IpcMainEvent, setting: Setting
   if (setting.isDanmaku) {
     event.reply('download-danmuku', videoInfo.cid, videoInfo.title, `${fileName}.ass`)
   }
-  // 下载视频
-  await pipeline(
-    got.stream(videoInfo.downloadUrl.video, downloadConfig)
-      .on('downloadProgress', (progress: any) => {
-        const nowTime = +new Date()
-        clearTimeout(videoTimer)
-        if (!videoLastTime || nowTime - videoLastTime > 1000) {
-          event.reply('download-video-status', {
-            id: videoInfo.id,
-            status: 1,
-            progress: Math.round(progress.percent * 100 * 0.75)
-          })
-          videoLastTime = nowTime
-        } else {
-          videoTimer = setTimeout(() => {
+  if (!setting.isDownloadAudioOnly) {
+    // 下载视频
+    await pipeline(
+      got.stream(videoInfo.downloadUrl.video, downloadConfig)
+        .on('downloadProgress', (progress: any) => {
+          const nowTime = +new Date()
+          clearTimeout(videoTimer)
+          if (!videoLastTime || nowTime - videoLastTime > 1000) {
             event.reply('download-video-status', {
               id: videoInfo.id,
               status: 1,
               progress: Math.round(progress.percent * 100 * 0.75)
             })
-          }, 200)
-        }
-      })
-      .on('error', (error: any) => {
-        log.error(`视频下载失败：${videoInfo.title} ${error.message}`)
-        event.reply('download-video-status', {
-          id: videoInfo.id,
-          status: 5,
-          progress: 100
+            videoLastTime = nowTime
+          } else {
+            videoTimer = setTimeout(() => {
+              event.reply('download-video-status', {
+                id: videoInfo.id,
+                status: 1,
+                progress: Math.round(progress.percent * 100 * 0.75)
+              })
+            }, 200)
+          }
         })
-      }),
-    fs.createWriteStream(videoInfo.filePathList[2])
-  )
-  await sleep(500)
+        .on('error', (error: any) => {
+          log.error(`视频下载失败：${videoInfo.title} ${error.message}`)
+          event.reply('download-video-status', {
+            id: videoInfo.id,
+            status: 5,
+            progress: 100
+          })
+        }),
+      fs.createWriteStream(videoInfo.filePathList[2])
+    )
+    await sleep(500)
+  }
   // 下载音频
   await pipeline(
     got.stream(videoInfo.downloadUrl.audio, downloadConfig)

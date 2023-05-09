@@ -67,7 +67,7 @@ import { storeToRefs } from 'pinia'
 import LoginModal from '../LoginModal/index.vue'
 
 const { loginStatus } = storeToRefs(store.baseStore())
-const { downloadPath, isDanmaku, isDelete, isFolder, isMerge, isSubtitle, downloadingMaxSize } = storeToRefs(store.settingStore())
+const { downloadPath, isDanmaku, isDelete, isFolder, isMerge, isSubtitle, downloadingMaxSize, isDownloadAudioOnly } = storeToRefs(store.settingStore())
 
 const loginModal = ref<any>(null)
 const visible = ref<boolean>(false)
@@ -82,6 +82,7 @@ const open = () => {
   modelRef.isDelete = isDelete.value
   modelRef.isSubtitle = isSubtitle.value
   modelRef.isDanmaku = isDanmaku.value
+  modelRef.isDownloadAudioOnly = isDownloadAudioOnly.value
   modelRef.isFolder = isFolder.value
   modelRef.downloadingMaxSize = downloadingMaxSize.value
   toogleVisible()

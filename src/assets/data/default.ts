@@ -36,6 +36,7 @@ export const settingData: SettingData = {
   bfeId: '',
   isSubtitle: true,
   isDanmaku: true,
+  isDownloadAudioOnly: false,
   isFolder: true,
   isCover: true,
   downloadingMaxSize: 5
