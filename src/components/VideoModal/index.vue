@@ -104,10 +104,12 @@ const handleDownload = async () => {
 }
 
 const open = (data: VideoData) => {
-  const quality = userQuality[store.baseStore().loginStatus]
-  data.qualityOptions.filter((item: any) => quality.includes(item.value))
+  const UserGetQuality = userQuality[store.baseStore().loginStatus]
+  data.qualityOptions.filter((item: any) => UserGetQuality.includes(item.value))
   videoInfo.value = data
   visible.value = true
+  // 默认选择最高画质
+  quality.value = data.qualityOptions[0].value
   // 如果是单p，则默认选中
   if (videoInfo.value.page.length === 1) {
     selected.value.push(videoInfo.value.page[0].page)
