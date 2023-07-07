@@ -51,16 +51,17 @@
 **提前自备梯子，因为electron electron-builder等依赖项需要从GitHub下载**
 
 ```bash
-git clone https://github.com/blogwy/BilibiliVideoDownload.git
+$ git clone https://github.com/BilibiliVideoDownload/BilibiliVideoDownload.git
 
-cd BilibiliVideoDownload
+$ cd BilibiliVideoDownload
 
-yarn
+$ pnpm i
 
-yarn electron:serve
+$ pnpm run electron:serve
 
-yarn electron:build
+$ pnpm run electron:build
 ```
+
 ## 版本
 
 v3.3.3 `2022-07-02`
