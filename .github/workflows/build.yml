@@ -37,30 +37,30 @@ jobs:
         with:
           node-version: 16
 
-      # step3: npm install
-      - name: npm install
+      # step3: pnpm install
+      - name: pnpm install
         run: |
-          npm install --legacy-peer-deps
+          pnpm install
 
       # step4: build app for mac/win/linux
       - name: Build windows app
         if: matrix.os == 'windows-latest'
         run: |
-          npm run electron:build
+          pnpm run electron:build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build mac app
         if: matrix.os == 'macos-latest'
         run: |
-          npm run electron:build
+          pnpm run electron:build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build ubuntu app
         if: matrix.os == 'ubuntu-latest'
         run: |
-          npm run electron:build
+          pnpm run electron:build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -68,17 +68,17 @@ jobs:
       - name: cleanup artifacts for windows
         if: matrix.os == 'windows-latest'
         run: |
-          npx rimraf "dist_electron/!(*.exe)"
+          pnpm dlx rimraf "dist_electron/!(*.exe)"
 
       - name: cleanup artifacts for macos
         if: matrix.os == 'macos-latest'
         run: |
-          npx rimraf "dist_electron/!(*.dmg)"
+          pnpm dlx rimraf "dist_electron/!(*.dmg)"
 
       - name: cleanup artifacts for ubuntu
         if: matrix.os == 'ubuntu-latest'
         run: |
-          npx rimraf "dist_electron/!(*.AppImage)"
+          pnpm dlx rimraf "dist_electron/!(*.AppImage)"
 
       # step6: upload artifacts
       - name: upload artifacts
