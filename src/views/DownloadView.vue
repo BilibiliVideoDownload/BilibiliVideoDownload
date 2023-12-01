@@ -88,7 +88,6 @@ const switchItem = (key: string) => {
 }
 
 const multiSelect = (key: string) => {
-  console.log('multiSelect', key)
   const index = selected.value.indexOf(key)
   if (index !== -1) {
     if (selected.value.length > 1) selected.value.splice(index, 1)
@@ -197,7 +196,7 @@ const deleteVideos = async () => {
   // 删除文件
   if (checkboxChecked) window.electron.deleteVideos(filelist)
   message.success('任务已删除')
-  if (taskListArray.value && taskListArray.value[0]) switchItem(taskListArray[0][0])
+  if (taskListArray.value && taskListArray.value[0]) switchItem(taskListArray.value[0][0])
 }
 
 const selectAll = () => {
