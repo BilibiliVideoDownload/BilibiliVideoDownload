@@ -129,7 +129,7 @@ const showContextmenu = async () => {
 
 const playVideo = () => {
   if (rightTask.value.status === 0) {
-    window.electron.openPath(rightTask.value.filePathList[0])
+    window.electron.openPath(rightTask.value.filePaths.taget)
   }
 }
 
@@ -181,11 +181,15 @@ const deleteVideos = async () => {
   const filelist: string[] = []
   selected.value.forEach(item => {
     const task = store.taskStore().getTask(item)
-    if (task && task.filePathList) {
-      if (task.filePathList[4]) {
-        filelist.push(task.filePathList[4])
+    if (task && task.filePaths) {
+      if (task.filePaths.parentPath) {
+        filelist.push(task.filePaths.parentPath)
       } else {
-        filelist.push(task.filePathList[0], task.filePathList[1], task.filePathList[2], task.filePathList[3])
+        Object.keys(task.filePaths).forEach(key => {
+          if (task.filePaths[key]) {
+            filelist.push(task.filePaths[key])
+          }
+        })
       }
     }
   })

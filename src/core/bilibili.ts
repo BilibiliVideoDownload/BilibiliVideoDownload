@@ -3,7 +3,7 @@ import { formatSeconed, filterTitle, sleep } from '../utils'
 import { qualityMap } from '../assets/data/quality'
 import { customAlphabet } from 'nanoid'
 import alphabet from '../assets/data/alphabet'
-import { VideoData, Page, DownloadUrl, Subtitle, TaskData, Audio } from '../type'
+import { VideoData, Page, DownloadUrl, Subtitle, TaskData, Audio, SettingData, FilePaths } from '../type'
 import { store, pinia } from '../store'
 
 // 自定义uuid
@@ -49,7 +49,7 @@ const getDownloadList = async (videoInfo: VideoData, selected: number[], quality
       cid: currentCid,
       bvid: currentBvid,
       downloadUrl,
-      filePathList: handleFilePathList(selected.length === 1 ? 0 : currentPage, currentPageData.title, videoInfo.up[0].name, currentBvid, taskId),
+      filePaths: handleFilePathList(selected.length === 1 ? 0 : currentPage, currentPageData.title, videoInfo.up[0].name, currentBvid, taskId),
       fileDir: handleFileDir(selected.length === 1 ? 0 : currentPage, currentPageData.title, videoInfo.up[0].name, currentBvid, taskId),
       subtitle
     }
@@ -207,7 +207,9 @@ const parseBV = async (html: string, url: string) => {
       subtitle: [],
       video: acceptQuality.video ? acceptQuality.video.map((item: any) => ({ id: item.id, cid: videoData.cid, url: item.baseUrl })) : [],
       audio: acceptQuality.audio ? acceptQuality.audio.map((item: any) => ({ id: item.id, cid: videoData.cid, url: item.baseUrl })) : [],
-      filePathList: [],
+      filePaths: {
+        taget: ''
+      },
       fileDir: '',
       size: -1,
       downloadUrl: { video: '', audio: '' }
@@ -258,7 +260,9 @@ const parseEP = async (html: string, url: string) => {
       subtitle: [],
       video: acceptQuality.video ? acceptQuality.video.map((item: any) => ({ id: item.id, cid: epInfo.cid, url: item.baseUrl })) : [],
       audio: acceptQuality.audio ? acceptQuality.audio.map((item: any) => ({ id: item.id, cid: epInfo.cid, url: item.baseUrl })) : [],
-      filePathList: [],
+      filePaths: {
+        taget: ''
+      },
       fileDir: '',
       size: -1,
       downloadUrl: { video: '', audio: '' }
@@ -357,17 +361,25 @@ const getSubtitle = async (cid: number, bvid: string) => {
 }
 
 // 处理filePathList
-const handleFilePathList = (page: number, title: string, up: string, bvid: string, id: string): string[] => {
-  const downloadPath = store.settingStore().downloadPath
+const handleFilePathList = (page: number, title: string, up: string, bvid: string, id: string): FilePaths => {
+  const settings = store.settingStore()
+  const downloadPath = settings.downloadPath
+  const isAudioOnly = settings.isAudioOnly
   const name = `${!page ? '' : `[P${page}]`}${filterTitle(`${title}-${up}-${bvid}-${id}`)}`
-  const isFolder = store.settingStore().isFolder
-  return [
-    `${downloadPath}/${isFolder ? `${name}/` : ''}${name}.mp4`,
-    `${downloadPath}/${isFolder ? `${name}/` : ''}${name}.png`,
-    `${downloadPath}/${isFolder ? `${name}/` : ''}${name}-video.m4s`,
-    `${downloadPath}/${isFolder ? `${name}/` : ''}${name}-audio.m4s`,
-    isFolder ? `${downloadPath}/${name}/` : ''
-  ]
+  const isFolder = settings.isFolder
+  const prefix = `${downloadPath}/${isFolder ? `${name}/` : ''}${name}`
+  const taget = `${prefix}.${isAudioOnly ? 'mp3' : 'mp4'}`
+  const cover = `${prefix}${name}.png`
+  const audioSource = `${prefix}-audio.m4s`
+  const videoSource = isAudioOnly ? '' : `${prefix}-video.m4s`
+  const parentPath = isFolder ? `${downloadPath}/${name}/` : ''
+  return {
+    taget,
+    cover,
+    audioSource,
+    videoSource,
+    parentPath
+  }
 }
 
 // 处理fileDir

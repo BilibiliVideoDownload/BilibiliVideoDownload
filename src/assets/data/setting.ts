@@ -1,3 +1,5 @@
+import type { Rule } from 'ant-design-vue/es/form'
+
 const formConfig = [
   {
     label: '登录状态',
@@ -13,7 +15,7 @@ const formConfig = [
     tips: '没有设置下载地址不能下载'
   },
   {
-    label: '最大下载数',
+    label: '最大同时下载数',
     type: 'slider',
     name: 'downloadingMaxSize',
     tips: '没有选择同时下载的最大下载数不能下载'
@@ -29,6 +31,12 @@ const formConfig = [
     type: 'switch',
     name: 'isDelete',
     tips: '删除合并前的m4s文件'
+  },
+  {
+    label: '仅下载音频',
+    type: 'switch',
+    name: 'isAudioOnly',
+    tips: '开启后只下载音频的m4s文件，合并结果会生成 mp3'
   },
   {
     label: '下载到单独文件夹',
@@ -59,6 +67,7 @@ const formConfig = [
 const settingData = {
   downloadPath: '',
   isMerge: true,
+  isAudioOnly: false,
   isDelete: true,
   isSubtitle: true,
   isDanmaku: true,
@@ -67,7 +76,7 @@ const settingData = {
   downloadingMaxSize: 5
 }
 
-const settingRules = {
+const settingRules = (formModel: any) => ({
   downloadPath: [
     {
       required: true,
@@ -82,12 +91,32 @@ const settingRules = {
   ],
   isMerge: [
     {
+      required: false,
+      validator: (_rule: Rule, value: boolean) => {
+        if (formModel.isDelete && !value) {
+          return Promise.reject(new Error('当设置不合并转码视频时，源文件不能被删除，否则就只剩下封面啦'))
+        } else {
+          return Promise.resolve()
+        }
+      }
+    }
+  ],
+  isAudioOnly: [
+    {
       required: false
     }
   ],
   isDelete: [
     {
-      required: false
+      required: false,
+      validator: (_rule: Rule, value: boolean) => {
+        if (!formModel.isMerge && !!value) {
+          return Promise.reject(new Error('当设置不合并转码视频时，源文件不能被删除，否则就只剩下封面啦'))
+        } else {
+          return Promise.resolve()
+        }
+      },
+      trigger: 'change'
     }
   ],
   isFolder: [
@@ -105,12 +134,17 @@ const settingRules = {
       required: false
     }
   ],
+  is: [
+    {
+      required: false
+    }
+  ],
   isCover: [
     {
       required: false
     }
   ]
-}
+})
 
 const formItemLayout = { span: 24, offset: 0 }
 

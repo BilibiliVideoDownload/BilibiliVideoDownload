@@ -10,13 +10,28 @@ if (isDevelopment) {
   ffmpeg.setFfmpegPath(ffmpegPath.replace('app.asar', 'app.asar.unpacked'))
 }
 
-export const mergeVideoAudio = (videoPath: string, audioPath: string, out: string) => {
+export const mergeVideoAudio = (videoPath?: string, audioPath?: string, out?: string) => {
+  if (!out) {
+    throw new Error(`Output should not be empty`)
+  }
+  if (!videoPath && !audioPath) {
+    throw new Error(`Neither videoPath nor audioPath exist`)
+  }
   return new Promise((resolve, reject) => {
-    ffmpeg()
-      .input(videoPath)
-      .input(audioPath)
-      .audioCodec('copy')
-      .videoCodec('copy')
+    let ffmpegOp = ffmpeg();
+    if (videoPath) {
+      ffmpegOp
+        .input(videoPath)
+        .videoCodec('copy')
+    }
+
+    if (audioPath) {
+      ffmpegOp.input(audioPath)
+      if (videoPath) {
+        ffmpegOp.audioCodec('copy')
+      }
+    }
+    ffmpegOp
       .on('start', (cmd: any) => {
         log.info(`开始转码：${cmd}`)
       })
