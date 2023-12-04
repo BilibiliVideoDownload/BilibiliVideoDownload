@@ -2,6 +2,7 @@ export interface SettingData {
   downloadPath: string,
   SESSDATA: string,
   isMerge: boolean,
+  isAudioOnly: boolean,
   isDelete: boolean,
   bfeId: string,
   isSubtitle: boolean,
@@ -15,6 +16,7 @@ export interface SettingDataEasy {
   downloadPath?: string,
   SESSDATA?: string,
   isMerge?: boolean,
+  isAudioOnly?: boolean,
   isDelete?: boolean,
   bfeId?: string,
   isSubtitle?: boolean,
@@ -70,6 +72,14 @@ export interface DownloadUrl {
   audio: string
 }
 
+export interface FilePaths {
+  taget: string,
+  cover?: string,
+  audioSource?: string,
+  videoSource?: string,
+  parentPath?: string,
+}
+
 export interface VideoData {
   id: string,
   title: string,
@@ -89,7 +99,7 @@ export interface VideoData {
   subtitle: Subtitle[],
   video: Video[],
   audio: Audio[],
-  filePathList: string[],
+  filePaths: FilePaths,
   fileDir: string,
   size: number,
   downloadUrl: DownloadUrl

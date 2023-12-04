@@ -67,18 +67,19 @@ import { storeToRefs } from 'pinia'
 import LoginModal from '../LoginModal/index.vue'
 
 const { loginStatus } = storeToRefs(store.baseStore())
-const { downloadPath, isDanmaku, isDelete, isFolder, isMerge, isSubtitle, downloadingMaxSize } = storeToRefs(store.settingStore())
+const { downloadPath, isDanmaku, isDelete, isFolder, isMerge, isSubtitle, downloadingMaxSize, isAudioOnly } = storeToRefs(store.settingStore())
 
 const loginModal = ref<any>(null)
 const visible = ref<boolean>(false)
 const useForm = Form.useForm
 const modelRef = reactive(settingData)
-const rulesRef = reactive(settingRules)
+const rulesRef = reactive(settingRules(modelRef))
 const { validate, validateInfos } = useForm(modelRef, rulesRef)
 
 const open = () => {
   modelRef.downloadPath = downloadPath.value
   modelRef.isMerge = isMerge.value
+  modelRef.isAudioOnly = isAudioOnly.value
   modelRef.isDelete = isDelete.value
   modelRef.isSubtitle = isSubtitle.value
   modelRef.isDanmaku = isDanmaku.value
@@ -105,7 +106,6 @@ const hide = () => {
 const openDirDialog = () => {
   window.electron.openDirDialog()
     .then((res: string) => {
-      console.log(res)
       modelRef.downloadPath = res
       store.settingStore().setDownloadPath(res)
     })

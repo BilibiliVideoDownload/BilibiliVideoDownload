@@ -8,6 +8,7 @@ export const settingStore = defineStore('setting', {
       downloadPath: '',
       SESSDATA: '',
       isMerge: true,
+      isAudioOnly: false,
       isDelete: true,
       bfeId: '',
       isSubtitle: true,
@@ -23,6 +24,7 @@ export const settingStore = defineStore('setting', {
       downloadPath: state.downloadPath,
       SESSDATA: state.SESSDATA,
       isMerge: state.isMerge,
+      isAudioOnly: state.isAudioOnly,
       isDelete: state.isDelete,
       bfeId: state.bfeId,
       isSubtitle: state.isSubtitle,
@@ -44,6 +46,10 @@ export const settingStore = defineStore('setting', {
     setIsMerge (data: boolean) {
       this.isMerge = data
       window.electron.setStore('setting.isMerge', data)
+    },
+    setisAudioOnly (data: boolean) {
+      this.isAudioOnly = data
+      window.electron.setStore('setting.isAudioOnly', data)
     },
     setIsDelete (data: boolean) {
       this.isDelete = data
