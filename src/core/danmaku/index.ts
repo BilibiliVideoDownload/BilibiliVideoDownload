@@ -79,8 +79,8 @@ export class JsonDanmaku {
       let buffer: any
       try {
         buffer = await window.electron.gotBuffer(`https://api.bilibili.com/x/v2/dm/web/seg.so?type=1&oid=${this.cid}&segment_index=${index + 1}`, gotConfig)
-      } catch (error) {
-        throw new Error('获取弹幕信息失败')
+      } catch (error: any) {
+        throw new Error(`获取弹幕信息失败: ${error.message}`)
       }
       if (!buffer) {
         console.error(new Error(`弹幕片段${index + 1}下载失败`))

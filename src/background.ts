@@ -201,17 +201,17 @@ ipcMain.on('download-video', (event, task: TaskData) => {
 
 // 获取视频大小
 ipcMain.handle('get-video-size', (event, id: string) => {
-  const task = store.get(`taskList.${id}`)
-  if (task && task.filePathList) {
+  const task = store.get(`taskList.${id}`) as TaskData
+  if (task && task.filePaths) {
     try {
-      const stat = fs.statSync(task.filePathList[0])
+      const stat = fs.statSync(task.filePaths.taget)
       return Promise.resolve(stat.size)
     } catch (error: any) {
       log.error(`get-video-size error: ${error.message}`)
     }
     try {
-      const stat1 = fs.statSync(task.filePathList[2])
-      const stat2 = fs.statSync(task.filePathList[3])
+      const stat1 = task.filePaths.audioSource ? fs.statSync(task.filePaths.audioSource) : { size: 0 }
+      const stat2 = task.filePaths.videoSource ? fs.statSync(task.filePaths.videoSource) : { size: 0 }
       return Promise.resolve(stat1.size + stat2.size)
     } catch (error) {
       return Promise.resolve(0)
