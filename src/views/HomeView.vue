@@ -71,7 +71,7 @@ const download = async () => {
     }
   }
   // 检查是否有重定向
-  const { body, url } = await checkUrlRedirect(videoUrl.value)
+  const { body, url } = await checkUrlRedirect(videoUrl.value, videoType)
   // 解析html
   try {
     const videoInfo = await parseHtml(body, videoType, url)
