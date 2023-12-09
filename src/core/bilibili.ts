@@ -138,18 +138,18 @@ const checkUrl = (url: string) => {
 }
 
 // 检查url是否有重定向
-const checkUrlRedirect = async (videoUrl: string) => {
+const checkUrlRedirect = async (videoUrl: string, videoType: string) => {
   const params = {
     videoUrl,
     config: {
       headers: {
         'User-Agent': `${UA}`,
-        cookie: `SESSDATA=${store.settingStore(pinia).SESSDATA}`
+        cookie: `SESSDATA=${store.settingStore(pinia).SESSDATA}${videoType === 'ep' ? '; go-old-ogv-video=1' : ''}`
       }
     }
   }
   const { body, redirectUrls } = await window.electron.got(params.videoUrl, params.config)
-  const url = redirectUrls[0] ? redirectUrls[0] : videoUrl
+  const url = redirectUrls[0] || videoUrl
   return {
     body,
     url
