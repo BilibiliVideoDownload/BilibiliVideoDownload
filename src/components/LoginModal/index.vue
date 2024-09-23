@@ -112,14 +112,15 @@ const openBrowser = (url: string):void => {
 }
 
 const createQrcode = async () => {
-  const { body } = await window.electron.got('http://passport.bilibili.com/qrcode/getLoginUrl', { responseType: 'json' })
+  const { body } = await window.electron.got('https://passport.bilibili.com/x/passport-login/web/qrcode/generate', { responseType: 'json' })
   const qrcode = await qrCode.toDataURL(body.data.url, {
     margin: 0,
     errorCorrectionLevel: 'H',
     width: 400
   })
   imageBase64.value = qrcode
-  oauthKey.value = body.data.oauthKey
+  oauthKey.value = body.data.qrcode_key
+  console.log(oauthKey.value)
   // 开始倒计时
   countDown.value = 180
   if (timer) {
@@ -139,26 +140,26 @@ const checkScanStatus = (oauthKey: string) => {
   run(oauthKey)
   async function run (oauthKey: string) {
     if (!isCheck.value) return
-    const { body } = await window.electron.got('http://passport.bilibili.com/qrcode/getLoginInfo', {
-      method: 'POST',
-      responseType: 'json',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      form: { oauthKey }
+    const { body } = await window.electron.got(`https://passport.bilibili.com/x/passport-login/web/qrcode/poll?qrcode_key=${oauthKey}`, {
+      method: 'GET',
+      responseType: 'json'
     })
     console.log(body)
-    if (!body.status) {
-      if (body.data === -4) {
+    if (body.data) {
+      if (body.data.code === 86101) {
         scanStatus.value = 0
+        setTimeout(() => {
+          run(oauthKey)
+        }, 3000)
+        return
       }
-      if (body.data === -5) {
+      if (body.data === 86038) {
         scanStatus.value = 1
+        setTimeout(() => {
+          run(oauthKey)
+        }, 3000)
+        return
       }
-      setTimeout(() => {
-        run(oauthKey)
-      }, 3000)
-      return
     }
     // 获取SESSDATA
     QRSESSDATA.value = body.data.url.match(/SESSDATA=(\S*)&bili_jct/)[1]
