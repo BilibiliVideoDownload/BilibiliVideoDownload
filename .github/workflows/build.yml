@@ -8,6 +8,8 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+  
 
 # Workflow's jobs
 jobs:
@@ -53,6 +55,7 @@ jobs:
       - name: Build mac app
         if: matrix.os == 'macos-latest'
         run: |
+          brew install python@2 && echo 'alias python="/usr/local/opt/python@2/bin/python2"' >> ~/.zshrc && source ~/.zshrc
           npm run electron:build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

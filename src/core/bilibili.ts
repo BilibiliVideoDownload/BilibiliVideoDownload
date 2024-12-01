@@ -171,7 +171,7 @@ const parseHtml = (html: string, type: string, url: string) => {
 
 const parseBV = async (html: string, url: string) => {
   try {
-    const videoInfo = html.match(/\<\/script\>\<script\>window\.\_\_INITIAL\_STATE\_\_\=([\s\S]*?)\;\(function\(\)/)
+    const videoInfo = html.match(/<script>.*?window\.__INITIAL_STATE__=([\s\S]*?);/)
     if (!videoInfo) throw new Error('parse bv error')
     const { videoData } = JSON.parse(videoInfo[1])
     // 获取视频下载地址
