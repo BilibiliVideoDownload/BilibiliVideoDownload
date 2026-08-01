@@ -3,6 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain, shell, dialog, Menu, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import { execFile } from 'child_process'
 import path from 'path'
 import fs from 'fs-extra'
 import { settingData } from './assets/data/default'
@@ -11,6 +12,7 @@ import downloadVideo from './core/download'
 const Store = require('electron-store')
 const got = require('got')
 const log = require('electron-log')
+const crypto = require('crypto')
 
 const store = new Store({
   name: 'database'
@@ -89,7 +91,7 @@ ipcMain.handle('got', (event, url, option) => {
         return resolve({ body: res.body, redirectUrls: res.redirectUrls, headers: res.headers })
       })
       .catch((error: any) => {
-        log.error(`http error: ${error.message}`)
+        log.error(`http error [${url}]: ${error.message}`)
         return reject(error.message)
       })
   })
@@ -104,9 +106,44 @@ ipcMain.handle('got-buffer', (event, url, option) => {
         return resolve(res)
       })
       .catch((error: any) => {
-        log.error(`http error: ${error.message}`)
+        log.error(`http error [${url}]: ${error.message}`)
         return reject(error.message)
       })
+  })
+})
+
+// md5 签名（渲染进程 wbi 抗风控用）
+ipcMain.handle('md5', (event, str: string) => {
+  return crypto.createHash('md5').update(str).digest('hex')
+})
+
+// 调用 yt-dlp 获取视频信息（绕过 got 库的 TLS 指纹风控）
+ipcMain.handle('ytdlp-info', async (event, url: string, sessdata: string) => {
+  return new Promise((resolve, reject) => {
+    const cookieFile = path.join(app.getPath('temp'), `bili_cookie_${Date.now()}.txt`)
+    try {
+      const content = sessdata
+        ? `# Netscape HTTP Cookie File\n.bilibili.com\tTRUE\t/\tTRUE\t0\tSESSDATA\t${sessdata}\n`
+        : ''
+      fs.writeFileSync(cookieFile, content, 'utf8')
+    } catch (e: any) {
+      return reject('写 cookie 文件失败')
+    }
+    const args = ['-m', 'yt_dlp', '-J', '--no-warnings', '--no-playlist', '--no-call-home']
+    if (sessdata) args.push('--cookies', cookieFile)
+    args.push(url)
+    execFile('python', args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024, timeout: 120000, windowsHide: true }, (err: any, stdout: string) => {
+      try { fs.removeSync(cookieFile) } catch (e) {}
+      if (err) {
+        log.error(`yt-dlp error: ${err.message}`)
+        return reject(err.message || 'yt-dlp 执行失败')
+      }
+      try {
+        resolve(JSON.parse(stdout))
+      } catch (e: any) {
+        reject('yt-dlp 输出解析失败')
+      }
+    })
   })
 })
 
