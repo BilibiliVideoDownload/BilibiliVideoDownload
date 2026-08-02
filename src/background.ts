@@ -3,6 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain, shell, dialog, Menu, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import { execFile } from 'child_process'
 import path from 'path'
 import fs from 'fs-extra'
 import { settingData } from './assets/data/default'
@@ -11,6 +12,7 @@ import downloadVideo from './core/download'
 const Store = require('electron-store')
 const got = require('got')
 const log = require('electron-log')
+const crypto = require('crypto')
 
 const store = new Store({
   name: 'database'
@@ -89,7 +91,7 @@ ipcMain.handle('got', (event, url, option) => {
         return resolve({ body: res.body, redirectUrls: res.redirectUrls, headers: res.headers })
       })
       .catch((error: any) => {
-        log.error(`http error: ${error.message}`)
+        log.error(`http error [${url}]: ${error.message}`)
         return reject(error.message)
       })
   })
@@ -104,9 +106,81 @@ ipcMain.handle('got-buffer', (event, url, option) => {
         return resolve(res)
       })
       .catch((error: any) => {
-        log.error(`http error: ${error.message}`)
+        log.error(`http error [${url}]: ${error.message}`)
         return reject(error.message)
       })
+  })
+})
+
+// md5 签名（渲染进程 wbi 抗风控用）
+ipcMain.handle('md5', (event, str: string) => {
+  return crypto.createHash('md5').update(str).digest('hex')
+})
+
+const getYtdlpCommand = (): { executable: string, args: string[] } => {
+  const args = ['--ignore-config', '-J', '--no-warnings', '--no-playlist']
+  if (process.platform !== 'win32') {
+    return { executable: 'python', args: ['-m', 'yt_dlp', ...args] }
+  }
+
+  const executable = app.isPackaged
+    ? path.join(process.resourcesPath, 'bin', 'yt-dlp.exe')
+    : path.join(app.getAppPath(), 'cache', 'yt-dlp.exe')
+  if (!fs.existsSync(executable)) {
+    const message = app.isPackaged
+      ? '程序缺少 yt-dlp.exe，请重新安装最新版应用'
+      : '未找到 yt-dlp.exe，请运行 npm run prepare:yt-dlp'
+    throw new Error(message)
+  }
+  return { executable, args }
+}
+
+// 调用 yt-dlp 获取视频信息（绕过 got 库的 TLS 指纹风控）
+ipcMain.handle('ytdlp-info', async (event, url: string, sessdata: string) => {
+  return new Promise((resolve, reject) => {
+    let command: ReturnType<typeof getYtdlpCommand>
+    try {
+      command = getYtdlpCommand()
+    } catch (e: any) {
+      return reject(e instanceof Error ? e : new Error(String(e)))
+    }
+
+    let cookieFile = ''
+    const cleanupCookie = () => {
+      if (!cookieFile) return
+      try { fs.removeSync(cookieFile) } catch (e) {}
+    }
+
+    if (sessdata) {
+      cookieFile = path.join(app.getPath('temp'), `bili_cookie_${process.pid}_${crypto.randomBytes(6).toString('hex')}.txt`)
+      try {
+        const content = `# Netscape HTTP Cookie File\n.bilibili.com\tTRUE\t/\tTRUE\t0\tSESSDATA\t${sessdata}\n`
+        fs.writeFileSync(cookieFile, content, 'utf8')
+      } catch (e: any) {
+        cleanupCookie()
+        return reject(new Error('写 cookie 文件失败'))
+      }
+    }
+
+    const args = [...command.args]
+    if (cookieFile) args.push('--cookies', cookieFile)
+    args.push(url)
+    execFile(command.executable, args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024, timeout: 120000, windowsHide: true }, (err: any, stdout: string, stderr: string) => {
+      cleanupCookie()
+      if (err) {
+        const detail = stderr.trim() || err.message || 'yt-dlp 执行失败'
+        log.error(`yt-dlp error [${command.executable}]: ${detail}`)
+        if (err.code === 'ENOENT') return reject(new Error('无法启动 yt-dlp，请重新安装最新版应用'))
+        if (err.killed) return reject(new Error('yt-dlp 获取视频信息超时'))
+        return reject(new Error(detail))
+      }
+      try {
+        resolve(JSON.parse(stdout))
+      } catch (e: any) {
+        log.error(`yt-dlp JSON parse error: ${e.message}, output length: ${stdout.length}`)
+        reject(new Error('yt-dlp 输出解析失败'))
+      }
+    })
   })
 })
 

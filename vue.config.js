@@ -42,7 +42,14 @@ module.exports = {
         },
         win: {
           icon: 'build/icons/icon.ico',
-          target: 'nsis'
+          target: 'nsis',
+          extraResources: [
+            {
+              from: 'cache',
+              to: 'bin',
+              filter: ['yt-dlp.exe']
+            }
+          ]
         },
         linux: {
           icon: 'build/icons'

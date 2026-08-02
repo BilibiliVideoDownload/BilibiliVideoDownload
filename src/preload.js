@@ -19,6 +19,12 @@ contextBridge.exposeInMainWorld('electron', {
   gotBuffer (url, option) {
     return ipcRenderer.invoke('got-buffer', url, option)
   },
+  md5 (str) {
+    return ipcRenderer.invoke('md5', str)
+  },
+  ytdlpInfo (url, sessdata) {
+    return ipcRenderer.invoke('ytdlp-info', url, sessdata)
+  },
   getStore (path) {
     return ipcRenderer.invoke('get-store', path)
   },
