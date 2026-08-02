@@ -9,7 +9,10 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "prepare:yt-dlp": "node scripts/prepare-ytdlp.js",
+    "preelectron:build": "node scripts/prepare-ytdlp.js",
     "electron:build": "vue-cli-service electron:build",
+    "preelectron:serve": "node scripts/prepare-ytdlp.js",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
